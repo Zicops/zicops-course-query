@@ -2,9 +2,9 @@ name: ZICOPS CQ-CICD
 
 on:
   push:
-    branches: [ main ]
+    branches: [ master ]
   pull_request:
-    branches: [ main ]
+    branches: [ master ]
 env:
   PROJECT_ID: ${{ secrets.GKE_PROJECT }}
   GKE_CLUSTER: zicops-one    # TODO: update to cluster name
@@ -39,6 +39,8 @@ jobs:
       run: docker push gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA
     - name: Push image to GCP
       run: docker push gcr.io/$PROJECT_ID/$SERVICE_NAME:latest
+    - name: replace environment variable in values.yaml
+      run:  envsubst '${GITHUB_SHA}' < k8s/zicops-course-query/values.template.yaml >  k8s/zicops-course-query/values.yaml
     - name: Install Helm
       run: |
         curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
