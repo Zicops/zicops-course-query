@@ -1,1 +1,1 @@
-# zicops-course-query
+# zicops-course-query server
