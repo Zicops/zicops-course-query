@@ -1,0 +1,1 @@
+# zicops-course-query
