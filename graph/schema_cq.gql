@@ -1,0 +1,6 @@
+
+
+type Query{
+  allCategories: [String]
+  allSubCategories: [String]
+}

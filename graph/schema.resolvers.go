@@ -5,17 +5,28 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
+	log "github.com/sirupsen/logrus"
 	"github.com/zicops/zicops-course-query/graph/generated"
+	"github.com/zicops/zicops-course-query/handlers"
 )
 
 func (r *queryResolver) AllCategories(ctx context.Context) ([]*string, error) {
-	panic(fmt.Errorf("not implemented"))
+	resp, err := handlers.GetCategories(ctx)
+	if err != nil {
+		log.Errorf("error adding categotries: %v", err)
+		return nil, err
+	}
+	return resp, nil
 }
 
 func (r *queryResolver) AllSubCategories(ctx context.Context) ([]*string, error) {
-	panic(fmt.Errorf("not implemented"))
+	resp, err := handlers.GetSubCategories(ctx)
+	if err != nil {
+		log.Errorf("error adding categotries: %v", err)
+		return nil, err
+	}
+	return resp, nil
 }
 
 // Query returns generated.QueryResolver implementation.
