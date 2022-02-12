@@ -11,9 +11,9 @@ spec:
   type: {{ .Values.service.type }}
   ports:
     - port: {{ .Values.service.port }}
-      targetPort: http-server-cc
+      targetPort: http-server-cq
       protocol: TCP
-      name: http-server-cc
+      name: http-server-cq
   selector:
     app: {{ template "zicops-course-query.name" . }}
     release: {{ .Release.Name }}

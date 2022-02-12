@@ -28,7 +28,7 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - name: http-server-cc
+            - name: http-server-cq
               containerPort: {{ .Values.image.port }}
               protocol: TCP
           readinessProbe:
