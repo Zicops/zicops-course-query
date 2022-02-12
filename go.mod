@@ -45,6 +45,7 @@ require (
 	github.com/scylladb/go-reflectx v1.0.1 // indirect
 	github.com/ugorji/go/codec v1.1.7 // indirect
 	github.com/urfave/cli/v2 v2.3.0 // indirect
+	github.com/zicops/contracts v0.0.0-20220206173726-f5346dc3501e // indirect
 	go.opencensus.io v0.23.0 // indirect
 	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9 // indirect
 	golang.org/x/mod v0.4.2 // indirect
