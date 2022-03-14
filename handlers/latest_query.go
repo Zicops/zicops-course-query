@@ -126,7 +126,6 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 		tileUrl := storageC.GetSignedURLForObject(course.TileImageBucket)
 		imageUrl := storageC.GetSignedURLForObject(course.ImageBucket)
 		previewUrl := storageC.GetSignedURLForObject(course.PreviewVideoBucket)
-
 		currentCourse := &model.Course{
 			ID:                 &course.ID,
 			Name:               &course.Name,
