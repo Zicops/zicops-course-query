@@ -471,7 +471,7 @@ var sources = []*ast.Source{
     APPROVAL_PENDING
     ON_HOLD
     APPROVED
-    PUBLSIHED
+    PUBLISHED
     REJECTED
 }
 

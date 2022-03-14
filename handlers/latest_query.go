@@ -32,7 +32,7 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 	var newCursor string
 	var statusNew model.Status
 	if status == nil {
-		statusNew = model.StatusPublsihed
+		statusNew = model.StatusPublished
 	} else {
 		statusNew = *status
 	}
