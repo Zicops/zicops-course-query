@@ -30,8 +30,8 @@ func (r *queryResolver) AllSubCategories(ctx context.Context) ([]*string, error)
 	return resp, nil
 }
 
-func (r *queryResolver) LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, direction *string, pageSize *int) (*model.PaginatedCourse, error) {
-	resp, err := handlers.LatestCourses(ctx, publishTime, pageCursor, direction, pageSize)
+func (r *queryResolver) LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, direction *string, pageSize *int, status *model.Status) (*model.PaginatedCourse, error) {
+	resp, err := handlers.LatestCourses(ctx, publishTime, pageCursor, direction, pageSize, status)
 	if err != nil {
 		log.Errorf("error getting latest courses: %v", err)
 		return nil, err

@@ -87,7 +87,7 @@ type ComplexityRoot struct {
 	Query struct {
 		AllCategories    func(childComplexity int) int
 		AllSubCategories func(childComplexity int) int
-		LatestCourses    func(childComplexity int, publishTime *int, pageCursor *string, direction *string, pageSize *int) int
+		LatestCourses    func(childComplexity int, publishTime *int, pageCursor *string, direction *string, pageSize *int, status *model.Status) int
 	}
 
 	Sub_categories struct {
@@ -99,7 +99,7 @@ type ComplexityRoot struct {
 type QueryResolver interface {
 	AllCategories(ctx context.Context) ([]*string, error)
 	AllSubCategories(ctx context.Context) ([]*string, error)
-	LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, direction *string, pageSize *int) (*model.PaginatedCourse, error)
+	LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, direction *string, pageSize *int, status *model.Status) (*model.PaginatedCourse, error)
 }
 
 type executableSchema struct {
@@ -400,7 +400,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.LatestCourses(childComplexity, args["publish_time"].(*int), args["pageCursor"].(*string), args["Direction"].(*string), args["pageSize"].(*int)), true
+		return e.complexity.Query.LatestCourses(childComplexity, args["publish_time"].(*int), args["pageCursor"].(*string), args["Direction"].(*string), args["pageSize"].(*int), args["status"].(*model.Status)), true
 
 	case "sub_categories.name":
 		if e.complexity.Sub_categories.Name == nil {
@@ -526,7 +526,7 @@ type PaginatedCourse {
 type Query{
   allCategories: [String]
   allSubCategories: [String]
-  latestCourses(publish_time: Int, pageCursor: String, Direction: String, pageSize:Int): PaginatedCourse
+  latestCourses(publish_time: Int, pageCursor: String, Direction: String, pageSize:Int, status:Status): PaginatedCourse
 }
 `, BuiltIn: false},
 }
@@ -590,6 +590,15 @@ func (ec *executionContext) field_Query_latestCourses_args(ctx context.Context, 
 		}
 	}
 	args["pageSize"] = arg3
+	var arg4 *model.Status
+	if tmp, ok := rawArgs["status"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("status"))
+		arg4, err = ec.unmarshalOStatus2ᚖgithubᚗcomᚋzicopsᚋzicopsᚑcourseᚑqueryᚋgraphᚋmodelᚐStatus(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["status"] = arg4
 	return args, nil
 }
 
@@ -1904,7 +1913,7 @@ func (ec *executionContext) _Query_latestCourses(ctx context.Context, field grap
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().LatestCourses(rctx, args["publish_time"].(*int), args["pageCursor"].(*string), args["Direction"].(*string), args["pageSize"].(*int))
+		return ec.resolvers.Query().LatestCourses(rctx, args["publish_time"].(*int), args["pageCursor"].(*string), args["Direction"].(*string), args["pageSize"].(*int), args["status"].(*model.Status))
 	})
 	if err != nil {
 		ec.Error(ctx, err)

@@ -13,7 +13,7 @@ import (
 	"github.com/zicops/zicops-course-query/lib/googleprojectlib"
 )
 
-func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, direction *string, pageSize *int) (*model.PaginatedCourse, error) {
+func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, direction *string, pageSize *int, status *model.Status) (*model.PaginatedCourse, error) {
 	var newPage []byte
 	//var pageDirection string
 	var pageSizeInt int
@@ -30,7 +30,13 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 		pageSizeInt = *pageSize
 	}
 	var newCursor string
-	qryStr := fmt.Sprintf(`SELECT * from coursez.course where status='PUBLISHED' and updated_at <= %d  ALLOW FILTERING`, *publishTime)
+	var statusNew model.Status
+	if status == nil {
+		statusNew = model.StatusPublsihed
+	} else {
+		statusNew = *status
+	}
+	qryStr := fmt.Sprintf(`SELECT * from coursez.course where status='%s' and updated_at <= %d  ALLOW FILTERING`, statusNew, *publishTime)
 	getCourses := func(page []byte) (courses []coursez.Course, nextPage []byte, err error) {
 		q := global.CassSession.Session.Query(qryStr, nil)
 		defer q.Release()
@@ -63,21 +69,6 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 	}
 	allCourses := make([]*model.Course, 0)
 	for _, course := range courses {
-		var status model.Status
-		switch course.Status {
-		case "PUBLISHED":
-			status = model.StatusPublsihed
-		case "SAVED":
-			status = model.StatusSaved
-		case "REJECTED":
-			status = model.StatusRejected
-		case "APPROVED":
-			status = model.StatusApproved
-		case "APPROVAL_PENDING":
-			status = model.StatusApprovalPending
-		case "ON_HOLD":
-			status = model.StatusOnHold
-		}
 		createdAt := strconv.FormatInt(course.CreatedAt, 10)
 		updatedAt := strconv.FormatInt(course.UpdatedAt, 10)
 		language := make([]*string, 0)
@@ -152,7 +143,7 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 			Approvers:          approvers,
 			CreatedBy:          &course.CreatedBy,
 			UpdatedBy:          &course.UpdatedBy,
-			Status:             &status,
+			Status:             &statusNew,
 			IsDisplay:          &course.IsDisplay,
 			Category:           &course.Category,
 			SubCategory:        &course.SubCategory,

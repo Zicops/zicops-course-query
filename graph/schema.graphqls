@@ -58,5 +58,5 @@ type PaginatedCourse {
 type Query{
   allCategories: [String]
   allSubCategories: [String]
-  latestCourses(publish_time: Int, pageCursor: String, Direction: String, pageSize:Int): PaginatedCourse
+  latestCourses(publish_time: Int, pageCursor: String, Direction: String, pageSize:Int, status:Status): PaginatedCourse
 }
