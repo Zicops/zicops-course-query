@@ -9,6 +9,8 @@ import (
 	"github.com/zicops/contracts/coursez"
 	"github.com/zicops/zicops-course-query/global"
 	"github.com/zicops/zicops-course-query/graph/model"
+	"github.com/zicops/zicops-course-query/lib/db/bucket"
+	"github.com/zicops/zicops-course-query/lib/googleprojectlib"
 )
 
 func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, direction *string, pageSize *int) (*model.PaginatedCourse, error) {
@@ -52,7 +54,13 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 
 	}
 	var outputResponse model.PaginatedCourse
-
+	storageC := bucket.NewStorageHandler()
+	gproject := googleprojectlib.GetGoogleProjectID()
+	err = storageC.InitializeStorageClient(ctx, gproject)
+	if err != nil {
+		log.Errorf("Failed to upload image to course: %v", err.Error())
+		return nil, err
+	}
 	allCourses := make([]*model.Course, 0)
 	for _, course := range courses {
 		var status model.Status
@@ -80,7 +88,6 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 		mustFor := make([]*string, 0)
 		relatedSkills := make([]*string, 0)
 		approvers := make([]*string, 0)
-		subCats := make([]coursez.SubCat, 0)
 		subCatsRes := make([]*model.SubCategories, 0)
 
 		for _, lang := range course.Language {
@@ -114,18 +121,18 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 			subC.Rank = subCat.Rank
 			subCR.Name = &subCat.Name
 			subCR.Rank = &subCat.Rank
-			subCats = append(subCats, subC)
 			subCatsRes = append(subCatsRes, &subCR)
 		}
+		tileUrl := storageC.GetSignedURLForObject(course.TileImageBucket)
+		imageUrl := storageC.GetSignedURLForObject(course.ImageBucket)
+		previewUrl := storageC.GetSignedURLForObject(course.PreviewVideoBucket)
+
 		currentCourse := &model.Course{
 			ID:                 &course.ID,
 			Name:               &course.Name,
 			Description:        &course.Description,
 			Summary:            &course.Summary,
 			Instructor:         &course.Instructor,
-			Image:              &course.Image,
-			PreviewVideo:       &course.PreviewVideo,
-			TileImage:          &course.TileImage,
 			Owner:              &course.Owner,
 			Duration:           &course.Duration,
 			ExpertiseLevel:     &course.ExpertiseLevel,
@@ -151,6 +158,15 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 			Category:           &course.Category,
 			SubCategory:        &course.SubCategory,
 			SubCategories:      subCatsRes,
+		}
+		if course.TileImageBucket != "" {
+			currentCourse.TileImage = &tileUrl
+		}
+		if course.ImageBucket != "" {
+			currentCourse.Image = &imageUrl
+		}
+		if course.PreviewVideoBucket != "" {
+			currentCourse.PreviewVideo = &previewUrl
 		}
 		allCourses = append(allCourses, currentCourse)
 	}
