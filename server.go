@@ -13,6 +13,7 @@ import (
 	"github.com/zicops/zicops-course-query/config"
 	"github.com/zicops/zicops-course-query/controller"
 	"github.com/zicops/zicops-course-query/global"
+	cry "github.com/zicops/zicops-course-query/lib/crypto"
 	"github.com/zicops/zicops-course-query/lib/db/cassandra"
 )
 
@@ -22,7 +23,7 @@ func main() {
 	//os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", "zicops-cc.json")
 	log.Infof("Starting zicops course query service")
 	ctx, cancel := context.WithCancel(context.Background())
-
+	crySession := cry.New("09afa9f9544a7ff1ae9988f73ba42134")
 	cassConfig := config.NewCassandraConfig()
 	cassSession, err := cassandra.New(cassConfig)
 	if err != nil {
@@ -33,6 +34,7 @@ func main() {
 	global.CTX = ctx
 	global.CassSession = cassSession
 	global.Cancel = cancel
+	global.CryptSession = &crySession
 	log.Infof("zicops course query intialization complete")
 	portFromEnv := os.Getenv("PORT")
 	port, err := strconv.Atoi(portFromEnv)

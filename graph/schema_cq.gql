@@ -1,6 +1,62 @@
+enum Status {
+    SAVED
+    APPROVAL_PENDING
+    ON_HOLD
+    APPROVED
+    PUBLSIHED
+    REJECTED
+}
 
+type sub_categories {
+    name: String
+    rank: Int
+}
 
+# define course type
+type Course{
+    id: ID
+    name: String
+    description: String
+    summary: String
+    instructor: String
+    image: String
+    previewVideo: String
+    tileImage: String
+    owner: String
+    duration: Int
+    expertise_level: String
+    language: [String]
+    benefits: [String]
+    outcomes: [String]
+    created_at: String
+    updated_at: String
+    type: String
+    prequisites: [String]
+    goodFor: [String]
+    mustFor: [String]
+    related_skills: [String]
+    publish_date: String
+    expiry_date: String
+    expected_completion: String
+    qa_required: Boolean
+    approvers: [String]
+    created_by: String
+    updated_by: String
+    status: Status
+    is_display: Boolean
+    category: String
+    sub_category: String
+    sub_categories: [sub_categories]
+}
+
+type PaginatedCourse {
+    courses: [Course]
+    pageCursor: String
+    direction: String
+    pageSize: Int
+}
 type Query{
   allCategories: [String]
   allSubCategories: [String]
+  latestCourses(publish_time: Int, pageCursor: String, Direction: String, pageSize:Int): PaginatedCourse
 }

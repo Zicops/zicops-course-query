@@ -8,6 +8,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/zicops-course-query/graph/generated"
+	"github.com/zicops/zicops-course-query/graph/model"
 	"github.com/zicops/zicops-course-query/handlers"
 )
 
@@ -24,6 +25,15 @@ func (r *queryResolver) AllSubCategories(ctx context.Context) ([]*string, error)
 	resp, err := handlers.GetSubCategories(ctx)
 	if err != nil {
 		log.Errorf("error adding categotries: %v", err)
+		return nil, err
+	}
+	return resp, nil
+}
+
+func (r *queryResolver) LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, direction *string, pageSize *int) (*model.PaginatedCourse, error) {
+	resp, err := handlers.LatestCourses(ctx, publishTime, pageCursor, direction, pageSize)
+	if err != nil {
+		log.Errorf("error getting latest courses: %v", err)
 		return nil, err
 	}
 	return resp, nil
