@@ -68,7 +68,8 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 		return nil, err
 	}
 	allCourses := make([]*model.Course, 0)
-	for _, course := range courses {
+	for _, copiedCourse := range courses {
+		course := copiedCourse
 		createdAt := strconv.FormatInt(course.CreatedAt, 10)
 		updatedAt := strconv.FormatInt(course.UpdatedAt, 10)
 		language := make([]*string, 0)
@@ -117,7 +118,7 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 		tileUrl := storageC.GetSignedURLForObject(course.TileImageBucket)
 		imageUrl := storageC.GetSignedURLForObject(course.ImageBucket)
 		previewUrl := storageC.GetSignedURLForObject(course.PreviewVideoBucket)
-		currentCourse := &model.Course{
+		currentCourse := model.Course{
 			ID:                 &course.ID,
 			Name:               &course.Name,
 			Description:        &course.Description,
@@ -158,7 +159,7 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 		if course.PreviewVideoBucket != "" {
 			currentCourse.PreviewVideo = &previewUrl
 		}
-		allCourses = append(allCourses, currentCourse)
+		allCourses = append(allCourses, &currentCourse)
 	}
 	outputResponse.Courses = allCourses
 	outputResponse.PageCursor = &newCursor
