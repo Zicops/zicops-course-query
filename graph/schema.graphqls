@@ -55,8 +55,92 @@ type PaginatedCourse {
     direction: String
     pageSize: Int
 }
+
+type Module{
+    id: ID
+    name: String
+    isChapter: Boolean
+    description: String
+    courseId: String
+    owner: String
+    duration: Int
+    created_at: String
+    updated_at: String
+    level : String
+    sequence: Int
+    setGlobal: Boolean
+}
+
+type Chapter {
+    id: ID
+    name: String
+    description: String
+    moduleId: String
+    courseId: String
+    created_at: String
+    updated_at: String
+    sequence: Int
+}
+
+type Topic {
+    id: ID
+    name: String
+    description: String
+    type : String
+    moduleId: String
+    chapterId: String
+    courseId: String
+    created_at: String
+    updated_at: String
+    sequence: Int
+    created_by: String
+    updated_by: String
+}
+
+type TopicContent {
+    language: String
+    topicId: String
+    startTime: Int
+    duration: Int
+    skipIntroDuration: Int
+    nextShowTime: Int
+    fromEndTime: Int
+    created_at: String
+    updated_at: String
+    type: String
+    contentUrl: String
+    subtitleUrl: String
+}
+
+type QuizFile {
+    quizId: String
+    type: String
+    name: String
+    fileUrl: String
+}
+
+type QuizMcq {
+    quizId: String
+    question: String
+    options: [String]
+    correctOption: String
+    explanation: String
+}
+
+type QuizDescriptive {
+    quizId: String
+    question: String
+    correctAnswer: String
+    explanation: String
+}
+
 type Query{
   allCategories: [String]
   allSubCategories: [String]
   latestCourses(publish_time: Int, pageCursor: String, Direction: String, pageSize:Int, status:Status): PaginatedCourse
+  getCourse(course_id: String): Course
+  getCourseModules(course_id: String): [Module]
+  getModuleById(module_id: String): Module
+  getCourseChapters(course_id: String): [Chapter]
+  getChapterById(chapter_id: String): Chapter
 }

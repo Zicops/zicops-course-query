@@ -8,6 +8,17 @@ import (
 	"strconv"
 )
 
+type Chapter struct {
+	ID          *string `json:"id"`
+	Name        *string `json:"name"`
+	Description *string `json:"description"`
+	ModuleID    *string `json:"moduleId"`
+	CourseID    *string `json:"courseId"`
+	CreatedAt   *string `json:"created_at"`
+	UpdatedAt   *string `json:"updated_at"`
+	Sequence    *int    `json:"sequence"`
+}
+
 type Course struct {
 	ID                 *string          `json:"id"`
 	Name               *string          `json:"name"`
@@ -44,11 +55,78 @@ type Course struct {
 	SubCategories      []*SubCategories `json:"sub_categories"`
 }
 
+type Module struct {
+	ID          *string `json:"id"`
+	Name        *string `json:"name"`
+	IsChapter   *bool   `json:"isChapter"`
+	Description *string `json:"description"`
+	CourseID    *string `json:"courseId"`
+	Owner       *string `json:"owner"`
+	Duration    *int    `json:"duration"`
+	CreatedAt   *string `json:"created_at"`
+	UpdatedAt   *string `json:"updated_at"`
+	Level       *string `json:"level"`
+	Sequence    *int    `json:"sequence"`
+	SetGlobal   *bool   `json:"setGlobal"`
+}
+
 type PaginatedCourse struct {
 	Courses    []*Course `json:"courses"`
 	PageCursor *string   `json:"pageCursor"`
 	Direction  *string   `json:"direction"`
 	PageSize   *int      `json:"pageSize"`
+}
+
+type QuizDescriptive struct {
+	QuizID        *string `json:"quizId"`
+	Question      *string `json:"question"`
+	CorrectAnswer *string `json:"correctAnswer"`
+	Explanation   *string `json:"explanation"`
+}
+
+type QuizFile struct {
+	QuizID  *string `json:"quizId"`
+	Type    *string `json:"type"`
+	Name    *string `json:"name"`
+	FileURL *string `json:"fileUrl"`
+}
+
+type QuizMcq struct {
+	QuizID        *string   `json:"quizId"`
+	Question      *string   `json:"question"`
+	Options       []*string `json:"options"`
+	CorrectOption *string   `json:"correctOption"`
+	Explanation   *string   `json:"explanation"`
+}
+
+type Topic struct {
+	ID          *string `json:"id"`
+	Name        *string `json:"name"`
+	Description *string `json:"description"`
+	Type        *string `json:"type"`
+	ModuleID    *string `json:"moduleId"`
+	ChapterID   *string `json:"chapterId"`
+	CourseID    *string `json:"courseId"`
+	CreatedAt   *string `json:"created_at"`
+	UpdatedAt   *string `json:"updated_at"`
+	Sequence    *int    `json:"sequence"`
+	CreatedBy   *string `json:"created_by"`
+	UpdatedBy   *string `json:"updated_by"`
+}
+
+type TopicContent struct {
+	Language          *string `json:"language"`
+	TopicID           *string `json:"topicId"`
+	StartTime         *int    `json:"startTime"`
+	Duration          *int    `json:"duration"`
+	SkipIntroDuration *int    `json:"skipIntroDuration"`
+	NextShowTime      *int    `json:"nextShowTime"`
+	FromEndTime       *int    `json:"fromEndTime"`
+	CreatedAt         *string `json:"created_at"`
+	UpdatedAt         *string `json:"updated_at"`
+	Type              *string `json:"type"`
+	ContentURL        *string `json:"contentUrl"`
+	SubtitleURL       *string `json:"subtitleUrl"`
 }
 
 type SubCategories struct {

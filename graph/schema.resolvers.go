@@ -39,6 +39,51 @@ func (r *queryResolver) LatestCourses(ctx context.Context, publishTime *int, pag
 	return resp, nil
 }
 
+func (r *queryResolver) GetCourse(ctx context.Context, courseID *string) (*model.Course, error) {
+	resp, err := handlers.GetCourseByID(ctx, courseID)
+	if err != nil {
+		log.Errorf("error getting latest courses: %v", err)
+		return nil, err
+	}
+	return resp, nil
+}
+
+func (r *queryResolver) GetCourseModules(ctx context.Context, courseID *string) ([]*model.Module, error) {
+	resp, err := handlers.GetModulesCourseByID(ctx, courseID)
+	if err != nil {
+		log.Errorf("error getting latest courses: %v", err)
+		return nil, err
+	}
+	return resp, nil
+}
+
+func (r *queryResolver) GetModuleByID(ctx context.Context, moduleID *string) (*model.Module, error) {
+	resp, err := handlers.GetModuleByID(ctx, moduleID)
+	if err != nil {
+		log.Errorf("error getting latest courses: %v", err)
+		return nil, err
+	}
+	return resp, nil
+}
+
+func (r *queryResolver) GetCourseChapters(ctx context.Context, courseID *string) ([]*model.Chapter, error) {
+	resp, err := handlers.GetChaptersCourseByID(ctx, courseID)
+	if err != nil {
+		log.Errorf("error getting latest courses: %v", err)
+		return nil, err
+	}
+	return resp, nil
+}
+
+func (r *queryResolver) GetChapterByID(ctx context.Context, chapterID *string) (*model.Chapter, error) {
+	resp, err := handlers.GetChapterByID(ctx, chapterID)
+	if err != nil {
+		log.Errorf("error getting latest courses: %v", err)
+		return nil, err
+	}
+	return resp, nil
+}
+
 // Query returns generated.QueryResolver implementation.
 func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 
