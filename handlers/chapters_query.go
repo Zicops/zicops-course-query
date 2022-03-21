@@ -3,27 +3,73 @@ package handlers
 import (
 	"context"
 	"fmt"
+	"strconv"
 
+	"github.com/zicops/contracts/coursez"
 	"github.com/zicops/zicops-course-query/global"
 	"github.com/zicops/zicops-course-query/graph/model"
 )
 
 func GetChaptersCourseByID(ctx context.Context, courseID *string) ([]*model.Chapter, error) {
-	chapters := []*model.Chapter{}
-	qryStr := fmt.Sprintf(`SELECT * from coursez.chapter where course_id='%s'`, *courseID)
-	err := global.CassSession.Session.Query(qryStr, nil).Scan(&chapters)
+	chapters := make([]*model.Chapter, 0)
+	qryStr := fmt.Sprintf(`SELECT * from coursez.chapter where course_id='%s' ALLOW FILTERING`, *courseID)
+	getChapters := func() (modules []coursez.Chapter, err error) {
+		q := global.CassSession.Session.Query(qryStr, nil)
+		defer q.Release()
+		iter := q.Iter()
+		return modules, iter.Select(&modules)
+	}
+	currentChapters, err := getChapters()
 	if err != nil {
 		return nil, err
+	}
+	for _, copiedMod := range currentChapters {
+		mod := copiedMod
+		createdAt := strconv.FormatInt(mod.CreatedAt, 10)
+		updatedAt := strconv.FormatInt(mod.UpdatedAt, 10)
+		currentChapter := &model.Chapter{
+			ID:          &mod.ID,
+			CourseID:    &mod.CourseID,
+			Description: &mod.Description,
+			ModuleID:    &mod.ModuleID,
+			Name:        &mod.Name,
+			CreatedAt:   &createdAt,
+			UpdatedAt:   &updatedAt,
+			Sequence:    &mod.Sequence,
+		}
+		chapters = append(chapters, currentChapter)
 	}
 	return chapters, nil
 }
 
 func GetChapterByID(ctx context.Context, chapterID *string) (*model.Chapter, error) {
-	chapter := &model.Chapter{}
-	qryStr := fmt.Sprintf(`SELECT * from coursez.chapter where id='%s'`, *chapterID)
-	err := global.CassSession.Session.Query(qryStr, nil).Scan(chapter)
+	chapters := make([]*model.Chapter, 0)
+	qryStr := fmt.Sprintf(`SELECT * from coursez.chapter where id='%s' ALLOW FILTERING`, *chapterID)
+	getChapters := func() (modules []coursez.Chapter, err error) {
+		q := global.CassSession.Session.Query(qryStr, nil)
+		defer q.Release()
+		iter := q.Iter()
+		return modules, iter.Select(&modules)
+	}
+	currentChapters, err := getChapters()
 	if err != nil {
 		return nil, err
 	}
-	return chapter, nil
+	for _, copiedMod := range currentChapters {
+		mod := copiedMod
+		createdAt := strconv.FormatInt(mod.CreatedAt, 10)
+		updatedAt := strconv.FormatInt(mod.UpdatedAt, 10)
+		currentChapter := &model.Chapter{
+			ID:          &mod.ID,
+			CourseID:    &mod.CourseID,
+			Description: &mod.Description,
+			ModuleID:    &mod.ModuleID,
+			Name:        &mod.Name,
+			CreatedAt:   &createdAt,
+			UpdatedAt:   &updatedAt,
+			Sequence:    &mod.Sequence,
+		}
+		chapters = append(chapters, currentChapter)
+	}
+	return chapters[0], nil
 }
