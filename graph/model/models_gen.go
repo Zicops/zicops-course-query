@@ -77,6 +77,19 @@ type PaginatedCourse struct {
 	PageSize   *int      `json:"pageSize"`
 }
 
+type Quiz struct {
+	ID          *string `json:"id"`
+	Name        *string `json:"name"`
+	Category    *string `json:"category"`
+	Type        *string `json:"type"`
+	IsMandatory *bool   `json:"isMandatory"`
+	CreatedAt   *string `json:"created_at"`
+	UpdatedAt   *string `json:"updated_at"`
+	TopicID     *string `json:"topicId"`
+	Sequence    *int    `json:"sequence"`
+	StartTime   *int    `json:"startTime"`
+}
+
 type QuizDescriptive struct {
 	QuizID        *string `json:"quizId"`
 	Question      *string `json:"question"`
@@ -112,6 +125,7 @@ type Topic struct {
 	Sequence    *int    `json:"sequence"`
 	CreatedBy   *string `json:"created_by"`
 	UpdatedBy   *string `json:"updated_by"`
+	Image       *string `json:"image"`
 }
 
 type TopicContent struct {
@@ -127,6 +141,17 @@ type TopicContent struct {
 	Type              *string `json:"type"`
 	ContentURL        *string `json:"contentUrl"`
 	SubtitleURL       *string `json:"subtitleUrl"`
+}
+
+type TopicResource struct {
+	Name      *string `json:"name"`
+	Type      *string `json:"type"`
+	TopicID   *string `json:"topicId"`
+	CreatedAt *string `json:"created_at"`
+	UpdatedAt *string `json:"updated_at"`
+	CreatedBy *string `json:"created_by"`
+	UpdatedBy *string `json:"updated_by"`
+	URL       *string `json:"url"`
 }
 
 type SubCategories struct {

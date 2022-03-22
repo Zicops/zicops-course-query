@@ -96,6 +96,7 @@ type Topic {
     sequence: Int
     created_by: String
     updated_by: String
+    image: String
 }
 
 type TopicContent {
@@ -135,6 +136,30 @@ type QuizDescriptive {
     explanation: String
 }
 
+type TopicResource{
+    name: String
+    type: String
+    topicId: String
+    created_at: String
+    updated_at: String
+    created_by: String
+    updated_by: String
+    url: String
+}
+
+type Quiz {
+    id: ID
+    name: String
+    category: String
+    type: String
+    isMandatory: Boolean
+    created_at: String
+    updated_at: String
+    topicId: String
+    sequence: Int
+    startTime: Int
+}
+
 type Query{
   allCategories: [String]
   allSubCategories: [String]
@@ -144,4 +169,12 @@ type Query{
   getModuleById(module_id: String): Module
   getCourseChapters(course_id: String): [Chapter]
   getChapterById(chapter_id: String): Chapter
+  getTopics(course_id: String): [Topic]
+  getTopicById(topic_id: String): Topic
+  getTopicContent(topic_id: String): [TopicContent]
+  getTopicResources(topic_id: String): [TopicResource]
+  getTopicQuizes(topic_id: String): [Quiz]
+  getQuizFiles(quiz_id: String): [QuizFile]
+  getMCQQuiz(quiz_id: String): [QuizMcq]
+  getDescriptiveQuiz(quiz_id: String): [QuizDescriptive]
 }

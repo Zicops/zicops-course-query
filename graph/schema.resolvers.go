@@ -5,6 +5,7 @@ package graph
 
 import (
 	"context"
+	"fmt"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/zicops-course-query/graph/generated"
@@ -82,6 +83,43 @@ func (r *queryResolver) GetChapterByID(ctx context.Context, chapterID *string) (
 		return nil, err
 	}
 	return resp, nil
+}
+
+func (r *queryResolver) GetTopics(ctx context.Context, courseID *string) ([]*model.Topic, error) {
+	resp, err := handlers.GetTopicsCourseByID(ctx, courseID)
+	if err != nil {
+		log.Errorf("error getting latest courses: %v", err)
+		return nil, err
+	}
+	return resp, nil
+}
+
+func (r *queryResolver) GetTopicByID(ctx context.Context, topicID *string) (*model.Topic, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *queryResolver) GetTopicContent(ctx context.Context, topicID *string) ([]*model.TopicContent, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *queryResolver) GetTopicResources(ctx context.Context, topicID *string) ([]*model.TopicResource, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *queryResolver) GetTopicQuizes(ctx context.Context, topicID *string) ([]*model.Quiz, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *queryResolver) GetQuizFiles(ctx context.Context, quizID *string) ([]*model.QuizFile, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *queryResolver) GetMCQQuiz(ctx context.Context, quizID *string) ([]*model.QuizMcq, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *queryResolver) GetDescriptiveQuiz(ctx context.Context, quizID *string) ([]*model.QuizDescriptive, error) {
+	panic(fmt.Errorf("not implemented"))
 }
 
 // Query returns generated.QueryResolver implementation.
