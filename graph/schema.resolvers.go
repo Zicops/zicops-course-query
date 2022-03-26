@@ -5,7 +5,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/zicops-course-query/graph/generated"
@@ -122,19 +121,39 @@ func (r *queryResolver) GetTopicResources(ctx context.Context, topicID *string) 
 }
 
 func (r *queryResolver) GetTopicQuizes(ctx context.Context, topicID *string) ([]*model.Quiz, error) {
-	panic(fmt.Errorf("not implemented"))
+	resp, err := handlers.GetTopicQuizes(ctx, topicID)
+	if err != nil {
+		log.Errorf("error getting latest courses: %v", err)
+		return nil, err
+	}
+	return resp, nil
 }
 
 func (r *queryResolver) GetQuizFiles(ctx context.Context, quizID *string) ([]*model.QuizFile, error) {
-	panic(fmt.Errorf("not implemented"))
+	resp, err := handlers.GetQuizFiles(ctx, quizID)
+	if err != nil {
+		log.Errorf("error getting latest courses: %v", err)
+		return nil, err
+	}
+	return resp, nil
 }
 
 func (r *queryResolver) GetMCQQuiz(ctx context.Context, quizID *string) ([]*model.QuizMcq, error) {
-	panic(fmt.Errorf("not implemented"))
+	resp, err := handlers.GetMCQQuiz(ctx, quizID)
+	if err != nil {
+		log.Errorf("error getting latest courses: %v", err)
+		return nil, err
+	}
+	return resp, nil
 }
 
 func (r *queryResolver) GetDescriptiveQuiz(ctx context.Context, quizID *string) ([]*model.QuizDescriptive, error) {
-	panic(fmt.Errorf("not implemented"))
+	resp, err := handlers.GetQuizDes(ctx, quizID)
+	if err != nil {
+		log.Errorf("error getting latest courses: %v", err)
+		return nil, err
+	}
+	return resp, nil
 }
 
 // Query returns generated.QueryResolver implementation.
