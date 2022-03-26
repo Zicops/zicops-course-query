@@ -12,7 +12,7 @@ import (
 
 func GetChaptersCourseByID(ctx context.Context, courseID *string) ([]*model.Chapter, error) {
 	chapters := make([]*model.Chapter, 0)
-	qryStr := fmt.Sprintf(`SELECT * from coursez.chapter where course_id='%s' ALLOW FILTERING`, *courseID)
+	qryStr := fmt.Sprintf(`SELECT * from coursez.chapter where courseid='%s' ALLOW FILTERING`, *courseID)
 	getChapters := func() (modules []coursez.Chapter, err error) {
 		q := global.CassSession.Session.Query(qryStr, nil)
 		defer q.Release()

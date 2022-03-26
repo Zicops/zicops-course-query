@@ -12,7 +12,7 @@ import (
 
 func GetModulesCourseByID(ctx context.Context, courseID *string) ([]*model.Module, error) {
 	modules := make([]*model.Module, 0)
-	qryStr := fmt.Sprintf(`SELECT * from coursez.module where course_id='%s' ALLOW FILTERING`, *courseID)
+	qryStr := fmt.Sprintf(`SELECT * from coursez.module where courseid='%s' ALLOW FILTERING`, *courseID)
 	getModules := func() (modules []coursez.Module, err error) {
 		q := global.CassSession.Session.Query(qryStr, nil)
 		defer q.Release()

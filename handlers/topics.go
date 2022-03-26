@@ -15,7 +15,7 @@ import (
 
 func GetTopicsCourseByID(ctx context.Context, courseID *string) ([]*model.Topic, error) {
 	topicsOut := make([]*model.Topic, 0)
-	qryStr := fmt.Sprintf(`SELECT * from coursez.topic where course_id='%s' ALLOW FILTERING`, *courseID)
+	qryStr := fmt.Sprintf(`SELECT * from coursez.topic where courseid='%s' ALLOW FILTERING`, *courseID)
 	getTopics := func() (topics []coursez.Topic, err error) {
 		q := global.CassSession.Session.Query(qryStr, nil)
 		defer q.Release()
