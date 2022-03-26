@@ -16,10 +16,17 @@ import (
 func GetCourseByID(ctx context.Context, courseID *string) (*model.Course, error) {
 	course := &coursez.Course{}
 	qryStr := fmt.Sprintf(`SELECT * from coursez.course where id='%s'`, *courseID)
-	err := global.CassSession.Session.Query(qryStr, nil).Scan(course)
+	getCourse := func() (courses []coursez.Course, err error) {
+		q := global.CassSession.Session.Query(qryStr, nil)
+		defer q.Release()
+		iter := q.Iter()
+		return courses, iter.Select(&courses)
+	}
+	courses, err := getCourse()
 	if err != nil {
 		return nil, err
 	}
+	course = &courses[0]
 	createdAt := strconv.FormatInt(course.CreatedAt, 10)
 	updatedAt := strconv.FormatInt(course.UpdatedAt, 10)
 	language := make([]*string, 0)
