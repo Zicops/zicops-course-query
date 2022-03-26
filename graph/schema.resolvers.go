@@ -95,15 +95,30 @@ func (r *queryResolver) GetTopics(ctx context.Context, courseID *string) ([]*mod
 }
 
 func (r *queryResolver) GetTopicByID(ctx context.Context, topicID *string) (*model.Topic, error) {
-	panic(fmt.Errorf("not implemented"))
+	resp, err := handlers.GetTopicByID(ctx, topicID)
+	if err != nil {
+		log.Errorf("error getting latest courses: %v", err)
+		return nil, err
+	}
+	return resp, nil
 }
 
 func (r *queryResolver) GetTopicContent(ctx context.Context, topicID *string) ([]*model.TopicContent, error) {
-	panic(fmt.Errorf("not implemented"))
+	resp, err := handlers.GetTopicContent(ctx, topicID)
+	if err != nil {
+		log.Errorf("error getting latest courses: %v", err)
+		return nil, err
+	}
+	return resp, nil
 }
 
 func (r *queryResolver) GetTopicResources(ctx context.Context, topicID *string) ([]*model.TopicResource, error) {
-	panic(fmt.Errorf("not implemented"))
+	resp, err := handlers.GetTopicResources(ctx, topicID)
+	if err != nil {
+		log.Errorf("error getting latest courses: %v", err)
+		return nil, err
+	}
+	return resp, nil
 }
 
 func (r *queryResolver) GetTopicQuizes(ctx context.Context, topicID *string) ([]*model.Quiz, error) {

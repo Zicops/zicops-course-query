@@ -57,3 +57,47 @@ func GetTopicsCourseByID(ctx context.Context, courseID *string) ([]*model.Topic,
 	}
 	return topicsOut, nil
 }
+
+func GetTopicByID(ctx context.Context, topicID *string) (*model.Topic, error) {
+	topics := make([]*model.Topic, 0)
+	qryStr := fmt.Sprintf(`SELECT * from coursez.topic where id='%s' ALLOW FILTERING`, *topicID)
+	getTopics := func() (topics []coursez.Topic, err error) {
+		q := global.CassSession.Session.Query(qryStr, nil)
+		defer q.Release()
+		iter := q.Iter()
+		return topics, iter.Select(&topics)
+	}
+	currentTopics, err := getTopics()
+	if err != nil {
+		return nil, err
+	}
+	storageC := bucket.NewStorageHandler()
+	gproject := googleprojectlib.GetGoogleProjectID()
+	err = storageC.InitializeStorageClient(ctx, gproject)
+	if err != nil {
+		log.Errorf("Failed to initialize storage: %v", err.Error())
+		return nil, err
+	}
+	for _, copiedTop := range currentTopics {
+		top := copiedTop
+		createdAt := strconv.FormatInt(top.CreatedAt, 10)
+		updatedAt := strconv.FormatInt(top.UpdatedAt, 10)
+		url := storageC.GetSignedURLForObject(top.Image)
+		currentTop := &model.Topic{
+			ID:          &top.ID,
+			CourseID:    &top.CourseID,
+			ModuleID:    &top.ModuleID,
+			ChapterID:   &top.ChapterID,
+			Name:        &top.Name,
+			Description: &top.Description,
+			CreatedAt:   &createdAt,
+			UpdatedAt:   &updatedAt,
+			Sequence:    &top.Sequence,
+			CreatedBy:   &top.CreatedBy,
+			UpdatedBy:   &top.UpdatedBy,
+			Image:       &url,
+		}
+		topics = append(topics, currentTop)
+	}
+	return topics[0], nil
+}
