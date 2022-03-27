@@ -37,7 +37,10 @@ func GetTopicResources(ctx context.Context, topicID *string) ([]*model.TopicReso
 		mod := topRes
 		createdAt := strconv.FormatInt(mod.CreatedAt, 10)
 		updatedAt := strconv.FormatInt(mod.UpdatedAt, 10)
-		url := storageC.GetSignedURLForObject(mod.BucketPath)
+		url := mod.Url
+		if mod.BucketPath != "" {
+			url = storageC.GetSignedURLForObject(mod.BucketPath)
+		}
 		currentRes := &model.TopicResource{
 			Name:      &mod.Name,
 			Type:      &mod.Type,
