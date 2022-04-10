@@ -83,36 +83,42 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 		subCatsRes := make([]*model.SubCategories, 0)
 
 		for _, lang := range course.Language {
-			language = append(language, &lang)
+			langCopied := lang
+			language = append(language, &langCopied)
 		}
 		for _, take := range course.Benefits {
-			takeaways = append(takeaways, &take)
+			takeCopied := take
+			takeaways = append(takeaways, &takeCopied)
 		}
 		for _, out := range course.Outcomes {
-			outcomes = append(outcomes, &out)
+			outCopied := out
+			outcomes = append(outcomes, &outCopied)
 		}
 		for _, preq := range course.Prequisites {
-			prequisites = append(prequisites, &preq)
+			preCopied := preq
+			prequisites = append(prequisites, &preCopied)
 		}
 		for _, good := range course.GoodFor {
-			goodFor = append(goodFor, &good)
+			goodCopied := good
+			goodFor = append(goodFor, &goodCopied)
 		}
 		for _, must := range course.MustFor {
-			mustFor = append(mustFor, &must)
+			mustCopied := must
+			mustFor = append(mustFor, &mustCopied)
 		}
 		for _, relSkill := range course.RelatedSkills {
-			relatedSkills = append(relatedSkills, &relSkill)
+			relCopied := relSkill
+			relatedSkills = append(relatedSkills, &relCopied)
 		}
 		for _, approver := range course.Approvers {
-			approvers = append(approvers, &approver)
+			appoverCopied := approver
+			approvers = append(approvers, &appoverCopied)
 		}
 		for _, subCat := range course.SubCategories {
-			var subC coursez.SubCat
+			subCopied := subCat
 			var subCR model.SubCategories
-			subC.Name = subCat.Name
-			subC.Rank = subCat.Rank
-			subCR.Name = &subCat.Name
-			subCR.Rank = &subCat.Rank
+			subCR.Name = &subCopied.Name
+			subCR.Rank = &subCopied.Rank
 			subCatsRes = append(subCatsRes, &subCR)
 		}
 		tileUrl := storageC.GetSignedURLForObject(course.TileImageBucket)

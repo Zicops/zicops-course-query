@@ -35,7 +35,7 @@ func main() {
 	global.CassSession = cassSession
 	global.Cancel = cancel
 	global.CryptSession = &crySession
-	log.Infof("zicops course query intialization complete")
+	log.Infof("zicops course query initialization complete")
 	portFromEnv := os.Getenv("PORT")
 	port, err := strconv.Atoi(portFromEnv)
 
