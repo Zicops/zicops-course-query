@@ -129,6 +129,7 @@ type Topic struct {
 }
 
 type TopicContent struct {
+	ID                *string `json:"id"`
 	Language          *string `json:"language"`
 	TopicID           *string `json:"topicId"`
 	StartTime         *int    `json:"startTime"`
@@ -144,6 +145,7 @@ type TopicContent struct {
 }
 
 type TopicResource struct {
+	ID        *string `json:"id"`
 	Name      *string `json:"name"`
 	Type      *string `json:"type"`
 	TopicID   *string `json:"topicId"`

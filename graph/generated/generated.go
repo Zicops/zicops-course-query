@@ -185,6 +185,7 @@ type ComplexityRoot struct {
 		CreatedAt         func(childComplexity int) int
 		Duration          func(childComplexity int) int
 		FromEndTime       func(childComplexity int) int
+		ID                func(childComplexity int) int
 		Language          func(childComplexity int) int
 		NextShowTime      func(childComplexity int) int
 		SkipIntroDuration func(childComplexity int) int
@@ -198,6 +199,7 @@ type ComplexityRoot struct {
 	TopicResource struct {
 		CreatedAt func(childComplexity int) int
 		CreatedBy func(childComplexity int) int
+		ID        func(childComplexity int) int
 		Name      func(childComplexity int) int
 		TopicID   func(childComplexity int) int
 		Type      func(childComplexity int) int
@@ -1107,6 +1109,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TopicContent.FromEndTime(childComplexity), true
 
+	case "TopicContent.id":
+		if e.complexity.TopicContent.ID == nil {
+			break
+		}
+
+		return e.complexity.TopicContent.ID(childComplexity), true
+
 	case "TopicContent.language":
 		if e.complexity.TopicContent.Language == nil {
 			break
@@ -1176,6 +1185,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.TopicResource.CreatedBy(childComplexity), true
+
+	case "TopicResource.id":
+		if e.complexity.TopicResource.ID == nil {
+			break
+		}
+
+		return e.complexity.TopicResource.ID(childComplexity), true
 
 	case "TopicResource.name":
 		if e.complexity.TopicResource.Name == nil {
@@ -1385,6 +1401,7 @@ type Topic {
 }
 
 type TopicContent {
+    id: ID
     language: String
     topicId: String
     startTime: Int
@@ -1422,6 +1439,7 @@ type QuizDescriptive {
 }
 
 type TopicResource{
+    id: ID
     name: String
     type: String
     topicId: String
@@ -5427,6 +5445,38 @@ func (ec *executionContext) _Topic_image(ctx context.Context, field graphql.Coll
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _TopicContent_id(ctx context.Context, field graphql.CollectedField, obj *model.TopicContent) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "TopicContent",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _TopicContent_language(ctx context.Context, field graphql.CollectedField, obj *model.TopicContent) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -5809,6 +5859,38 @@ func (ec *executionContext) _TopicContent_subtitleUrl(ctx context.Context, field
 	res := resTmp.(*string)
 	fc.Result = res
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _TopicResource_id(ctx context.Context, field graphql.CollectedField, obj *model.TopicResource) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "TopicResource",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _TopicResource_name(ctx context.Context, field graphql.CollectedField, obj *model.TopicResource) (ret graphql.Marshaler) {
@@ -8539,6 +8621,13 @@ func (ec *executionContext) _TopicContent(ctx context.Context, sel ast.Selection
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TopicContent")
+		case "id":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._TopicContent_id(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
 		case "language":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._TopicContent_language(ctx, field, obj)
@@ -8644,6 +8733,13 @@ func (ec *executionContext) _TopicResource(ctx context.Context, sel ast.Selectio
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TopicResource")
+		case "id":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._TopicResource_id(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
 		case "name":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._TopicResource_name(ctx, field, obj)

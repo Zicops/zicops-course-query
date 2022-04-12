@@ -42,6 +42,7 @@ func GetTopicResources(ctx context.Context, topicID *string) ([]*model.TopicReso
 			url = storageC.GetSignedURLForObject(mod.BucketPath)
 		}
 		currentRes := &model.TopicResource{
+			ID:        &mod.ID,
 			Name:      &mod.Name,
 			Type:      &mod.Type,
 			URL:       &url,
