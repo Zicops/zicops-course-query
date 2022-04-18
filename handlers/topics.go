@@ -51,6 +51,7 @@ func GetTopicsCourseByID(ctx context.Context, courseID *string) ([]*model.Topic,
 			CreatedBy:   &mod.CreatedBy,
 			UpdatedBy:   &mod.UpdatedBy,
 			Image:       &url,
+			Type:        &mod.Type,
 		}
 
 		topicsOut = append(topicsOut, currentModule)
@@ -96,6 +97,7 @@ func GetTopicByID(ctx context.Context, topicID *string) (*model.Topic, error) {
 			CreatedBy:   &top.CreatedBy,
 			UpdatedBy:   &top.UpdatedBy,
 			Image:       &url,
+			Type:        &top.Type,
 		}
 		topics = append(topics, currentTop)
 	}
