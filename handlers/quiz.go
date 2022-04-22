@@ -69,7 +69,10 @@ func GetQuizFiles(ctx context.Context, quizID *string) ([]*model.QuizFile, error
 	}
 	for _, file := range currentFiles {
 		mod := file
-		url := storageC.GetSignedURLForObject(mod.BucketPath)
+		url := ""
+		if mod.BucketPath != "" {
+			url = storageC.GetSignedURLForObject(mod.BucketPath)
+		}
 		currentFile := &model.QuizFile{
 			Name:    &mod.Name,
 			Type:    &mod.Type,

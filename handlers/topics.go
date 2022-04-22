@@ -37,7 +37,10 @@ func GetTopicsCourseByID(ctx context.Context, courseID *string) ([]*model.Topic,
 		mod := topCopied
 		createdAt := strconv.FormatInt(mod.CreatedAt, 10)
 		updatedAt := strconv.FormatInt(mod.UpdatedAt, 10)
-		url := storageC.GetSignedURLForObject(mod.Image)
+		url := ""
+		if mod.ImageBucket != "" {
+			url = storageC.GetSignedURLForObject(mod.ImageBucket)
+		}
 		currentModule := &model.Topic{
 			ID:          &mod.ID,
 			CourseID:    &mod.CourseID,
@@ -83,7 +86,10 @@ func GetTopicByID(ctx context.Context, topicID *string) (*model.Topic, error) {
 		top := copiedTop
 		createdAt := strconv.FormatInt(top.CreatedAt, 10)
 		updatedAt := strconv.FormatInt(top.UpdatedAt, 10)
-		url := storageC.GetSignedURLForObject(top.Image)
+		url := ""
+		if top.ImageBucket != "" {
+			url = storageC.GetSignedURLForObject(top.ImageBucket)
+		}
 		currentTop := &model.Topic{
 			ID:          &top.ID,
 			CourseID:    &top.CourseID,

@@ -37,8 +37,14 @@ func GetTopicContent(ctx context.Context, topicID *string) ([]*model.TopicConten
 		mod := topCon
 		createdAt := strconv.FormatInt(mod.CreatedAt, 10)
 		updatedAt := strconv.FormatInt(mod.UpdatedAt, 10)
-		urlSub := storageC.GetSignedURLForObject(mod.SubtitleFileBucket)
-		urlCon := storageC.GetSignedURLForObject(mod.TopicContentBucket)
+		urlSub := ""
+		if mod.SubtitleFileBucket != "" {
+			urlSub = storageC.GetSignedURLForObject(mod.SubtitleFileBucket)
+		}
+		urlCon := ""
+		if mod.TopicContentBucket != "" {
+			urlCon = storageC.GetSignedURLForObject(mod.TopicContentBucket)
+		}
 		currentModule := &model.TopicContent{
 			ID:                &mod.ID,
 			Language:          &mod.Language,

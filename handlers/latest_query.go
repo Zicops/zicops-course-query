@@ -121,9 +121,18 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 			subCR.Rank = &subCopied.Rank
 			subCatsRes = append(subCatsRes, &subCR)
 		}
-		tileUrl := storageC.GetSignedURLForObject(course.TileImageBucket)
-		imageUrl := storageC.GetSignedURLForObject(course.ImageBucket)
-		previewUrl := storageC.GetSignedURLForObject(course.PreviewVideoBucket)
+		tileUrl := ""
+		if course.TileImageBucket != "" {
+			storageC.GetSignedURLForObject(course.TileImageBucket)
+		}
+		imageUrl := ""
+		if course.ImageBucket != "" {
+			storageC.GetSignedURLForObject(course.ImageBucket)
+		}
+		previewUrl := ""
+		if course.PreviewVideoBucket != "" {
+			storageC.GetSignedURLForObject(course.PreviewVideoBucket)
+		}
 		currentCourse := model.Course{
 			ID:                 &course.ID,
 			Name:               &course.Name,
