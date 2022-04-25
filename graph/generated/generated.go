@@ -183,6 +183,7 @@ type ComplexityRoot struct {
 
 	TopicContent struct {
 		ContentURL        func(childComplexity int) int
+		CourseID          func(childComplexity int) int
 		CreatedAt         func(childComplexity int) int
 		Duration          func(childComplexity int) int
 		FromEndTime       func(childComplexity int) int
@@ -1102,6 +1103,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TopicContent.ContentURL(childComplexity), true
 
+	case "TopicContent.courseId":
+		if e.complexity.TopicContent.CourseID == nil {
+			break
+		}
+
+		return e.complexity.TopicContent.CourseID(childComplexity), true
+
 	case "TopicContent.created_at":
 		if e.complexity.TopicContent.CreatedAt == nil {
 			break
@@ -1418,6 +1426,7 @@ type TopicContent {
     id: ID
     language: String
     topicId: String
+    courseId: String
     startTime: Int
     duration: Int
     skipIntroDuration: Int
@@ -5610,6 +5619,38 @@ func (ec *executionContext) _TopicContent_topicId(ctx context.Context, field gra
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _TopicContent_courseId(ctx context.Context, field graphql.CollectedField, obj *model.TopicContent) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "TopicContent",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CourseID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _TopicContent_startTime(ctx context.Context, field graphql.CollectedField, obj *model.TopicContent) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -8727,6 +8768,13 @@ func (ec *executionContext) _TopicContent(ctx context.Context, sel ast.Selection
 		case "topicId":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._TopicContent_topicId(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+		case "courseId":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._TopicContent_courseId(ctx, field, obj)
 			}
 
 			out.Values[i] = innerFunc(ctx)

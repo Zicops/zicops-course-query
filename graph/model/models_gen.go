@@ -132,6 +132,7 @@ type TopicContent struct {
 	ID                *string `json:"id"`
 	Language          *string `json:"language"`
 	TopicID           *string `json:"topicId"`
+	CourseID          *string `json:"courseId"`
 	StartTime         *int    `json:"startTime"`
 	Duration          *int    `json:"duration"`
 	SkipIntroDuration *int    `json:"skipIntroDuration"`

@@ -102,6 +102,7 @@ func GetTopicContentByCourse(ctx context.Context, courseID *string) ([]*model.To
 			ID:                &mod.ID,
 			Language:          &mod.Language,
 			TopicID:           &mod.TopicId,
+			CourseID:          &mod.CourseId,
 			SubtitleURL:       &urlSub,
 			ContentURL:        &urlCon,
 			CreatedAt:         &createdAt,
