@@ -111,22 +111,23 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		AllCategories      func(childComplexity int) int
-		AllSubCategories   func(childComplexity int) int
-		GetChapterByID     func(childComplexity int, chapterID *string) int
-		GetCourse          func(childComplexity int, courseID *string) int
-		GetCourseChapters  func(childComplexity int, courseID *string) int
-		GetCourseModules   func(childComplexity int, courseID *string) int
-		GetDescriptiveQuiz func(childComplexity int, quizID *string) int
-		GetMCQQuiz         func(childComplexity int, quizID *string) int
-		GetModuleByID      func(childComplexity int, moduleID *string) int
-		GetQuizFiles       func(childComplexity int, quizID *string) int
-		GetTopicByID       func(childComplexity int, topicID *string) int
-		GetTopicContent    func(childComplexity int, topicID *string) int
-		GetTopicQuizes     func(childComplexity int, topicID *string) int
-		GetTopicResources  func(childComplexity int, topicID *string) int
-		GetTopics          func(childComplexity int, courseID *string) int
-		LatestCourses      func(childComplexity int, publishTime *int, pageCursor *string, direction *string, pageSize *int, status *model.Status) int
+		AllCategories             func(childComplexity int) int
+		AllSubCategories          func(childComplexity int) int
+		GetChapterByID            func(childComplexity int, chapterID *string) int
+		GetCourse                 func(childComplexity int, courseID *string) int
+		GetCourseChapters         func(childComplexity int, courseID *string) int
+		GetCourseModules          func(childComplexity int, courseID *string) int
+		GetDescriptiveQuiz        func(childComplexity int, quizID *string) int
+		GetMCQQuiz                func(childComplexity int, quizID *string) int
+		GetModuleByID             func(childComplexity int, moduleID *string) int
+		GetQuizFiles              func(childComplexity int, quizID *string) int
+		GetTopicByID              func(childComplexity int, topicID *string) int
+		GetTopicContent           func(childComplexity int, topicID *string) int
+		GetTopicContentByCourseID func(childComplexity int, courseID *string) int
+		GetTopicQuizes            func(childComplexity int, topicID *string) int
+		GetTopicResources         func(childComplexity int, topicID *string) int
+		GetTopics                 func(childComplexity int, courseID *string) int
+		LatestCourses             func(childComplexity int, publishTime *int, pageCursor *string, direction *string, pageSize *int, status *model.Status) int
 	}
 
 	Quiz struct {
@@ -231,6 +232,7 @@ type QueryResolver interface {
 	GetQuizFiles(ctx context.Context, quizID *string) ([]*model.QuizFile, error)
 	GetMCQQuiz(ctx context.Context, quizID *string) ([]*model.QuizMcq, error)
 	GetDescriptiveQuiz(ctx context.Context, quizID *string) ([]*model.QuizDescriptive, error)
+	GetTopicContentByCourseID(ctx context.Context, courseID *string) ([]*model.TopicContent, error)
 }
 
 type executableSchema struct {
@@ -780,6 +782,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.GetTopicContent(childComplexity, args["topic_id"].(*string)), true
+
+	case "Query.getTopicContentByCourseId":
+		if e.complexity.Query.GetTopicContentByCourseID == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getTopicContentByCourseId_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetTopicContentByCourseID(childComplexity, args["course_id"].(*string)), true
 
 	case "Query.getTopicQuizes":
 		if e.complexity.Query.GetTopicQuizes == nil {
@@ -1480,6 +1494,7 @@ type Query{
   getQuizFiles(quiz_id: String): [QuizFile]
   getMCQQuiz(quiz_id: String): [QuizMcq]
   getDescriptiveQuiz(quiz_id: String): [QuizDescriptive]
+  getTopicContentByCourseId(course_id: String): [TopicContent]
 }
 `, BuiltIn: false},
 }
@@ -1636,6 +1651,21 @@ func (ec *executionContext) field_Query_getTopicById_args(ctx context.Context, r
 		}
 	}
 	args["topic_id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_getTopicContentByCourseId_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *string
+	if tmp, ok := rawArgs["course_id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("course_id"))
+		arg0, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["course_id"] = arg0
 	return args, nil
 }
 
@@ -4220,6 +4250,45 @@ func (ec *executionContext) _Query_getDescriptiveQuiz(ctx context.Context, field
 	res := resTmp.([]*model.QuizDescriptive)
 	fc.Result = res
 	return ec.marshalOQuizDescriptive2ᚕᚖgithubᚗcomᚋzicopsᚋzicopsᚑcourseᚑqueryᚋgraphᚋmodelᚐQuizDescriptive(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_getTopicContentByCourseId(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_getTopicContentByCourseId_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetTopicContentByCourseID(rctx, args["course_id"].(*string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*model.TopicContent)
+	fc.Result = res
+	return ec.marshalOTopicContent2ᚕᚖgithubᚗcomᚋzicopsᚋzicopsᚑcourseᚑqueryᚋgraphᚋmodelᚐTopicContent(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -8219,6 +8288,26 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_getDescriptiveQuiz(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "getTopicContentByCourseId":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getTopicContentByCourseId(ctx, field)
 				return res
 			}
 

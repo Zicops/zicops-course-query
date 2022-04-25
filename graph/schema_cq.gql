@@ -179,4 +179,5 @@ type Query{
   getQuizFiles(quiz_id: String): [QuizFile]
   getMCQQuiz(quiz_id: String): [QuizMcq]
   getDescriptiveQuiz(quiz_id: String): [QuizDescriptive]
+  getTopicContentByCourseId(course_id: String): [TopicContent]
 }

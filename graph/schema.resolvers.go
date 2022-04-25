@@ -24,7 +24,7 @@ func (r *queryResolver) AllCategories(ctx context.Context) ([]*string, error) {
 func (r *queryResolver) AllSubCategories(ctx context.Context) ([]*string, error) {
 	resp, err := handlers.GetSubCategories(ctx)
 	if err != nil {
-		log.Errorf("error adding categotries: %v", err)
+		log.Errorf("error adding sub categotries: %v", err)
 		return nil, err
 	}
 	return resp, nil
@@ -42,7 +42,7 @@ func (r *queryResolver) LatestCourses(ctx context.Context, publishTime *int, pag
 func (r *queryResolver) GetCourse(ctx context.Context, courseID *string) (*model.Course, error) {
 	resp, err := handlers.GetCourseByID(ctx, courseID)
 	if err != nil {
-		log.Errorf("error getting latest courses: %v", err)
+		log.Errorf("error getting course: %v", err)
 		return nil, err
 	}
 	return resp, nil
@@ -51,7 +51,7 @@ func (r *queryResolver) GetCourse(ctx context.Context, courseID *string) (*model
 func (r *queryResolver) GetCourseModules(ctx context.Context, courseID *string) ([]*model.Module, error) {
 	resp, err := handlers.GetModulesCourseByID(ctx, courseID)
 	if err != nil {
-		log.Errorf("error getting latest courses: %v", err)
+		log.Errorf("error getting modules: %v", err)
 		return nil, err
 	}
 	return resp, nil
@@ -60,7 +60,7 @@ func (r *queryResolver) GetCourseModules(ctx context.Context, courseID *string) 
 func (r *queryResolver) GetModuleByID(ctx context.Context, moduleID *string) (*model.Module, error) {
 	resp, err := handlers.GetModuleByID(ctx, moduleID)
 	if err != nil {
-		log.Errorf("error getting latest courses: %v", err)
+		log.Errorf("error getting module by id: %v", err)
 		return nil, err
 	}
 	return resp, nil
@@ -69,7 +69,7 @@ func (r *queryResolver) GetModuleByID(ctx context.Context, moduleID *string) (*m
 func (r *queryResolver) GetCourseChapters(ctx context.Context, courseID *string) ([]*model.Chapter, error) {
 	resp, err := handlers.GetChaptersCourseByID(ctx, courseID)
 	if err != nil {
-		log.Errorf("error getting latest courses: %v", err)
+		log.Errorf("error getting chapters: %v", err)
 		return nil, err
 	}
 	return resp, nil
@@ -78,7 +78,7 @@ func (r *queryResolver) GetCourseChapters(ctx context.Context, courseID *string)
 func (r *queryResolver) GetChapterByID(ctx context.Context, chapterID *string) (*model.Chapter, error) {
 	resp, err := handlers.GetChapterByID(ctx, chapterID)
 	if err != nil {
-		log.Errorf("error getting latest courses: %v", err)
+		log.Errorf("error getting chapter by id: %v", err)
 		return nil, err
 	}
 	return resp, nil
@@ -87,7 +87,7 @@ func (r *queryResolver) GetChapterByID(ctx context.Context, chapterID *string) (
 func (r *queryResolver) GetTopics(ctx context.Context, courseID *string) ([]*model.Topic, error) {
 	resp, err := handlers.GetTopicsCourseByID(ctx, courseID)
 	if err != nil {
-		log.Errorf("error getting latest courses: %v", err)
+		log.Errorf("error getting topics: %v", err)
 		return nil, err
 	}
 	return resp, nil
@@ -96,7 +96,7 @@ func (r *queryResolver) GetTopics(ctx context.Context, courseID *string) ([]*mod
 func (r *queryResolver) GetTopicByID(ctx context.Context, topicID *string) (*model.Topic, error) {
 	resp, err := handlers.GetTopicByID(ctx, topicID)
 	if err != nil {
-		log.Errorf("error getting latest courses: %v", err)
+		log.Errorf("error getting topic by id: %v", err)
 		return nil, err
 	}
 	return resp, nil
@@ -105,7 +105,7 @@ func (r *queryResolver) GetTopicByID(ctx context.Context, topicID *string) (*mod
 func (r *queryResolver) GetTopicContent(ctx context.Context, topicID *string) ([]*model.TopicContent, error) {
 	resp, err := handlers.GetTopicContent(ctx, topicID)
 	if err != nil {
-		log.Errorf("error getting latest courses: %v", err)
+		log.Errorf("error getting topic content: %v", err)
 		return nil, err
 	}
 	return resp, nil
@@ -114,7 +114,7 @@ func (r *queryResolver) GetTopicContent(ctx context.Context, topicID *string) ([
 func (r *queryResolver) GetTopicResources(ctx context.Context, topicID *string) ([]*model.TopicResource, error) {
 	resp, err := handlers.GetTopicResources(ctx, topicID)
 	if err != nil {
-		log.Errorf("error getting latest courses: %v", err)
+		log.Errorf("error getting topic resources: %v", err)
 		return nil, err
 	}
 	return resp, nil
@@ -123,7 +123,7 @@ func (r *queryResolver) GetTopicResources(ctx context.Context, topicID *string) 
 func (r *queryResolver) GetTopicQuizes(ctx context.Context, topicID *string) ([]*model.Quiz, error) {
 	resp, err := handlers.GetTopicQuizes(ctx, topicID)
 	if err != nil {
-		log.Errorf("error getting latest courses: %v", err)
+		log.Errorf("error getting topic quizes: %v", err)
 		return nil, err
 	}
 	return resp, nil
@@ -132,7 +132,7 @@ func (r *queryResolver) GetTopicQuizes(ctx context.Context, topicID *string) ([]
 func (r *queryResolver) GetQuizFiles(ctx context.Context, quizID *string) ([]*model.QuizFile, error) {
 	resp, err := handlers.GetQuizFiles(ctx, quizID)
 	if err != nil {
-		log.Errorf("error getting latest courses: %v", err)
+		log.Errorf("error getting quiz files: %v", err)
 		return nil, err
 	}
 	return resp, nil
@@ -141,7 +141,7 @@ func (r *queryResolver) GetQuizFiles(ctx context.Context, quizID *string) ([]*mo
 func (r *queryResolver) GetMCQQuiz(ctx context.Context, quizID *string) ([]*model.QuizMcq, error) {
 	resp, err := handlers.GetMCQQuiz(ctx, quizID)
 	if err != nil {
-		log.Errorf("error getting latest courses: %v", err)
+		log.Errorf("error getting mcq quizes: %v", err)
 		return nil, err
 	}
 	return resp, nil
@@ -150,7 +150,16 @@ func (r *queryResolver) GetMCQQuiz(ctx context.Context, quizID *string) ([]*mode
 func (r *queryResolver) GetDescriptiveQuiz(ctx context.Context, quizID *string) ([]*model.QuizDescriptive, error) {
 	resp, err := handlers.GetQuizDes(ctx, quizID)
 	if err != nil {
-		log.Errorf("error getting latest courses: %v", err)
+		log.Errorf("error getting descriptive quizes: %v", err)
+		return nil, err
+	}
+	return resp, nil
+}
+
+func (r *queryResolver) GetTopicContentByCourseID(ctx context.Context, courseID *string) ([]*model.TopicContent, error) {
+	resp, err := handlers.GetTopicContentByCourse(ctx, courseID)
+	if err != nil {
+		log.Errorf("error getting topic content: %v", err)
 		return nil, err
 	}
 	return resp, nil
