@@ -143,6 +143,7 @@ type TopicResource{
     name: String
     type: String
     topicId: String
+    courseId: String
     created_at: String
     updated_at: String
     created_by: String
@@ -181,4 +182,5 @@ type Query{
   getMCQQuiz(quiz_id: String): [QuizMcq]
   getDescriptiveQuiz(quiz_id: String): [QuizDescriptive]
   getTopicContentByCourseId(course_id: String): [TopicContent]
+  getResourcesByCourseId(course_id: String): [TopicResource]
 }

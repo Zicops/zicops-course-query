@@ -165,6 +165,15 @@ func (r *queryResolver) GetTopicContentByCourseID(ctx context.Context, courseID 
 	return resp, nil
 }
 
+func (r *queryResolver) GetResourcesByCourseID(ctx context.Context, courseID *string) ([]*model.TopicResource, error) {
+	resp, err := handlers.GetCourseResources(ctx, courseID)
+	if err != nil {
+		log.Errorf("error getting topic resources by course id: %v", err)
+		return nil, err
+	}
+	return resp, nil
+}
+
 // Query returns generated.QueryResolver implementation.
 func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 

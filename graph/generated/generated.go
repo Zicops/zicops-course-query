@@ -121,6 +121,7 @@ type ComplexityRoot struct {
 		GetMCQQuiz                func(childComplexity int, quizID *string) int
 		GetModuleByID             func(childComplexity int, moduleID *string) int
 		GetQuizFiles              func(childComplexity int, quizID *string) int
+		GetResourcesByCourseID    func(childComplexity int, courseID *string) int
 		GetTopicByID              func(childComplexity int, topicID *string) int
 		GetTopicContent           func(childComplexity int, topicID *string) int
 		GetTopicContentByCourseID func(childComplexity int, courseID *string) int
@@ -199,6 +200,7 @@ type ComplexityRoot struct {
 	}
 
 	TopicResource struct {
+		CourseID  func(childComplexity int) int
 		CreatedAt func(childComplexity int) int
 		CreatedBy func(childComplexity int) int
 		ID        func(childComplexity int) int
@@ -234,6 +236,7 @@ type QueryResolver interface {
 	GetMCQQuiz(ctx context.Context, quizID *string) ([]*model.QuizMcq, error)
 	GetDescriptiveQuiz(ctx context.Context, quizID *string) ([]*model.QuizDescriptive, error)
 	GetTopicContentByCourseID(ctx context.Context, courseID *string) ([]*model.TopicContent, error)
+	GetResourcesByCourseID(ctx context.Context, courseID *string) ([]*model.TopicResource, error)
 }
 
 type executableSchema struct {
@@ -760,6 +763,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetQuizFiles(childComplexity, args["quiz_id"].(*string)), true
 
+	case "Query.getResourcesByCourseId":
+		if e.complexity.Query.GetResourcesByCourseID == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getResourcesByCourseId_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetResourcesByCourseID(childComplexity, args["course_id"].(*string)), true
+
 	case "Query.getTopicById":
 		if e.complexity.Query.GetTopicByID == nil {
 			break
@@ -1194,6 +1209,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TopicContent.UpdatedAt(childComplexity), true
 
+	case "TopicResource.courseId":
+		if e.complexity.TopicResource.CourseID == nil {
+			break
+		}
+
+		return e.complexity.TopicResource.CourseID(childComplexity), true
+
 	case "TopicResource.created_at":
 		if e.complexity.TopicResource.CreatedAt == nil {
 			break
@@ -1466,6 +1488,7 @@ type TopicResource{
     name: String
     type: String
     topicId: String
+    courseId: String
     created_at: String
     updated_at: String
     created_by: String
@@ -1504,6 +1527,7 @@ type Query{
   getMCQQuiz(quiz_id: String): [QuizMcq]
   getDescriptiveQuiz(quiz_id: String): [QuizDescriptive]
   getTopicContentByCourseId(course_id: String): [TopicContent]
+  getResourcesByCourseId(course_id: String): [TopicResource]
 }
 `, BuiltIn: false},
 }
@@ -1645,6 +1669,21 @@ func (ec *executionContext) field_Query_getQuizFiles_args(ctx context.Context, r
 		}
 	}
 	args["quiz_id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_getResourcesByCourseId_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *string
+	if tmp, ok := rawArgs["course_id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("course_id"))
+		arg0, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["course_id"] = arg0
 	return args, nil
 }
 
@@ -4300,6 +4339,45 @@ func (ec *executionContext) _Query_getTopicContentByCourseId(ctx context.Context
 	return ec.marshalOTopicContent2ᚕᚖgithubᚗcomᚋzicopsᚋzicopsᚑcourseᚑqueryᚋgraphᚋmodelᚐTopicContent(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Query_getResourcesByCourseId(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_getResourcesByCourseId_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetResourcesByCourseID(rctx, args["course_id"].(*string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*model.TopicResource)
+	fc.Result = res
+	return ec.marshalOTopicResource2ᚕᚖgithubᚗcomᚋzicopsᚋzicopsᚑcourseᚑqueryᚋgraphᚋmodelᚐTopicResource(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -6086,6 +6164,38 @@ func (ec *executionContext) _TopicResource_topicId(ctx context.Context, field gr
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.TopicID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _TopicResource_courseId(ctx context.Context, field graphql.CollectedField, obj *model.TopicResource) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "TopicResource",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CourseID, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8359,6 +8469,26 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
+		case "getResourcesByCourseId":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getResourcesByCourseId(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
 		case "__type":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Query___type(ctx, field)
@@ -8894,6 +9024,13 @@ func (ec *executionContext) _TopicResource(ctx context.Context, sel ast.Selectio
 		case "topicId":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._TopicResource_topicId(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+		case "courseId":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._TopicResource_courseId(ctx, field, obj)
 			}
 
 			out.Values[i] = innerFunc(ctx)

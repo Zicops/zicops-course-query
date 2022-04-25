@@ -150,6 +150,7 @@ type TopicResource struct {
 	Name      *string `json:"name"`
 	Type      *string `json:"type"`
 	TopicID   *string `json:"topicId"`
+	CourseID  *string `json:"courseId"`
 	CreatedAt *string `json:"created_at"`
 	UpdatedAt *string `json:"updated_at"`
 	CreatedBy *string `json:"created_by"`
