@@ -115,6 +115,7 @@ type TopicContent {
     type: String
     contentUrl: String
     subtitleUrl: String
+    is_default: Boolean
 }
 
 type QuizFile {

@@ -113,6 +113,7 @@ func GetTopicContentByCourse(ctx context.Context, courseID *string) ([]*model.To
 			NextShowTime:      &mod.NextShowtime,
 			FromEndTime:       &mod.FromEndTime,
 			Type:              &mod.Type,
+			IsDefault:         &mod.IsDefault,
 		}
 
 		topicsOut = append(topicsOut, currentModule)

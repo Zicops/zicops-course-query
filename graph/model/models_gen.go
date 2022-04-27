@@ -144,6 +144,7 @@ type TopicContent struct {
 	Type              *string `json:"type"`
 	ContentURL        *string `json:"contentUrl"`
 	SubtitleURL       *string `json:"subtitleUrl"`
+	IsDefault         *bool   `json:"is_default"`
 }
 
 type TopicResource struct {
