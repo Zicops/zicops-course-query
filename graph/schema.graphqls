@@ -48,6 +48,7 @@ type Course{
     category: String
     sub_category: String
     sub_categories: [sub_categories]
+    is_active: Boolean
 }
 
 type PaginatedCourse {
