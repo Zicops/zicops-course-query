@@ -123,15 +123,15 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 		}
 		tileUrl := ""
 		if course.TileImageBucket != "" {
-			storageC.GetSignedURLForObject(course.TileImageBucket)
+			tileUrl = storageC.GetSignedURLForObject(course.TileImageBucket)
 		}
 		imageUrl := ""
 		if course.ImageBucket != "" {
-			storageC.GetSignedURLForObject(course.ImageBucket)
+			imageUrl = storageC.GetSignedURLForObject(course.ImageBucket)
 		}
 		previewUrl := ""
 		if course.PreviewVideoBucket != "" {
-			storageC.GetSignedURLForObject(course.PreviewVideoBucket)
+			previewUrl = storageC.GetSignedURLForObject(course.PreviewVideoBucket)
 		}
 		currentCourse := model.Course{
 			ID:                 &course.ID,

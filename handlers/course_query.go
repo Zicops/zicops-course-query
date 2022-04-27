@@ -126,15 +126,15 @@ func GetCourseByID(ctx context.Context, courseID *string) (*model.Course, error)
 	}
 	tileUrl := ""
 	if course.TileImageBucket != "" {
-		storageC.GetSignedURLForObject(course.TileImageBucket)
+		tileUrl = storageC.GetSignedURLForObject(course.TileImageBucket)
 	}
 	imageUrl := ""
 	if course.ImageBucket != "" {
-		storageC.GetSignedURLForObject(course.ImageBucket)
+		imageUrl = storageC.GetSignedURLForObject(course.ImageBucket)
 	}
 	previewUrl := ""
 	if course.PreviewVideoBucket != "" {
-		storageC.GetSignedURLForObject(course.PreviewVideoBucket)
+		previewUrl = storageC.GetSignedURLForObject(course.PreviewVideoBucket)
 	}
 	var statusNew model.Status
 	if course.Status == model.StatusApprovalPending.String() {
