@@ -48,6 +48,7 @@ type Course{
     category: String
     sub_category: String
     sub_categories: [sub_categories]
+    is_active: Boolean
 }
 
 type PaginatedCourse {
@@ -114,6 +115,7 @@ type TopicContent {
     type: String
     contentUrl: String
     subtitleUrl: String
+    is_default: Boolean
 }
 
 type QuizFile {
