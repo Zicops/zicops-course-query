@@ -164,6 +164,7 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 			Category:           &course.Category,
 			SubCategory:        &course.SubCategory,
 			SubCategories:      subCatsRes,
+			IsActive:           &course.IsActive,
 		}
 		if course.TileImageBucket != "" {
 			currentCourse.TileImage = &tileUrl

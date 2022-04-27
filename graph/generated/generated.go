@@ -67,6 +67,7 @@ type ComplexityRoot struct {
 		ID                 func(childComplexity int) int
 		Image              func(childComplexity int) int
 		Instructor         func(childComplexity int) int
+		IsActive           func(childComplexity int) int
 		IsDisplay          func(childComplexity int) int
 		Language           func(childComplexity int) int
 		MustFor            func(childComplexity int) int
@@ -407,6 +408,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Course.Instructor(childComplexity), true
+
+	case "Course.is_active":
+		if e.complexity.Course.IsActive == nil {
+			break
+		}
+
+		return e.complexity.Course.IsActive(childComplexity), true
 
 	case "Course.is_display":
 		if e.complexity.Course.IsDisplay == nil {
@@ -1393,6 +1401,7 @@ type Course{
     category: String
     sub_category: String
     sub_categories: [sub_categories]
+    is_active: Boolean
 }
 
 type PaginatedCourse {
@@ -3176,6 +3185,38 @@ func (ec *executionContext) _Course_sub_categories(ctx context.Context, field gr
 	res := resTmp.([]*model.SubCategories)
 	fc.Result = res
 	return ec.marshalOsub_categories2ᚕᚖgithubᚗcomᚋzicopsᚋzicopsᚑcourseᚑqueryᚋgraphᚋmodelᚐSubCategories(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Course_is_active(ctx context.Context, field graphql.CollectedField, obj *model.Course) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Course",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.IsActive, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*bool)
+	fc.Result = res
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Module_id(ctx context.Context, field graphql.CollectedField, obj *model.Module) (ret graphql.Marshaler) {
@@ -7941,6 +7982,13 @@ func (ec *executionContext) _Course(ctx context.Context, sel ast.SelectionSet, o
 		case "sub_categories":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Course_sub_categories(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+		case "is_active":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Course_is_active(ctx, field, obj)
 			}
 
 			out.Values[i] = innerFunc(ctx)

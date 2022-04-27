@@ -53,6 +53,7 @@ type Course struct {
 	Category           *string          `json:"category"`
 	SubCategory        *string          `json:"sub_category"`
 	SubCategories      []*SubCategories `json:"sub_categories"`
+	IsActive           *bool            `json:"is_active"`
 }
 
 type Module struct {

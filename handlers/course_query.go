@@ -181,6 +181,7 @@ func GetCourseByID(ctx context.Context, courseID *string) (*model.Course, error)
 		Category:           &course.Category,
 		SubCategory:        &course.SubCategory,
 		SubCategories:      subCatsRes,
+		IsActive:           &course.IsActive,
 	}
 	if course.TileImageBucket != "" {
 		currentCourse.TileImage = &tileUrl
