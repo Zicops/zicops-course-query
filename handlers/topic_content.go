@@ -59,6 +59,7 @@ func GetTopicContent(ctx context.Context, topicID *string) ([]*model.TopicConten
 			NextShowTime:      &mod.NextShowtime,
 			FromEndTime:       &mod.FromEndTime,
 			Type:              &mod.Type,
+			IsDefault:         &mod.IsDefault,
 		}
 
 		topicsOut = append(topicsOut, currentModule)
