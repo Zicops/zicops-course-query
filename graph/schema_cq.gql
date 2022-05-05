@@ -100,6 +100,11 @@ type Topic {
     image: String
 }
 
+type SubtitleUrl {
+    url : String
+    language : String
+}
+
 type TopicContent {
     id: ID
     language: String
@@ -114,7 +119,7 @@ type TopicContent {
     updated_at: String
     type: String
     contentUrl: String
-    subtitleUrl: String
+    subtitleUrl: [SubtitleUrl]
     is_default: Boolean
 }
 

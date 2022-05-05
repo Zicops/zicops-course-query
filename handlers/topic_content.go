@@ -37,9 +37,9 @@ func GetTopicContent(ctx context.Context, topicID *string) ([]*model.TopicConten
 		mod := topCon
 		createdAt := strconv.FormatInt(mod.CreatedAt, 10)
 		updatedAt := strconv.FormatInt(mod.UpdatedAt, 10)
-		urlSub := ""
+		urlSub := make([]*model.SubtitleURL, 0)
 		if mod.SubtitleFileBucket != "" {
-			urlSub = storageC.GetSignedURLForObject(mod.SubtitleFileBucket)
+			urlSub = storageC.GetSignedURLsForObjects(mod.SubtitleFileBucket)
 		}
 		urlCon := ""
 		if mod.TopicContentBucket != "" {
@@ -49,7 +49,7 @@ func GetTopicContent(ctx context.Context, topicID *string) ([]*model.TopicConten
 			ID:                &mod.ID,
 			Language:          &mod.Language,
 			TopicID:           &mod.TopicId,
-			SubtitleURL:       &urlSub,
+			SubtitleURL:       urlSub,
 			ContentURL:        &urlCon,
 			CreatedAt:         &createdAt,
 			UpdatedAt:         &updatedAt,
@@ -91,9 +91,9 @@ func GetTopicContentByCourse(ctx context.Context, courseID *string) ([]*model.To
 		mod := topCon
 		createdAt := strconv.FormatInt(mod.CreatedAt, 10)
 		updatedAt := strconv.FormatInt(mod.UpdatedAt, 10)
-		urlSub := ""
+		urlSub := make([]*model.SubtitleURL, 0)
 		if mod.SubtitleFileBucket != "" {
-			urlSub = storageC.GetSignedURLForObject(mod.SubtitleFileBucket)
+			urlSub = storageC.GetSignedURLsForObjects(mod.SubtitleFileBucket)
 		}
 		urlCon := ""
 		if mod.TopicContentBucket != "" {
@@ -104,7 +104,7 @@ func GetTopicContentByCourse(ctx context.Context, courseID *string) ([]*model.To
 			Language:          &mod.Language,
 			TopicID:           &mod.TopicId,
 			CourseID:          &mod.CourseId,
-			SubtitleURL:       &urlSub,
+			SubtitleURL:       urlSub,
 			ContentURL:        &urlCon,
 			CreatedAt:         &createdAt,
 			UpdatedAt:         &updatedAt,

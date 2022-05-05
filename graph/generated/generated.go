@@ -167,6 +167,11 @@ type ComplexityRoot struct {
 		QuizID        func(childComplexity int) int
 	}
 
+	SubtitleUrl struct {
+		Language func(childComplexity int) int
+		URL      func(childComplexity int) int
+	}
+
 	Topic struct {
 		ChapterID   func(childComplexity int) int
 		CourseID    func(childComplexity int) int
@@ -1029,6 +1034,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.QuizMcq.QuizID(childComplexity), true
 
+	case "SubtitleUrl.language":
+		if e.complexity.SubtitleUrl.Language == nil {
+			break
+		}
+
+		return e.complexity.SubtitleUrl.Language(childComplexity), true
+
+	case "SubtitleUrl.url":
+		if e.complexity.SubtitleUrl.URL == nil {
+			break
+		}
+
+		return e.complexity.SubtitleUrl.URL(childComplexity), true
+
 	case "Topic.chapterId":
 		if e.complexity.Topic.ChapterID == nil {
 			break
@@ -1461,6 +1480,11 @@ type Topic {
     image: String
 }
 
+type SubtitleUrl {
+    url : String
+    language : String
+}
+
 type TopicContent {
     id: ID
     language: String
@@ -1475,7 +1499,7 @@ type TopicContent {
     updated_at: String
     type: String
     contentUrl: String
-    subtitleUrl: String
+    subtitleUrl: [SubtitleUrl]
     is_default: Boolean
 }
 
@@ -5235,6 +5259,70 @@ func (ec *executionContext) _QuizMcq_explanation(ctx context.Context, field grap
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _SubtitleUrl_url(ctx context.Context, field graphql.CollectedField, obj *model.SubtitleURL) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SubtitleUrl",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.URL, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _SubtitleUrl_language(ctx context.Context, field graphql.CollectedField, obj *model.SubtitleURL) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "SubtitleUrl",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Language, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Topic_id(ctx context.Context, field graphql.CollectedField, obj *model.Topic) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -6094,9 +6182,9 @@ func (ec *executionContext) _TopicContent_subtitleUrl(ctx context.Context, field
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.([]*model.SubtitleURL)
 	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalOSubtitleUrl2ᚕᚖgithubᚗcomᚋzicopsᚋzicopsᚑcourseᚑqueryᚋgraphᚋmodelᚐSubtitleURL(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _TopicContent_is_default(ctx context.Context, field graphql.CollectedField, obj *model.TopicContent) (ret graphql.Marshaler) {
@@ -8848,6 +8936,41 @@ func (ec *executionContext) _QuizMcq(ctx context.Context, sel ast.SelectionSet, 
 	return out
 }
 
+var subtitleUrlImplementors = []string{"SubtitleUrl"}
+
+func (ec *executionContext) _SubtitleUrl(ctx context.Context, sel ast.SelectionSet, obj *model.SubtitleURL) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, subtitleUrlImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SubtitleUrl")
+		case "url":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._SubtitleUrl_url(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+		case "language":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._SubtitleUrl_language(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var topicImplementors = []string{"Topic"}
 
 func (ec *executionContext) _Topic(ctx context.Context, sel ast.SelectionSet, obj *model.Topic) graphql.Marshaler {
@@ -10381,6 +10504,54 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 	}
 	res := graphql.MarshalString(*v)
 	return res
+}
+
+func (ec *executionContext) marshalOSubtitleUrl2ᚕᚖgithubᚗcomᚋzicopsᚋzicopsᚑcourseᚑqueryᚋgraphᚋmodelᚐSubtitleURL(ctx context.Context, sel ast.SelectionSet, v []*model.SubtitleURL) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOSubtitleUrl2ᚖgithubᚗcomᚋzicopsᚋzicopsᚑcourseᚑqueryᚋgraphᚋmodelᚐSubtitleURL(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	return ret
+}
+
+func (ec *executionContext) marshalOSubtitleUrl2ᚖgithubᚗcomᚋzicopsᚋzicopsᚑcourseᚑqueryᚋgraphᚋmodelᚐSubtitleURL(ctx context.Context, sel ast.SelectionSet, v *model.SubtitleURL) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._SubtitleUrl(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOTopic2ᚕᚖgithubᚗcomᚋzicopsᚋzicopsᚑcourseᚑqueryᚋgraphᚋmodelᚐTopic(ctx context.Context, sel ast.SelectionSet, v []*model.Topic) graphql.Marshaler {

@@ -113,6 +113,11 @@ type QuizMcq struct {
 	Explanation   *string   `json:"explanation"`
 }
 
+type SubtitleURL struct {
+	URL      *string `json:"url"`
+	Language *string `json:"language"`
+}
+
 type Topic struct {
 	ID          *string `json:"id"`
 	Name        *string `json:"name"`
@@ -130,21 +135,21 @@ type Topic struct {
 }
 
 type TopicContent struct {
-	ID                *string `json:"id"`
-	Language          *string `json:"language"`
-	TopicID           *string `json:"topicId"`
-	CourseID          *string `json:"courseId"`
-	StartTime         *int    `json:"startTime"`
-	Duration          *int    `json:"duration"`
-	SkipIntroDuration *int    `json:"skipIntroDuration"`
-	NextShowTime      *int    `json:"nextShowTime"`
-	FromEndTime       *int    `json:"fromEndTime"`
-	CreatedAt         *string `json:"created_at"`
-	UpdatedAt         *string `json:"updated_at"`
-	Type              *string `json:"type"`
-	ContentURL        *string `json:"contentUrl"`
-	SubtitleURL       *string `json:"subtitleUrl"`
-	IsDefault         *bool   `json:"is_default"`
+	ID                *string        `json:"id"`
+	Language          *string        `json:"language"`
+	TopicID           *string        `json:"topicId"`
+	CourseID          *string        `json:"courseId"`
+	StartTime         *int           `json:"startTime"`
+	Duration          *int           `json:"duration"`
+	SkipIntroDuration *int           `json:"skipIntroDuration"`
+	NextShowTime      *int           `json:"nextShowTime"`
+	FromEndTime       *int           `json:"fromEndTime"`
+	CreatedAt         *string        `json:"created_at"`
+	UpdatedAt         *string        `json:"updated_at"`
+	Type              *string        `json:"type"`
+	ContentURL        *string        `json:"contentUrl"`
+	SubtitleURL       []*SubtitleURL `json:"subtitleUrl"`
+	IsDefault         *bool          `json:"is_default"`
 }
 
 type TopicResource struct {

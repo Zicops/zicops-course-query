@@ -8,6 +8,7 @@ import (
 
 	"cloud.google.com/go/storage"
 	"github.com/zicops/zicops-course-query/constants"
+	"github.com/zicops/zicops-course-query/graph/model"
 	"github.com/zicops/zicops-course-query/helpers"
 	"google.golang.org/api/option"
 )
@@ -16,7 +17,7 @@ import (
 type Client struct {
 	projectID string
 	client    *storage.Client
-	bucket   *storage.BucketHandle
+	bucket    *storage.BucketHandle
 }
 
 // NewStorageHandler return new database action
@@ -44,7 +45,7 @@ func (sc *Client) InitializeStorageClient(ctx context.Context, projectID string)
 	}
 	sc.client = client
 	sc.projectID = projectID
-	sc.bucket, _= sc.CreateBucket(ctx, constants.COURSES_BUCKET)
+	sc.bucket, _ = sc.CreateBucket(ctx, constants.COURSES_BUCKET)
 	return nil
 }
 
@@ -77,4 +78,33 @@ func (sc *Client) GetSignedURLForObject(object string) string {
 		return ""
 	}
 	return url
+}
+
+func (sc *Client) GetSignedURLsForObjects(bucketPath string) []*model.SubtitleURL {
+	opts := &storage.SignedURLOptions{
+		Scheme:  storage.SigningSchemeV4,
+		Method:  "GET",
+		Expires: time.Now().Add(24 * time.Hour),
+	}
+	bkt := sc.client.Bucket(bucketPath)
+	// iterate over all objects in bucket
+	var urls []*model.SubtitleURL
+	objectsIter := bkt.Objects(context.Background(), nil)
+	for {
+		obj, err := objectsIter.Next()
+		if err != nil {
+			break
+		}
+		objectBucketPath := fmt.Sprintf("%s/%s", obj.Bucket, obj.Name)
+		url, err := bkt.SignedURL(objectBucketPath, opts)
+		if err != nil {
+			break
+		}
+		language := ""
+		if value, ok := obj.Metadata["language"]; ok {
+			language = value
+		}
+		urls = append(urls, &model.SubtitleURL{URL: &url, Language: &language})
+	}
+	return urls
 }
