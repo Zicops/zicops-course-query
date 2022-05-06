@@ -33,13 +33,18 @@ func GetTopicContent(ctx context.Context, topicID *string) ([]*model.TopicConten
 		log.Errorf("Failed to initialize storage: %v", err.Error())
 		return nil, err
 	}
+	foundOnce := false
+	urlSub := make([]*model.SubtitleURL, 0)
 	for _, topCon := range currentContent {
 		mod := topCon
 		createdAt := strconv.FormatInt(mod.CreatedAt, 10)
 		updatedAt := strconv.FormatInt(mod.UpdatedAt, 10)
-		urlSub := make([]*model.SubtitleURL, 0)
-		if mod.SubtitleFileBucket != "" {
-			urlSub = storageC.GetSignedURLsForObjects(mod.SubtitleFileBucket)
+		if !foundOnce {
+			mainBucket := mod.CourseId + "/" + mod.TopicId + "/subtitles/"
+			if mainBucket != "" {
+				urlSub = storageC.GetSignedURLsForObjects(mod.SubtitleFileBucket)
+			}
+			foundOnce = true
 		}
 		urlCon := ""
 		if mod.TopicContentBucket != "" {
@@ -87,13 +92,18 @@ func GetTopicContentByCourse(ctx context.Context, courseID *string) ([]*model.To
 		log.Errorf("Failed to initialize storage: %v", err.Error())
 		return nil, err
 	}
+	foundOnce := true
+	urlSub := make([]*model.SubtitleURL, 0)
 	for _, topCon := range currentContent {
 		mod := topCon
 		createdAt := strconv.FormatInt(mod.CreatedAt, 10)
 		updatedAt := strconv.FormatInt(mod.UpdatedAt, 10)
-		urlSub := make([]*model.SubtitleURL, 0)
-		if mod.SubtitleFileBucket != "" {
-			urlSub = storageC.GetSignedURLsForObjects(mod.SubtitleFileBucket)
+		if !foundOnce {
+			mainBucket := *courseID + "/" + mod.TopicId + "/subtitles/"
+			if mainBucket != "" {
+				urlSub = storageC.GetSignedURLsForObjects(mod.SubtitleFileBucket)
+			}
+			foundOnce = true
 		}
 		urlCon := ""
 		if mod.TopicContentBucket != "" {
@@ -119,5 +129,6 @@ func GetTopicContentByCourse(ctx context.Context, courseID *string) ([]*model.To
 
 		topicsOut = append(topicsOut, currentModule)
 	}
+
 	return topicsOut, nil
 }
