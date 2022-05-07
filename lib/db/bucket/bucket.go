@@ -86,17 +86,22 @@ func (sc *Client) GetSignedURLsForObjects(bucketPath string) []*model.SubtitleUR
 		Method:  "GET",
 		Expires: time.Now().Add(24 * time.Hour),
 	}
-	bkt := sc.client.Bucket(bucketPath)
+	ctx := context.Background()
+
+	objectsIter := sc.bucket.Objects(ctx, &storage.Query{
+		Prefix:    bucketPath,
+		Delimiter: "/",
+	})
 	// iterate over all objects in bucket
 	var urls []*model.SubtitleURL
-	objectsIter := bkt.Objects(context.Background(), nil)
+
 	for {
 		obj, err := objectsIter.Next()
 		if err != nil {
 			break
 		}
 		objectBucketPath := fmt.Sprintf("%s/%s", obj.Bucket, obj.Name)
-		url, err := bkt.SignedURL(objectBucketPath, opts)
+		url, err := sc.bucket.SignedURL(objectBucketPath, opts)
 		if err != nil {
 			break
 		}
