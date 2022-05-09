@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"cloud.google.com/go/storage"
@@ -86,17 +87,24 @@ func (sc *Client) GetSignedURLsForObjects(bucketPath string) []*model.SubtitleUR
 		Method:  "GET",
 		Expires: time.Now().Add(24 * time.Hour),
 	}
-	bkt := sc.client.Bucket(bucketPath)
+	ctx := context.Background()
+	splitPath := strings.Split(bucketPath, "/")
+	// join  splitpath from index 1 to last
+	joinedPath := strings.Join(splitPath[1:], "/")
+	objectsIter := sc.bucket.Objects(ctx, &storage.Query{
+		Prefix:    joinedPath,
+		Delimiter: "/",
+	})
 	// iterate over all objects in bucket
 	var urls []*model.SubtitleURL
-	objectsIter := bkt.Objects(context.Background(), nil)
+
 	for {
 		obj, err := objectsIter.Next()
 		if err != nil {
 			break
 		}
 		objectBucketPath := fmt.Sprintf("%s/%s", obj.Bucket, obj.Name)
-		url, err := bkt.SignedURL(objectBucketPath, opts)
+		url, err := sc.bucket.SignedURL(objectBucketPath, opts)
 		if err != nil {
 			break
 		}
