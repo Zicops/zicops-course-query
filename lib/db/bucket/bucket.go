@@ -99,8 +99,7 @@ func (sc *Client) GetSignedURLsForObjects(bucketPath string) []*model.SubtitleUR
 		if err != nil {
 			break
 		}
-		objectBucketPath := fmt.Sprintf("%s/%s", obj.Bucket, obj.Name)
-		url, err := sc.bucket.SignedURL(objectBucketPath, opts)
+		url, err := sc.bucket.SignedURL(obj.Name, opts)
 		if err != nil {
 			break
 		}
