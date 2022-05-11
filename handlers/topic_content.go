@@ -42,7 +42,7 @@ func GetTopicContent(ctx context.Context, topicID *string) ([]*model.TopicConten
 		if !foundOnce {
 			mainBucket := mod.CourseId + "/" + mod.TopicId + "/subtitles/"
 			if mainBucket != "" {
-				urlSub = storageC.GetSignedURLsForObjects(mod.SubtitleFileBucket)
+				urlSub = storageC.GetSignedURLsForObjects(mainBucket)
 			}
 			foundOnce = true
 		}
