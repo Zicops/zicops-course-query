@@ -100,7 +100,7 @@ func GetTopicContentByCourse(ctx context.Context, courseID *string) ([]*model.To
 		createdAt := strconv.FormatInt(mod.CreatedAt, 10)
 		updatedAt := strconv.FormatInt(mod.UpdatedAt, 10)
 		if !foundOnce {
-			mainBucket := *courseID + "/" + mod.TopicId + "/subtitles/"
+			mainBucket := mod.CourseId + "/" + mod.TopicId + "/subtitles/"
 			if mainBucket != "" {
 				urlSub = storageC.GetSignedURLsForObjects(mainBucket)
 			}
