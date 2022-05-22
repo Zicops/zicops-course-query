@@ -230,7 +230,12 @@ func (r *queryResolver) GetQPBankMappingBySectionID(ctx context.Context, section
 }
 
 func (r *queryResolver) GetSectionFixedQuestions(ctx context.Context, sectionID *string) ([]*model.SectionFixedQuestions, error) {
-	panic(fmt.Errorf("not implemented"))
+	resp, err := handlers.GetSectionFixedQuestions(ctx, sectionID)
+	if err != nil {
+		log.Errorf("error getting question papers sections questions: %v", err)
+		return nil, err
+	}
+	return resp, nil
 }
 
 func (r *queryResolver) GetOptionsForQuestions(ctx context.Context, questionIds []*string) ([]*model.MapQuestionWithOption, error) {
