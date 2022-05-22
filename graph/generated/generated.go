@@ -3089,9 +3089,9 @@ type Exam {
 type ExamSchedule {
     id: ID
     ExamId: String
-    Start: Int
-    End: Int
-    BufferTime: Int
+    Start: String
+    End: String
+    BufferTime: String
     CreatedAt: String
     UpdatedAt: String
     CreatedBy: String
@@ -3103,7 +3103,7 @@ type ExamInstruction {
     id: ID
     ExamId: String
     PassingCriteria: String
-    NoAttempts: Int
+    NoAttempts: String
     AccessType: String
     CreatedAt: String
     UpdatedAt: String
@@ -6343,9 +6343,9 @@ func (ec *executionContext) _ExamInstruction_NoAttempts(ctx context.Context, fie
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*int)
+	res := resTmp.(*string)
 	fc.Result = res
-	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _ExamInstruction_AccessType(ctx context.Context, field graphql.CollectedField, obj *model.ExamInstruction) (ret graphql.Marshaler) {
@@ -6631,9 +6631,9 @@ func (ec *executionContext) _ExamSchedule_Start(ctx context.Context, field graph
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*int)
+	res := resTmp.(*string)
 	fc.Result = res
-	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _ExamSchedule_End(ctx context.Context, field graphql.CollectedField, obj *model.ExamSchedule) (ret graphql.Marshaler) {
@@ -6663,9 +6663,9 @@ func (ec *executionContext) _ExamSchedule_End(ctx context.Context, field graphql
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*int)
+	res := resTmp.(*string)
 	fc.Result = res
-	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _ExamSchedule_BufferTime(ctx context.Context, field graphql.CollectedField, obj *model.ExamSchedule) (ret graphql.Marshaler) {
@@ -6695,9 +6695,9 @@ func (ec *executionContext) _ExamSchedule_BufferTime(ctx context.Context, field 
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*int)
+	res := resTmp.(*string)
 	fc.Result = res
-	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _ExamSchedule_CreatedAt(ctx context.Context, field graphql.CollectedField, obj *model.ExamSchedule) (ret graphql.Marshaler) {

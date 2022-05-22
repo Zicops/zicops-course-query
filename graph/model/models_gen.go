@@ -104,7 +104,7 @@ type ExamInstruction struct {
 	ID              *string `json:"id"`
 	ExamID          *string `json:"ExamId"`
 	PassingCriteria *string `json:"PassingCriteria"`
-	NoAttempts      *int    `json:"NoAttempts"`
+	NoAttempts      *string `json:"NoAttempts"`
 	AccessType      *string `json:"AccessType"`
 	CreatedAt       *string `json:"CreatedAt"`
 	UpdatedAt       *string `json:"UpdatedAt"`
@@ -116,9 +116,9 @@ type ExamInstruction struct {
 type ExamSchedule struct {
 	ID         *string `json:"id"`
 	ExamID     *string `json:"ExamId"`
-	Start      *int    `json:"Start"`
-	End        *int    `json:"End"`
-	BufferTime *int    `json:"BufferTime"`
+	Start      *string `json:"Start"`
+	End        *string `json:"End"`
+	BufferTime *string `json:"BufferTime"`
 	CreatedAt  *string `json:"CreatedAt"`
 	UpdatedAt  *string `json:"UpdatedAt"`
 	CreatedBy  *string `json:"CreatedBy"`
