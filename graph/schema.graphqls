@@ -381,7 +381,7 @@ type Query{
   getDescriptiveQuiz(quiz_id: String): [QuizDescriptive]
   getTopicContentByCourseId(course_id: String): [TopicContent]
   getResourcesByCourseId(course_id: String): [TopicResource]
-  getLatestQuestionBank(publish_time: Int, pageCursor: String, Direction: String, pageSize:Int, status:Status): PaginatedQuestionBank
+  getLatestQuestionBank(publish_time: Int, pageCursor: String, Direction: String, pageSize:Int): PaginatedQuestionBank
   getQuestionBankQuestions(question_bank_id: String): [QuestionBankQuestion]
   getLatestQuestionPapers(publish_time: Int, pageCursor: String, Direction: String, pageSize:Int, status:Status): PaginatedQuestionPapers
   getQuestionPaperSections(question_paper_id: String): [QuestionPaperSection]

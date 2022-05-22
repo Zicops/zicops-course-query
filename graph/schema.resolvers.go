@@ -175,12 +175,22 @@ func (r *queryResolver) GetResourcesByCourseID(ctx context.Context, courseID *st
 	return resp, nil
 }
 
-func (r *queryResolver) GetLatestQuestionBank(ctx context.Context, publishTime *int, pageCursor *string, direction *string, pageSize *int, status *model.Status) (*model.PaginatedQuestionBank, error) {
-	panic(fmt.Errorf("not implemented"))
+func (r *queryResolver) GetLatestQuestionBank(ctx context.Context, publishTime *int, pageCursor *string, direction *string, pageSize *int) (*model.PaginatedQuestionBank, error) {
+	resp, err := handlers.LatestQuestionBanks(ctx, publishTime, pageCursor, direction, pageSize)
+	if err != nil {
+		log.Errorf("error getting latest question banks: %v", err)
+		return nil, err
+	}
+	return resp, nil
 }
 
 func (r *queryResolver) GetQuestionBankQuestions(ctx context.Context, questionBankID *string) ([]*model.QuestionBankQuestion, error) {
-	panic(fmt.Errorf("not implemented"))
+	resp, err := handlers.GetQuestionBankQuestions(ctx, questionBankID)
+	if err != nil {
+		log.Errorf("error getting questions: %v", err)
+		return nil, err
+	}
+	return resp, nil
 }
 
 func (r *queryResolver) GetLatestQuestionPapers(ctx context.Context, publishTime *int, pageCursor *string, direction *string, pageSize *int, status *model.Status) (*model.PaginatedQuestionPapers, error) {
