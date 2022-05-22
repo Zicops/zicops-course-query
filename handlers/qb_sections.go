@@ -118,3 +118,35 @@ func GetQPBankMappingBySectionID(ctx context.Context, sectionID *string) ([]*mod
 	}
 	return allSectionsMap, nil
 }
+
+func GetSectionFixedQuestions(ctx context.Context, sectionID *string) ([]*model.SectionFixedQuestions, error) {
+	qryStr := fmt.Sprintf(`SELECT * from qbankz.section_fixed_questions where sqb_id = %s  ALLOW FILTERING`, *sectionID)
+	getBanks := func() (banks []qbankz.SectionFixedQuestions, err error) {
+		q := global.CassSession.Session.Query(qryStr, nil)
+		defer q.Release()
+		iter := q.Iter()
+		return banks, iter.Select(&banks)
+	}
+	banks, err := getBanks()
+	if err != nil {
+		return nil, err
+	}
+	allSectionsMap := make([]*model.SectionFixedQuestions, 0)
+	for _, bank := range banks {
+		copiedQuestion := bank
+		createdAt := strconv.FormatInt(copiedQuestion.CreatedAt, 10)
+		updatedAt := strconv.FormatInt(copiedQuestion.UpdatedAt, 10)
+		currentQuestion := &model.SectionFixedQuestions{
+			ID:         &copiedQuestion.ID,
+			SqbID:      &copiedQuestion.SQBId,
+			QuestionID: &copiedQuestion.QuestionID,
+			CreatedBy:  &copiedQuestion.CreatedBy,
+			CreatedAt:  &createdAt,
+			UpdatedBy:  &copiedQuestion.UpdatedBy,
+			UpdatedAt:  &updatedAt,
+			IsActive:   &copiedQuestion.IsActive,
+		}
+		allSectionsMap = append(allSectionsMap, currentQuestion)
+	}
+	return allSectionsMap, nil
+}
