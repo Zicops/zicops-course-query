@@ -56,6 +56,76 @@ type Course struct {
 	IsActive           *bool            `json:"is_active"`
 }
 
+type Exam struct {
+	ID           *string `json:"id"`
+	Name         *string `json:"Name"`
+	Description  *string `json:"Description"`
+	Code         *string `json:"Code"`
+	QpID         *string `json:"QpId"`
+	CreatedAt    *string `json:"CreatedAt"`
+	UpdatedAt    *string `json:"UpdatedAt"`
+	CreatedBy    *string `json:"CreatedBy"`
+	UpdatedBy    *string `json:"UpdatedBy"`
+	IsActive     *bool   `json:"IsActive"`
+	Type         *string `json:"Type"`
+	ScheduleType *string `json:"ScheduleType"`
+	Duration     *int    `json:"Duration"`
+	Status       *string `json:"Status"`
+	Category     *string `json:"Category"`
+	SubCategory  *string `json:"SubCategory"`
+}
+
+type ExamCohort struct {
+	ID        *string `json:"id"`
+	ExamID    *string `json:"ExamId"`
+	CohortID  *string `json:"CohortId"`
+	CreatedAt *string `json:"CreatedAt"`
+	UpdatedAt *string `json:"UpdatedAt"`
+	CreatedBy *string `json:"CreatedBy"`
+	UpdatedBy *string `json:"UpdatedBy"`
+	IsActive  *bool   `json:"IsActive"`
+}
+
+type ExamConfiguration struct {
+	ID           *string `json:"id"`
+	ExamID       *string `json:"ExamId"`
+	Shuffle      *bool   `json:"Shuffle"`
+	DisplayHints *bool   `json:"DisplayHints"`
+	ShowAnswer   *bool   `json:"ShowAnswer"`
+	ShowResult   *bool   `json:"ShowResult"`
+	CreatedBy    *string `json:"CreatedBy"`
+	UpdatedBy    *string `json:"UpdatedBy"`
+	IsActive     *bool   `json:"IsActive"`
+	CreatedAt    *string `json:"CreatedAt"`
+	UpdatedAt    *string `json:"UpdatedAt"`
+}
+
+type ExamInstruction struct {
+	ID              *string `json:"id"`
+	ExamID          *string `json:"ExamId"`
+	PassingCriteria *string `json:"PassingCriteria"`
+	NoAttempts      *int    `json:"NoAttempts"`
+	AccessType      *string `json:"AccessType"`
+	CreatedAt       *string `json:"CreatedAt"`
+	UpdatedAt       *string `json:"UpdatedAt"`
+	CreatedBy       *string `json:"CreatedBy"`
+	UpdatedBy       *string `json:"UpdatedBy"`
+	IsActive        *bool   `json:"IsActive"`
+}
+
+type ExamSchedule struct {
+	ID         *string `json:"id"`
+	ExamID     *string `json:"ExamId"`
+	Start      *int    `json:"Start"`
+	End        *int    `json:"End"`
+	BufferTime *int    `json:"BufferTime"`
+	CreatedAt  *string `json:"CreatedAt"`
+	UpdatedAt  *string `json:"UpdatedAt"`
+	CreatedBy  *string `json:"CreatedBy"`
+	UpdatedBy  *string `json:"UpdatedBy"`
+	IsActive   *bool   `json:"IsActive"`
+}
+
 type MapQuestionWithOption struct {
 	QuestionID *string           `json:"question_id"`
 	Options    []*QuestionOption `json:"options"`

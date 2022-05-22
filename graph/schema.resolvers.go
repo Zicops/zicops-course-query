@@ -207,6 +207,26 @@ func (r *queryResolver) GetOptionsForQuestions(ctx context.Context, questionIds 
 	panic(fmt.Errorf("not implemented"))
 }
 
+func (r *queryResolver) GetExamsByQPId(ctx context.Context, questionPaperID *string) ([]*model.Exam, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *queryResolver) GetExamSchedule(ctx context.Context, examID *string) (*model.ExamSchedule, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *queryResolver) GetExamInstruction(ctx context.Context, examID *string) (*model.ExamInstruction, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *queryResolver) GetExamCohort(ctx context.Context, examID *string) (*model.ExamCohort, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *queryResolver) GetExamConfiguration(ctx context.Context, examID *string) (*model.ExamConfiguration, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
 // Query returns generated.QueryResolver implementation.
 func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 

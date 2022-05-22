@@ -292,6 +292,76 @@ type MapQuestionWithOption{
     options:[QuestionOption]
 }
 
+type Exam {
+    id: ID
+    Name: String
+    Description: String
+    Code : String
+    QpId: String
+    CreatedAt: String
+    UpdatedAt: String
+    CreatedBy: String
+    UpdatedBy: String
+    IsActive : Boolean
+    Type: String
+    ScheduleType: String
+    Duration: Int
+    Status: String
+    Category: String
+    SubCategory: String
+}
+
+type ExamSchedule {
+    id: ID
+    ExamId: String
+    Start: Int
+    End: Int
+    BufferTime: Int
+    CreatedAt: String
+    UpdatedAt: String
+    CreatedBy: String
+    UpdatedBy: String
+    IsActive : Boolean
+}
+
+type ExamInstruction {
+    id: ID
+    ExamId: String
+    PassingCriteria: String
+    NoAttempts: Int
+    AccessType: String
+    CreatedAt: String
+    UpdatedAt: String
+    CreatedBy: String
+    UpdatedBy: String
+    IsActive : Boolean
+}
+
+type ExamCohort {
+    id: ID
+    ExamId: String
+    CohortId: String
+    CreatedAt: String
+    UpdatedAt: String
+    CreatedBy: String
+    UpdatedBy: String
+    IsActive : Boolean
+}
+
+type ExamConfiguration {
+    id: ID
+    ExamId: String
+    Shuffle: Boolean
+    DisplayHints: Boolean
+    ShowAnswer: Boolean
+    ShowResult: Boolean
+    CreatedBy: String
+    UpdatedBy: String
+    IsActive : Boolean
+    CreatedAt: String
+    UpdatedAt: String
+}
+
 type Query{
   allCategories: [String]
   allSubCategories: [String]
@@ -319,4 +389,9 @@ type Query{
   getQPBankMappingBySectionId(section_id: String): [SectionQBMapping]
   getSectionFixedQuestions(section_id: String): [SectionFixedQuestions]
   getOptionsForQuestions(question_ids: [String]): [MapQuestionWithOption]
+  getExamsByQPId(question_paper_id: String): [Exam]
+  getExamSchedule(exam_id: String): ExamSchedule
+  getExamInstruction(exam_id: String): ExamInstruction
+  getExamCohort(exam_id: String): ExamCohort
+  getExamConfiguration(exam_id: String): ExamConfiguration
 }
