@@ -85,3 +85,38 @@ func GetExamSchedule(ctx context.Context, examID *string) (*model.ExamSchedule, 
 	}
 	return allSections[0], nil
 }
+
+func GetExamInstruction(ctx context.Context, examID *string) (*model.ExamInstruction, error) {
+	qryStr := fmt.Sprintf(`SELECT * from qbankz.exam_instructions where exam_id = %s  ALLOW FILTERING`, *examID)
+	getBanks := func() (banks []qbankz.ExamInstructions, err error) {
+		q := global.CassSession.Session.Query(qryStr, nil)
+		defer q.Release()
+		iter := q.Iter()
+		return banks, iter.Select(&banks)
+	}
+	banks, err := getBanks()
+	if err != nil {
+		return nil, err
+	}
+	allSections := make([]*model.ExamInstruction, 0)
+	for _, bank := range banks {
+		copiedQuestion := bank
+		createdAt := strconv.FormatInt(copiedQuestion.CreatedAt, 10)
+		updatedAt := strconv.FormatInt(copiedQuestion.UpdatedAt, 10)
+		attempts := strconv.Itoa(copiedQuestion.NoAttempts)
+		currentQuestion := &model.ExamInstruction{
+			ID:              &copiedQuestion.ID,
+			CreatedBy:       &copiedQuestion.CreatedBy,
+			CreatedAt:       &createdAt,
+			UpdatedBy:       &copiedQuestion.UpdatedBy,
+			UpdatedAt:       &updatedAt,
+			ExamID:          &copiedQuestion.ExamID,
+			IsActive:        &copiedQuestion.IsActive,
+			PassingCriteria: &copiedQuestion.PassingCriteria,
+			AccessType:      &copiedQuestion.AccessType,
+			NoAttempts:      &attempts,
+		}
+		allSections = append(allSections, currentQuestion)
+	}
+	return allSections[0], nil
+}
