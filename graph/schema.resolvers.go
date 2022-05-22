@@ -5,7 +5,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/zicops-course-query/graph/generated"
@@ -284,7 +283,12 @@ func (r *queryResolver) GetExamCohort(ctx context.Context, examID *string) (*mod
 }
 
 func (r *queryResolver) GetExamConfiguration(ctx context.Context, examID *string) (*model.ExamConfiguration, error) {
-	panic(fmt.Errorf("not implemented"))
+	resp, err := handlers.GetExamConfiguration(ctx, examID)
+	if err != nil {
+		log.Errorf("error getting exam configuration: %v", err)
+		return nil, err
+	}
+	return resp, nil
 }
 
 // Query returns generated.QueryResolver implementation.
