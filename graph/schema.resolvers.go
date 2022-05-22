@@ -275,7 +275,12 @@ func (r *queryResolver) GetExamInstruction(ctx context.Context, examID *string) 
 }
 
 func (r *queryResolver) GetExamCohort(ctx context.Context, examID *string) (*model.ExamCohort, error) {
-	panic(fmt.Errorf("not implemented"))
+	resp, err := handlers.GetExamCohort(ctx, examID)
+	if err != nil {
+		log.Errorf("error getting exam cohort: %v", err)
+		return nil, err
+	}
+	return resp, nil
 }
 
 func (r *queryResolver) GetExamConfiguration(ctx context.Context, examID *string) (*model.ExamConfiguration, error) {
