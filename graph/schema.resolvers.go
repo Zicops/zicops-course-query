@@ -5,6 +5,7 @@ package graph
 
 import (
 	"context"
+	"fmt"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/zicops-course-query/graph/generated"
@@ -172,6 +173,38 @@ func (r *queryResolver) GetResourcesByCourseID(ctx context.Context, courseID *st
 		return nil, err
 	}
 	return resp, nil
+}
+
+func (r *queryResolver) GetLatestQuestionBank(ctx context.Context, publishTime *int, pageCursor *string, direction *string, pageSize *int, status *model.Status) (*model.PaginatedQuestionBank, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *queryResolver) GetQuestionBankQuestions(ctx context.Context, questionBankID *string) ([]*model.QuestionBankQuestion, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *queryResolver) GetLatestQuestionPapers(ctx context.Context, publishTime *int, pageCursor *string, direction *string, pageSize *int, status *model.Status) (*model.PaginatedQuestionPapers, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *queryResolver) GetQuestionPaperSections(ctx context.Context, questionPaperID *string) ([]*model.QuestionPaperSection, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *queryResolver) GetQPBankMappingByQPId(ctx context.Context, questionPaperID *string) ([]*model.SectionQBMapping, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *queryResolver) GetQPBankMappingBySectionID(ctx context.Context, sectionID *string) ([]*model.SectionQBMapping, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *queryResolver) GetSectionFixedQuestions(ctx context.Context, sectionID *string) ([]*model.SectionFixedQuestions, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *queryResolver) GetOptionsForQuestions(ctx context.Context, questionIds []*string) ([]*model.MapQuestionWithOption, error) {
+	panic(fmt.Errorf("not implemented"))
 }
 
 // Query returns generated.QueryResolver implementation.

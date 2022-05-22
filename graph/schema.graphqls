@@ -171,6 +171,127 @@ type Quiz {
     startTime: Int
 }
 
+type QuestionBank {
+    id: ID
+    name: String
+    category: String
+    sub_category: String
+    created_at: String
+    updated_at: String
+    created_by: String
+    updated_by: String
+    is_active: Boolean
+    is_default: Boolean
+    owner: String
+}
+
+type PaginatedQuestionBank{
+    questionBanks: [QuestionBank]
+    pageCursor: String
+    direction: String
+    pageSize: Int
+}
+
+type QuestionBankQuestion {
+    id: ID
+    Description: String
+    Type: String
+    Difficulty: Int
+    Attachment: String
+    AttachmentType: String
+    Hint : String
+    QbmId: String
+    Status: String
+    CreatedAt: String
+    UpdatedAt: String
+    CreatedBy: String
+    UpdatedBy: String
+}
+
+type QuestionOption {
+    id: ID
+    QmId: String
+    Description: String
+    IsCorrect: Boolean
+    CreatedAt: String
+    UpdatedAt: String
+    CreatedBy: String
+    UpdatedBy: String
+    AttachmentType: String
+    Attachment: String
+    IsActive : Boolean
+}
+
+type QuestionPaper {
+    id: ID
+    name: String
+    Category: String
+    SubCategory: String
+    CreatedAt: String
+    UpdatedAt: String
+    CreatedBy: String
+    UpdatedBy: String
+    IsActive : Boolean
+    DifficultyLevel: String
+    SectionWise: Boolean
+    Description: String
+    SuggestedDuration: String
+}
+
+type PaginatedQuestionPapers{
+    questionPapers: [QuestionPaper]
+    pageCursor: String
+    direction: String
+    pageSize: Int
+}
+
+type QuestionPaperSection {
+    id: ID
+    QpId: String
+    Name: String
+    Description: String
+    CreatedAt: String
+    UpdatedAt: String
+    CreatedBy: String
+    UpdatedBy: String
+    IsActive : Boolean
+    Type: String
+    DifficultyLevel: String
+    TotalQuestions: Int
+}
+
+type SectionQBMapping {
+    id: ID
+    QbId: String
+    SectionId: String
+    DifficultyLevel: String
+    TotalQuestions: Int
+    QuestionMarks: String
+    QuestionType: String
+    RetrieveType: String
+    CreatedAt: String
+    UpdatedAt: String
+    CreatedBy: String
+    UpdatedBy: String
+    IsActive : Boolean
+}
+
+type SectionFixedQuestions {
+    id: ID
+    SqbId: String
+    QuestionId: String
+    CreatedAt: String
+    UpdatedAt: String
+    CreatedBy: String
+    UpdatedBy: String
+    IsActive : Boolean
+}
+
+type MapQuestionWithOption{
+    question_id: String
+    options:[QuestionOption]
+}
+
 type Query{
   allCategories: [String]
   allSubCategories: [String]
@@ -190,4 +311,12 @@ type Query{
   getDescriptiveQuiz(quiz_id: String): [QuizDescriptive]
   getTopicContentByCourseId(course_id: String): [TopicContent]
   getResourcesByCourseId(course_id: String): [TopicResource]
+  getLatestQuestionBank(publish_time: Int, pageCursor: String, Direction: String, pageSize:Int, status:Status): PaginatedQuestionBank
+  getQuestionBankQuestions(question_bank_id: String): [QuestionBankQuestion]
+  getLatestQuestionPapers(publish_time: Int, pageCursor: String, Direction: String, pageSize:Int, status:Status): PaginatedQuestionPapers
+  getQuestionPaperSections(question_paper_id: String): [QuestionPaperSection]
+  getQPBankMappingByQPId(question_paper_id: String): [SectionQBMapping]
+  getQPBankMappingBySectionId(section_id: String): [SectionQBMapping]
+  getSectionFixedQuestions(section_id: String): [SectionFixedQuestions]
+  getOptionsForQuestions(question_ids: [String]): [MapQuestionWithOption]
 }

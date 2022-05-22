@@ -56,6 +56,11 @@ type Course struct {
 	IsActive           *bool            `json:"is_active"`
 }
 
+type MapQuestionWithOption struct {
+	QuestionID *string           `json:"question_id"`
+	Options    []*QuestionOption `json:"options"`
+}
+
 type Module struct {
 	ID          *string `json:"id"`
 	Name        *string `json:"name"`
@@ -76,6 +81,95 @@ type PaginatedCourse struct {
 	PageCursor *string   `json:"pageCursor"`
 	Direction  *string   `json:"direction"`
 	PageSize   *int      `json:"pageSize"`
+}
+
+type PaginatedQuestionBank struct {
+	QuestionBanks []*QuestionBank `json:"questionBanks"`
+	PageCursor    *string         `json:"pageCursor"`
+	Direction     *string         `json:"direction"`
+	PageSize      *int            `json:"pageSize"`
+}
+
+type PaginatedQuestionPapers struct {
+	QuestionPapers []*QuestionPaper `json:"questionPapers"`
+	PageCursor     *string          `json:"pageCursor"`
+	Direction      *string          `json:"direction"`
+	PageSize       *int             `json:"pageSize"`
+}
+
+type QuestionBank struct {
+	ID          *string `json:"id"`
+	Name        *string `json:"name"`
+	Category    *string `json:"category"`
+	SubCategory *string `json:"sub_category"`
+	CreatedAt   *string `json:"created_at"`
+	UpdatedAt   *string `json:"updated_at"`
+	CreatedBy   *string `json:"created_by"`
+	UpdatedBy   *string `json:"updated_by"`
+	IsActive    *bool   `json:"is_active"`
+	IsDefault   *bool   `json:"is_default"`
+	Owner       *string `json:"owner"`
+}
+
+type QuestionBankQuestion struct {
+	ID             *string `json:"id"`
+	Description    *string `json:"Description"`
+	Type           *string `json:"Type"`
+	Difficulty     *int    `json:"Difficulty"`
+	Attachment     *string `json:"Attachment"`
+	AttachmentType *string `json:"AttachmentType"`
+	Hint           *string `json:"Hint"`
+	QbmID          *string `json:"QbmId"`
+	Status         *string `json:"Status"`
+	CreatedAt      *string `json:"CreatedAt"`
+	UpdatedAt      *string `json:"UpdatedAt"`
+	CreatedBy      *string `json:"CreatedBy"`
+	UpdatedBy      *string `json:"UpdatedBy"`
+}
+
+type QuestionOption struct {
+	ID             *string `json:"id"`
+	QmID           *string `json:"QmId"`
+	Description    *string `json:"Description"`
+	IsCorrect      *bool   `json:"IsCorrect"`
+	CreatedAt      *string `json:"CreatedAt"`
+	UpdatedAt      *string `json:"UpdatedAt"`
+	CreatedBy      *string `json:"CreatedBy"`
+	UpdatedBy      *string `json:"UpdatedBy"`
+	AttachmentType *string `json:"AttachmentType"`
+	Attachment     *string `json:"Attachment"`
+	IsActive       *bool   `json:"IsActive"`
+}
+
+type QuestionPaper struct {
+	ID                *string `json:"id"`
+	Name              *string `json:"name"`
+	Category          *string `json:"Category"`
+	SubCategory       *string `json:"SubCategory"`
+	CreatedAt         *string `json:"CreatedAt"`
+	UpdatedAt         *string `json:"UpdatedAt"`
+	CreatedBy         *string `json:"CreatedBy"`
+	UpdatedBy         *string `json:"UpdatedBy"`
+	IsActive          *bool   `json:"IsActive"`
+	DifficultyLevel   *string `json:"DifficultyLevel"`
+	SectionWise       *bool   `json:"SectionWise"`
+	Description       *string `json:"Description"`
+	SuggestedDuration *string `json:"SuggestedDuration"`
+}
+
+type QuestionPaperSection struct {
+	ID              *string `json:"id"`
+	QpID            *string `json:"QpId"`
+	Name            *string `json:"Name"`
+	Description     *string `json:"Description"`
+	CreatedAt       *string `json:"CreatedAt"`
+	UpdatedAt       *string `json:"UpdatedAt"`
+	CreatedBy       *string `json:"CreatedBy"`
+	UpdatedBy       *string `json:"UpdatedBy"`
+	IsActive        *bool   `json:"IsActive"`
+	Type            *string `json:"Type"`
+	DifficultyLevel *string `json:"DifficultyLevel"`
+	TotalQuestions  *int    `json:"TotalQuestions"`
 }
 
 type Quiz struct {
@@ -111,6 +205,33 @@ type QuizMcq struct {
 	Options       []*string `json:"options"`
 	CorrectOption *string   `json:"correctOption"`
 	Explanation   *string   `json:"explanation"`
+}
+
+type SectionFixedQuestions struct {
+	ID         *string `json:"id"`
+	SqbID      *string `json:"SqbId"`
+	QuestionID *string `json:"QuestionId"`
+	CreatedAt  *string `json:"CreatedAt"`
+	UpdatedAt  *string `json:"UpdatedAt"`
+	CreatedBy  *string `json:"CreatedBy"`
+	UpdatedBy  *string `json:"UpdatedBy"`
+	IsActive   *bool   `json:"IsActive"`
+}
+
+type SectionQBMapping struct {
+	ID              *string `json:"id"`
+	QbID            *string `json:"QbId"`
+	SectionID       *string `json:"SectionId"`
+	DifficultyLevel *string `json:"DifficultyLevel"`
+	TotalQuestions  *int    `json:"TotalQuestions"`
+	QuestionMarks   *string `json:"QuestionMarks"`
+	QuestionType    *string `json:"QuestionType"`
+	RetrieveType    *string `json:"RetrieveType"`
+	CreatedAt       *string `json:"CreatedAt"`
+	UpdatedAt       *string `json:"UpdatedAt"`
+	CreatedBy       *string `json:"CreatedBy"`
+	UpdatedBy       *string `json:"UpdatedBy"`
+	IsActive        *bool   `json:"IsActive"`
 }
 
 type SubtitleURL struct {
