@@ -214,7 +214,7 @@ type ComplexityRoot struct {
 		GetExamSchedule             func(childComplexity int, examID *string) int
 		GetExamsByQPId              func(childComplexity int, questionPaperID *string) int
 		GetLatestQuestionBank       func(childComplexity int, publishTime *int, pageCursor *string, direction *string, pageSize *int) int
-		GetLatestQuestionPapers     func(childComplexity int, publishTime *int, pageCursor *string, direction *string, pageSize *int, status *model.Status) int
+		GetLatestQuestionPapers     func(childComplexity int, publishTime *int, pageCursor *string, direction *string, pageSize *int) int
 		GetMCQQuiz                  func(childComplexity int, quizID *string) int
 		GetModuleByID               func(childComplexity int, moduleID *string) int
 		GetOptionsForQuestions      func(childComplexity int, questionIds []*string) int
@@ -450,7 +450,7 @@ type QueryResolver interface {
 	GetResourcesByCourseID(ctx context.Context, courseID *string) ([]*model.TopicResource, error)
 	GetLatestQuestionBank(ctx context.Context, publishTime *int, pageCursor *string, direction *string, pageSize *int) (*model.PaginatedQuestionBank, error)
 	GetQuestionBankQuestions(ctx context.Context, questionBankID *string) ([]*model.QuestionBankQuestion, error)
-	GetLatestQuestionPapers(ctx context.Context, publishTime *int, pageCursor *string, direction *string, pageSize *int, status *model.Status) (*model.PaginatedQuestionPapers, error)
+	GetLatestQuestionPapers(ctx context.Context, publishTime *int, pageCursor *string, direction *string, pageSize *int) (*model.PaginatedQuestionPapers, error)
 	GetQuestionPaperSections(ctx context.Context, questionPaperID *string) ([]*model.QuestionPaperSection, error)
 	GetQPBankMappingByQPId(ctx context.Context, questionPaperID *string) ([]*model.SectionQBMapping, error)
 	GetQPBankMappingBySectionID(ctx context.Context, sectionID *string) ([]*model.SectionQBMapping, error)
@@ -1495,7 +1495,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.GetLatestQuestionPapers(childComplexity, args["publish_time"].(*int), args["pageCursor"].(*string), args["Direction"].(*string), args["pageSize"].(*int), args["status"].(*model.Status)), true
+		return e.complexity.Query.GetLatestQuestionPapers(childComplexity, args["publish_time"].(*int), args["pageCursor"].(*string), args["Direction"].(*string), args["pageSize"].(*int)), true
 
 	case "Query.getMCQQuiz":
 		if e.complexity.Query.GetMCQQuiz == nil {
@@ -3158,7 +3158,7 @@ type Query{
   getResourcesByCourseId(course_id: String): [TopicResource]
   getLatestQuestionBank(publish_time: Int, pageCursor: String, Direction: String, pageSize:Int): PaginatedQuestionBank
   getQuestionBankQuestions(question_bank_id: String): [QuestionBankQuestion]
-  getLatestQuestionPapers(publish_time: Int, pageCursor: String, Direction: String, pageSize:Int, status:Status): PaginatedQuestionPapers
+  getLatestQuestionPapers(publish_time: Int, pageCursor: String, Direction: String, pageSize:Int): PaginatedQuestionPapers
   getQuestionPaperSections(question_paper_id: String): [QuestionPaperSection]
   getQPBankMappingByQPId(question_paper_id: String): [SectionQBMapping]
   getQPBankMappingBySectionId(section_id: String): [SectionQBMapping]
@@ -3424,15 +3424,6 @@ func (ec *executionContext) field_Query_getLatestQuestionPapers_args(ctx context
 		}
 	}
 	args["pageSize"] = arg3
-	var arg4 *model.Status
-	if tmp, ok := rawArgs["status"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("status"))
-		arg4, err = ec.unmarshalOStatus2ᚖgithubᚗcomᚋzicopsᚋzicopsᚑcourseᚑqueryᚋgraphᚋmodelᚐStatus(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["status"] = arg4
 	return args, nil
 }
 
@@ -8492,7 +8483,7 @@ func (ec *executionContext) _Query_getLatestQuestionPapers(ctx context.Context, 
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetLatestQuestionPapers(rctx, args["publish_time"].(*int), args["pageCursor"].(*string), args["Direction"].(*string), args["pageSize"].(*int), args["status"].(*model.Status))
+		return ec.resolvers.Query().GetLatestQuestionPapers(rctx, args["publish_time"].(*int), args["pageCursor"].(*string), args["Direction"].(*string), args["pageSize"].(*int))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
