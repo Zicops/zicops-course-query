@@ -239,7 +239,12 @@ func (r *queryResolver) GetSectionFixedQuestions(ctx context.Context, sectionID 
 }
 
 func (r *queryResolver) GetOptionsForQuestions(ctx context.Context, questionIds []*string) ([]*model.MapQuestionWithOption, error) {
-	panic(fmt.Errorf("not implemented"))
+	resp, err := handlers.GetOptionsForQuestions(ctx, questionIds)
+	if err != nil {
+		log.Errorf("error getting question options: %v", err)
+		return nil, err
+	}
+	return resp, nil
 }
 
 func (r *queryResolver) GetExamsByQPId(ctx context.Context, questionPaperID *string) ([]*model.Exam, error) {
