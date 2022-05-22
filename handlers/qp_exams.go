@@ -152,3 +152,38 @@ func GetExamCohort(ctx context.Context, examID *string) (*model.ExamCohort, erro
 	}
 	return allSections[0], nil
 }
+
+func GetExamConfiguration(ctx context.Context, examID *string) (*model.ExamConfiguration, error) {
+	qryStr := fmt.Sprintf(`SELECT * from qbankz.exam_config where exam_id = %s  ALLOW FILTERING`, *examID)
+	getBanks := func() (banks []qbankz.ExamConfig, err error) {
+		q := global.CassSession.Session.Query(qryStr, nil)
+		defer q.Release()
+		iter := q.Iter()
+		return banks, iter.Select(&banks)
+	}
+	banks, err := getBanks()
+	if err != nil {
+		return nil, err
+	}
+	allSections := make([]*model.ExamConfiguration, 0)
+	for _, bank := range banks {
+		copiedQuestion := bank
+		createdAt := strconv.FormatInt(copiedQuestion.CreatedAt, 10)
+		updatedAt := strconv.FormatInt(copiedQuestion.UpdatedAt, 10)
+		currentQuestion := &model.ExamConfiguration{
+			ID:           &copiedQuestion.ID,
+			CreatedBy:    &copiedQuestion.CreatedBy,
+			CreatedAt:    &createdAt,
+			UpdatedBy:    &copiedQuestion.UpdatedBy,
+			UpdatedAt:    &updatedAt,
+			ExamID:       &copiedQuestion.ExamID,
+			IsActive:     &copiedQuestion.IsActive,
+			Shuffle:      &copiedQuestion.Shuffle,
+			DisplayHints: &copiedQuestion.DisplayHints,
+			ShowAnswer:   &copiedQuestion.ShowAnswer,
+			ShowResult:   &copiedQuestion.ShowResult,
+		}
+		allSections = append(allSections, currentQuestion)
+	}
+	return allSections[0], nil
+}
