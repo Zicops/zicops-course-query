@@ -248,7 +248,12 @@ func (r *queryResolver) GetOptionsForQuestions(ctx context.Context, questionIds 
 }
 
 func (r *queryResolver) GetExamsByQPId(ctx context.Context, questionPaperID *string) ([]*model.Exam, error) {
-	panic(fmt.Errorf("not implemented"))
+	resp, err := handlers.GetExamsByQPId(ctx, questionPaperID)
+	if err != nil {
+		log.Errorf("error getting exams: %v", err)
+		return nil, err
+	}
+	return resp, nil
 }
 
 func (r *queryResolver) GetExamSchedule(ctx context.Context, examID *string) (*model.ExamSchedule, error) {
