@@ -203,15 +203,30 @@ func (r *queryResolver) GetLatestQuestionPapers(ctx context.Context, publishTime
 }
 
 func (r *queryResolver) GetQuestionPaperSections(ctx context.Context, questionPaperID *string) ([]*model.QuestionPaperSection, error) {
-	panic(fmt.Errorf("not implemented"))
+	resp, err := handlers.GetQuestionBankSections(ctx, questionPaperID)
+	if err != nil {
+		log.Errorf("error getting question papers sections: %v", err)
+		return nil, err
+	}
+	return resp, nil
 }
 
 func (r *queryResolver) GetQPBankMappingByQPId(ctx context.Context, questionPaperID *string) ([]*model.SectionQBMapping, error) {
-	panic(fmt.Errorf("not implemented"))
+	resp, err := handlers.GetQPBankMappingByQPId(ctx, questionPaperID)
+	if err != nil {
+		log.Errorf("error getting question papers sections map: %v", err)
+		return nil, err
+	}
+	return resp, nil
 }
 
 func (r *queryResolver) GetQPBankMappingBySectionID(ctx context.Context, sectionID *string) ([]*model.SectionQBMapping, error) {
-	panic(fmt.Errorf("not implemented"))
+	resp, err := handlers.GetQPBankMappingBySectionID(ctx, sectionID)
+	if err != nil {
+		log.Errorf("error getting question papers sections map: %v", err)
+		return nil, err
+	}
+	return resp, nil
 }
 
 func (r *queryResolver) GetSectionFixedQuestions(ctx context.Context, sectionID *string) ([]*model.SectionFixedQuestions, error) {
