@@ -11,7 +11,7 @@ import (
 )
 
 func GetExamsByQPId(ctx context.Context, questionPaperID *string) ([]*model.Exam, error) {
-	qryStr := fmt.Sprintf(`SELECT * from qbankz.exam where qp_id = %s  ALLOW FILTERING`, *questionPaperID)
+	qryStr := fmt.Sprintf(`SELECT * from qbankz.exam where qp_id = '%s'  ALLOW FILTERING`, *questionPaperID)
 	getBanks := func() (banks []qbankz.Exam, err error) {
 		q := global.CassSession.Session.Query(qryStr, nil)
 		defer q.Release()
@@ -50,7 +50,7 @@ func GetExamsByQPId(ctx context.Context, questionPaperID *string) ([]*model.Exam
 }
 
 func GetExamSchedule(ctx context.Context, examID *string) (*model.ExamSchedule, error) {
-	qryStr := fmt.Sprintf(`SELECT * from qbankz.exam_schedule where exam_id = %s  ALLOW FILTERING`, *examID)
+	qryStr := fmt.Sprintf(`SELECT * from qbankz.exam_schedule where exam_id = '%s'  ALLOW FILTERING`, *examID)
 	getBanks := func() (banks []qbankz.ExamSchedule, err error) {
 		q := global.CassSession.Session.Query(qryStr, nil)
 		defer q.Release()
@@ -87,7 +87,7 @@ func GetExamSchedule(ctx context.Context, examID *string) (*model.ExamSchedule, 
 }
 
 func GetExamInstruction(ctx context.Context, examID *string) (*model.ExamInstruction, error) {
-	qryStr := fmt.Sprintf(`SELECT * from qbankz.exam_instructions where exam_id = %s  ALLOW FILTERING`, *examID)
+	qryStr := fmt.Sprintf(`SELECT * from qbankz.exam_instructions where exam_id = '%s'  ALLOW FILTERING`, *examID)
 	getBanks := func() (banks []qbankz.ExamInstructions, err error) {
 		q := global.CassSession.Session.Query(qryStr, nil)
 		defer q.Release()
@@ -122,7 +122,7 @@ func GetExamInstruction(ctx context.Context, examID *string) (*model.ExamInstruc
 }
 
 func GetExamCohort(ctx context.Context, examID *string) (*model.ExamCohort, error) {
-	qryStr := fmt.Sprintf(`SELECT * from qbankz.exam_cohort where exam_id = %s  ALLOW FILTERING`, *examID)
+	qryStr := fmt.Sprintf(`SELECT * from qbankz.exam_cohort where exam_id = '%s'  ALLOW FILTERING`, *examID)
 	getBanks := func() (banks []qbankz.ExamCohort, err error) {
 		q := global.CassSession.Session.Query(qryStr, nil)
 		defer q.Release()
@@ -154,7 +154,7 @@ func GetExamCohort(ctx context.Context, examID *string) (*model.ExamCohort, erro
 }
 
 func GetExamConfiguration(ctx context.Context, examID *string) (*model.ExamConfiguration, error) {
-	qryStr := fmt.Sprintf(`SELECT * from qbankz.exam_config where exam_id = %s  ALLOW FILTERING`, *examID)
+	qryStr := fmt.Sprintf(`SELECT * from qbankz.exam_config where exam_id = '%s'  ALLOW FILTERING`, *examID)
 	getBanks := func() (banks []qbankz.ExamConfig, err error) {
 		q := global.CassSession.Session.Query(qryStr, nil)
 		defer q.Release()

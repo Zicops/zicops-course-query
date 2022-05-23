@@ -21,7 +21,7 @@ func GetQuestionBankQuestions(ctx context.Context, questionBankID *string) ([]*m
 		log.Errorf("Failed to get questions: %v", err.Error())
 		return nil, err
 	}
-	qryStr := fmt.Sprintf(`SELECT * from qbankz.question_main where qbm_id = %s  ALLOW FILTERING`, *questionBankID)
+	qryStr := fmt.Sprintf(`SELECT * from qbankz.question_main where qbm_id = '%s'  ALLOW FILTERING`, *questionBankID)
 	getBanks := func() (banks []qbankz.QuestionMain, err error) {
 		q := global.CassSession.Session.Query(qryStr, nil)
 		defer q.Release()
