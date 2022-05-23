@@ -43,6 +43,7 @@ func GetExamsByQPId(ctx context.Context, questionPaperID *string) ([]*model.Exam
 			Duration:     &copiedQuestion.Duration,
 			Status:       &copiedQuestion.Status,
 			IsActive:     &copiedQuestion.IsActive,
+			QpID:         &copiedQuestion.QPID,
 		}
 		allSections = append(allSections, currentQuestion)
 	}
