@@ -25,7 +25,7 @@ func GetOptionsForQuestions(ctx context.Context, questionIds []*string) ([]*mode
 	for _, questionId := range questionIds {
 		currentMap := &model.MapQuestionWithOption{}
 		currentMap.QuestionID = questionId
-		qryStr := fmt.Sprintf(`SELECT * from qbankz.options_main where qm_id IN %s  ALLOW FILTERING`, *questionId)
+		qryStr := fmt.Sprintf(`SELECT * from qbankz.options_main where qm_id='%s'  ALLOW FILTERING`, *questionId)
 		getBanks := func() (banks []qbankz.OptionsMain, err error) {
 			q := global.CassSession.Session.Query(qryStr, nil)
 			defer q.Release()
