@@ -39,6 +39,7 @@ func GetQuestionBankSections(ctx context.Context, questionPaperID *string) ([]*m
 			DifficultyLevel: &copiedQuestion.DifficultyLevel,
 			TotalQuestions:  &copiedQuestion.TotalQuestions,
 			IsActive:        &copiedQuestion.IsActive,
+			QpID:            &copiedQuestion.QPID,
 		}
 		allSections = append(allSections, currentQuestion)
 	}
