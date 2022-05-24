@@ -46,7 +46,7 @@ func GetQuestionBankSections(ctx context.Context, questionPaperID *string) ([]*m
 }
 
 func GetQPBankMappingByQPId(ctx context.Context, questionPaperID *string) ([]*model.SectionQBMapping, error) {
-	qryStr := fmt.Sprintf(`SELECT * from qbankz.section_qb_mapping where qp_id = '%s'  ALLOW FILTERING`, *questionPaperID)
+	qryStr := fmt.Sprintf(`SELECT * from qbankz.section_qb_mapping where qb_id = '%s'  ALLOW FILTERING`, *questionPaperID)
 	getBanks := func() (banks []qbankz.SectionQBMapping, err error) {
 		q := global.CassSession.Session.Query(qryStr, nil)
 		defer q.Release()
