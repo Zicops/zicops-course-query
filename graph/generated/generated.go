@@ -218,7 +218,7 @@ type ComplexityRoot struct {
 		GetMCQQuiz                  func(childComplexity int, quizID *string) int
 		GetModuleByID               func(childComplexity int, moduleID *string) int
 		GetOptionsForQuestions      func(childComplexity int, questionIds []*string) int
-		GetQPBankMappingByQPId      func(childComplexity int, questionPaperID *string) int
+		GetQPBankMappingByQBId      func(childComplexity int, questionBankID *string) int
 		GetQPBankMappingBySectionID func(childComplexity int, sectionID *string) int
 		GetQuestionBankQuestions    func(childComplexity int, questionBankID *string) int
 		GetQuestionPaperSections    func(childComplexity int, questionPaperID *string) int
@@ -452,7 +452,7 @@ type QueryResolver interface {
 	GetQuestionBankQuestions(ctx context.Context, questionBankID *string) ([]*model.QuestionBankQuestion, error)
 	GetLatestQuestionPapers(ctx context.Context, publishTime *int, pageCursor *string, direction *string, pageSize *int) (*model.PaginatedQuestionPapers, error)
 	GetQuestionPaperSections(ctx context.Context, questionPaperID *string) ([]*model.QuestionPaperSection, error)
-	GetQPBankMappingByQPId(ctx context.Context, questionPaperID *string) ([]*model.SectionQBMapping, error)
+	GetQPBankMappingByQBId(ctx context.Context, questionBankID *string) ([]*model.SectionQBMapping, error)
 	GetQPBankMappingBySectionID(ctx context.Context, sectionID *string) ([]*model.SectionQBMapping, error)
 	GetSectionFixedQuestions(ctx context.Context, sectionID *string) ([]*model.SectionFixedQuestions, error)
 	GetOptionsForQuestions(ctx context.Context, questionIds []*string) ([]*model.MapQuestionWithOption, error)
@@ -1533,17 +1533,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetOptionsForQuestions(childComplexity, args["question_ids"].([]*string)), true
 
-	case "Query.getQPBankMappingByQPId":
-		if e.complexity.Query.GetQPBankMappingByQPId == nil {
+	case "Query.getQPBankMappingByQBId":
+		if e.complexity.Query.GetQPBankMappingByQBId == nil {
 			break
 		}
 
-		args, err := ec.field_Query_getQPBankMappingByQPId_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_getQPBankMappingByQBId_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Query.GetQPBankMappingByQPId(childComplexity, args["question_paper_id"].(*string)), true
+		return e.complexity.Query.GetQPBankMappingByQBId(childComplexity, args["question_bank_id"].(*string)), true
 
 	case "Query.getQPBankMappingBySectionId":
 		if e.complexity.Query.GetQPBankMappingBySectionID == nil {
@@ -3160,7 +3160,7 @@ type Query{
   getQuestionBankQuestions(question_bank_id: String): [QuestionBankQuestion]
   getLatestQuestionPapers(publish_time: Int, pageCursor: String, Direction: String, pageSize:Int): PaginatedQuestionPapers
   getQuestionPaperSections(question_paper_id: String): [QuestionPaperSection]
-  getQPBankMappingByQPId(question_paper_id: String): [SectionQBMapping]
+  getQPBankMappingByQBId(question_bank_id: String): [SectionQBMapping]
   getQPBankMappingBySectionId(section_id: String): [SectionQBMapping]
   getSectionFixedQuestions(section_id: String): [SectionFixedQuestions]
   getOptionsForQuestions(question_ids: [String]): [MapQuestionWithOption]
@@ -3472,18 +3472,18 @@ func (ec *executionContext) field_Query_getOptionsForQuestions_args(ctx context.
 	return args, nil
 }
 
-func (ec *executionContext) field_Query_getQPBankMappingByQPId_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_getQPBankMappingByQBId_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 *string
-	if tmp, ok := rawArgs["question_paper_id"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("question_paper_id"))
+	if tmp, ok := rawArgs["question_bank_id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("question_bank_id"))
 		arg0, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["question_paper_id"] = arg0
+	args["question_bank_id"] = arg0
 	return args, nil
 }
 
@@ -8536,7 +8536,7 @@ func (ec *executionContext) _Query_getQuestionPaperSections(ctx context.Context,
 	return ec.marshalOQuestionPaperSection2ᚕᚖgithubᚗcomᚋzicopsᚋzicopsᚑcourseᚑqueryᚋgraphᚋmodelᚐQuestionPaperSection(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Query_getQPBankMappingByQPId(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+func (ec *executionContext) _Query_getQPBankMappingByQBId(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -8553,7 +8553,7 @@ func (ec *executionContext) _Query_getQPBankMappingByQPId(ctx context.Context, f
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Query_getQPBankMappingByQPId_args(ctx, rawArgs)
+	args, err := ec.field_Query_getQPBankMappingByQBId_args(ctx, rawArgs)
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
@@ -8561,7 +8561,7 @@ func (ec *executionContext) _Query_getQPBankMappingByQPId(ctx context.Context, f
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetQPBankMappingByQPId(rctx, args["question_paper_id"].(*string))
+		return ec.resolvers.Query().GetQPBankMappingByQBId(rctx, args["question_bank_id"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -16396,7 +16396,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
-		case "getQPBankMappingByQPId":
+		case "getQPBankMappingByQBId":
 			field := field
 
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -16405,7 +16405,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_getQPBankMappingByQPId(ctx, field)
+				res = ec._Query_getQPBankMappingByQBId(ctx, field)
 				return res
 			}
 

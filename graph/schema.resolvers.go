@@ -210,8 +210,8 @@ func (r *queryResolver) GetQuestionPaperSections(ctx context.Context, questionPa
 	return resp, nil
 }
 
-func (r *queryResolver) GetQPBankMappingByQPId(ctx context.Context, questionPaperID *string) ([]*model.SectionQBMapping, error) {
-	resp, err := handlers.GetQPBankMappingByQPId(ctx, questionPaperID)
+func (r *queryResolver) GetQPBankMappingByQBId(ctx context.Context, questionBankID *string) ([]*model.SectionQBMapping, error) {
+	resp, err := handlers.GetQPBankMappingByQPId(ctx, questionBankID)
 	if err != nil {
 		log.Errorf("error getting question papers sections map: %v", err)
 		return nil, err
@@ -295,3 +295,18 @@ func (r *queryResolver) GetExamConfiguration(ctx context.Context, examID *string
 func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 
 type queryResolver struct{ *Resolver }
+
+// !!! WARNING !!!
+// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+// one last chance to move it out of harms way if you want. There are two reasons this happens:
+//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//    it when you're done.
+//  - You have helper methods in this file. Move them out to keep these resolver files clean.
+func (r *queryResolver) GetQPBankMappingByQPId(ctx context.Context, questionPaperID *string) ([]*model.SectionQBMapping, error) {
+	resp, err := handlers.GetQPBankMappingByQPId(ctx, questionPaperID)
+	if err != nil {
+		log.Errorf("error getting question papers sections map: %v", err)
+		return nil, err
+	}
+	return resp, nil
+}
