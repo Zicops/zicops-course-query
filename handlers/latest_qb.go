@@ -60,6 +60,7 @@ func LatestQuestionBanks(ctx context.Context, publishTime *int, pageCursor *stri
 		currentBank := &model.QuestionBank{
 			ID:          &copiedBank.ID,
 			Name:        &copiedBank.Name,
+			Description: &copiedBank.Description,
 			Category:    &copiedBank.Category,
 			SubCategory: &copiedBank.SubCategory,
 			Owner:       &copiedBank.Owner,

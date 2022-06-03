@@ -238,6 +238,7 @@ type ComplexityRoot struct {
 		Category    func(childComplexity int) int
 		CreatedAt   func(childComplexity int) int
 		CreatedBy   func(childComplexity int) int
+		Description func(childComplexity int) int
 		ID          func(childComplexity int) int
 		IsActive    func(childComplexity int) int
 		IsDefault   func(childComplexity int) int
@@ -1722,6 +1723,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.QuestionBank.CreatedBy(childComplexity), true
 
+	case "QuestionBank.description":
+		if e.complexity.QuestionBank.Description == nil {
+			break
+		}
+
+		return e.complexity.QuestionBank.Description(childComplexity), true
+
 	case "QuestionBank.id":
 		if e.complexity.QuestionBank.ID == nil {
 			break
@@ -2949,6 +2957,7 @@ type Quiz {
 type QuestionBank {
     id: ID
     name: String
+    description: String
     category: String
     sub_category: String
     created_at: String
@@ -9009,6 +9018,38 @@ func (ec *executionContext) _QuestionBank_name(ctx context.Context, field graphq
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _QuestionBank_description(ctx context.Context, field graphql.CollectedField, obj *model.QuestionBank) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "QuestionBank",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Description, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -16621,6 +16662,13 @@ func (ec *executionContext) _QuestionBank(ctx context.Context, sel ast.Selection
 		case "name":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._QuestionBank_name(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+		case "description":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._QuestionBank_description(ctx, field, obj)
 			}
 
 			out.Values[i] = innerFunc(ctx)

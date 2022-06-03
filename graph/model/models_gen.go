@@ -170,6 +170,7 @@ type PaginatedQuestionPapers struct {
 type QuestionBank struct {
 	ID          *string `json:"id"`
 	Name        *string `json:"name"`
+	Description *string `json:"description"`
 	Category    *string `json:"category"`
 	SubCategory *string `json:"sub_category"`
 	CreatedAt   *string `json:"created_at"`
