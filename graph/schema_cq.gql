@@ -195,7 +195,7 @@ type PaginatedQuestionBank{
 
 type QuestionBankQuestion {
     id: ID
-    Name : String
+    Name: String
     Description: String
     Type: String
     Difficulty: Int
@@ -313,6 +313,13 @@ type Exam {
     SubCategory: String
 }
 
+type PaginatedExams{
+    exams: [Exam]
+    pageCursor: String
+    direction: String
+    pageSize: Int
+}
+
 type ExamSchedule {
     id: ID
     ExamId: String
@@ -387,6 +394,7 @@ type Query{
   getLatestQuestionBank(publish_time: Int, pageCursor: String, Direction: String, pageSize:Int): PaginatedQuestionBank
   getQuestionBankQuestions(question_bank_id: String): [QuestionBankQuestion]
   getLatestQuestionPapers(publish_time: Int, pageCursor: String, Direction: String, pageSize:Int): PaginatedQuestionPapers
+  getLatestExams(publish_time: Int, pageCursor: String, Direction: String, pageSize:Int): PaginatedExams
   getQuestionPaperSections(question_paper_id: String): [QuestionPaperSection]
   getQPBankMappingByQBId(question_bank_id: String): [SectionQBMapping]
   getQPBankMappingBySectionId(section_id: String): [SectionQBMapping]

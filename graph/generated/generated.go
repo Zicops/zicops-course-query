@@ -187,6 +187,13 @@ type ComplexityRoot struct {
 		PageSize   func(childComplexity int) int
 	}
 
+	PaginatedExams struct {
+		Direction  func(childComplexity int) int
+		Exams      func(childComplexity int) int
+		PageCursor func(childComplexity int) int
+		PageSize   func(childComplexity int) int
+	}
+
 	PaginatedQuestionBank struct {
 		Direction     func(childComplexity int) int
 		PageCursor    func(childComplexity int) int
@@ -214,6 +221,7 @@ type ComplexityRoot struct {
 		GetExamInstruction          func(childComplexity int, examID *string) int
 		GetExamSchedule             func(childComplexity int, examID *string) int
 		GetExamsByQPId              func(childComplexity int, questionPaperID *string) int
+		GetLatestExams              func(childComplexity int, publishTime *int, pageCursor *string, direction *string, pageSize *int) int
 		GetLatestQuestionBank       func(childComplexity int, publishTime *int, pageCursor *string, direction *string, pageSize *int) int
 		GetLatestQuestionPapers     func(childComplexity int, publishTime *int, pageCursor *string, direction *string, pageSize *int) int
 		GetMCQQuiz                  func(childComplexity int, quizID *string) int
@@ -454,6 +462,7 @@ type QueryResolver interface {
 	GetLatestQuestionBank(ctx context.Context, publishTime *int, pageCursor *string, direction *string, pageSize *int) (*model.PaginatedQuestionBank, error)
 	GetQuestionBankQuestions(ctx context.Context, questionBankID *string) ([]*model.QuestionBankQuestion, error)
 	GetLatestQuestionPapers(ctx context.Context, publishTime *int, pageCursor *string, direction *string, pageSize *int) (*model.PaginatedQuestionPapers, error)
+	GetLatestExams(ctx context.Context, publishTime *int, pageCursor *string, direction *string, pageSize *int) (*model.PaginatedExams, error)
 	GetQuestionPaperSections(ctx context.Context, questionPaperID *string) ([]*model.QuestionPaperSection, error)
 	GetQPBankMappingByQBId(ctx context.Context, questionBankID *string) ([]*model.SectionQBMapping, error)
 	GetQPBankMappingBySectionID(ctx context.Context, sectionID *string) ([]*model.SectionQBMapping, error)
@@ -1293,6 +1302,34 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.PaginatedCourse.PageSize(childComplexity), true
 
+	case "PaginatedExams.direction":
+		if e.complexity.PaginatedExams.Direction == nil {
+			break
+		}
+
+		return e.complexity.PaginatedExams.Direction(childComplexity), true
+
+	case "PaginatedExams.exams":
+		if e.complexity.PaginatedExams.Exams == nil {
+			break
+		}
+
+		return e.complexity.PaginatedExams.Exams(childComplexity), true
+
+	case "PaginatedExams.pageCursor":
+		if e.complexity.PaginatedExams.PageCursor == nil {
+			break
+		}
+
+		return e.complexity.PaginatedExams.PageCursor(childComplexity), true
+
+	case "PaginatedExams.pageSize":
+		if e.complexity.PaginatedExams.PageSize == nil {
+			break
+		}
+
+		return e.complexity.PaginatedExams.PageSize(childComplexity), true
+
 	case "PaginatedQuestionBank.direction":
 		if e.complexity.PaginatedQuestionBank.Direction == nil {
 			break
@@ -1482,6 +1519,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.GetExamsByQPId(childComplexity, args["question_paper_id"].(*string)), true
+
+	case "Query.getLatestExams":
+		if e.complexity.Query.GetLatestExams == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getLatestExams_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetLatestExams(childComplexity, args["publish_time"].(*int), args["pageCursor"].(*string), args["Direction"].(*string), args["pageSize"].(*int)), true
 
 	case "Query.getLatestQuestionBank":
 		if e.complexity.Query.GetLatestQuestionBank == nil {
@@ -3112,6 +3161,13 @@ type Exam {
     SubCategory: String
 }
 
+type PaginatedExams{
+    exams: [Exam]
+    pageCursor: String
+    direction: String
+    pageSize: Int
+}
+
 type ExamSchedule {
     id: ID
     ExamId: String
@@ -3186,6 +3242,7 @@ type Query{
   getLatestQuestionBank(publish_time: Int, pageCursor: String, Direction: String, pageSize:Int): PaginatedQuestionBank
   getQuestionBankQuestions(question_bank_id: String): [QuestionBankQuestion]
   getLatestQuestionPapers(publish_time: Int, pageCursor: String, Direction: String, pageSize:Int): PaginatedQuestionPapers
+  getLatestExams(publish_time: Int, pageCursor: String, Direction: String, pageSize:Int): PaginatedExams
   getQuestionPaperSections(question_paper_id: String): [QuestionPaperSection]
   getQPBankMappingByQBId(question_bank_id: String): [SectionQBMapping]
   getQPBankMappingBySectionId(section_id: String): [SectionQBMapping]
@@ -3367,6 +3424,48 @@ func (ec *executionContext) field_Query_getExamsByQPId_args(ctx context.Context,
 		}
 	}
 	args["question_paper_id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_getLatestExams_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *int
+	if tmp, ok := rawArgs["publish_time"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("publish_time"))
+		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["publish_time"] = arg0
+	var arg1 *string
+	if tmp, ok := rawArgs["pageCursor"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pageCursor"))
+		arg1, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["pageCursor"] = arg1
+	var arg2 *string
+	if tmp, ok := rawArgs["Direction"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Direction"))
+		arg2, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["Direction"] = arg2
+	var arg3 *int
+	if tmp, ok := rawArgs["pageSize"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pageSize"))
+		arg3, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["pageSize"] = arg3
 	return args, nil
 }
 
@@ -7495,6 +7594,134 @@ func (ec *executionContext) _PaginatedCourse_pageSize(ctx context.Context, field
 	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _PaginatedExams_exams(ctx context.Context, field graphql.CollectedField, obj *model.PaginatedExams) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "PaginatedExams",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Exams, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Exam)
+	fc.Result = res
+	return ec.marshalOExam2ᚕᚖgithubᚗcomᚋzicopsᚋzicopsᚑcourseᚑqueryᚋgraphᚋmodelᚐExam(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _PaginatedExams_pageCursor(ctx context.Context, field graphql.CollectedField, obj *model.PaginatedExams) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "PaginatedExams",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PageCursor, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _PaginatedExams_direction(ctx context.Context, field graphql.CollectedField, obj *model.PaginatedExams) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "PaginatedExams",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Direction, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _PaginatedExams_pageSize(ctx context.Context, field graphql.CollectedField, obj *model.PaginatedExams) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "PaginatedExams",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PageSize, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _PaginatedQuestionBank_questionBanks(ctx context.Context, field graphql.CollectedField, obj *model.PaginatedQuestionBank) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -8554,6 +8781,45 @@ func (ec *executionContext) _Query_getLatestQuestionPapers(ctx context.Context, 
 	res := resTmp.(*model.PaginatedQuestionPapers)
 	fc.Result = res
 	return ec.marshalOPaginatedQuestionPapers2ᚖgithubᚗcomᚋzicopsᚋzicopsᚑcourseᚑqueryᚋgraphᚋmodelᚐPaginatedQuestionPapers(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_getLatestExams(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_getLatestExams_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetLatestExams(rctx, args["publish_time"].(*int), args["pageCursor"].(*string), args["Direction"].(*string), args["pageSize"].(*int))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.PaginatedExams)
+	fc.Result = res
+	return ec.marshalOPaginatedExams2ᚖgithubᚗcomᚋzicopsᚋzicopsᚑcourseᚑqueryᚋgraphᚋmodelᚐPaginatedExams(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_getQuestionPaperSections(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -15969,6 +16235,55 @@ func (ec *executionContext) _PaginatedCourse(ctx context.Context, sel ast.Select
 	return out
 }
 
+var paginatedExamsImplementors = []string{"PaginatedExams"}
+
+func (ec *executionContext) _PaginatedExams(ctx context.Context, sel ast.SelectionSet, obj *model.PaginatedExams) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, paginatedExamsImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PaginatedExams")
+		case "exams":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._PaginatedExams_exams(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+		case "pageCursor":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._PaginatedExams_pageCursor(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+		case "direction":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._PaginatedExams_direction(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+		case "pageSize":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._PaginatedExams_pageSize(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var paginatedQuestionBankImplementors = []string{"PaginatedQuestionBank"}
 
 func (ec *executionContext) _PaginatedQuestionBank(ctx context.Context, sel ast.SelectionSet, obj *model.PaginatedQuestionBank) graphql.Marshaler {
@@ -16496,6 +16811,26 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_getLatestQuestionPapers(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "getLatestExams":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getLatestExams(ctx, field)
 				return res
 			}
 
@@ -19140,6 +19475,13 @@ func (ec *executionContext) marshalOPaginatedCourse2ᚖgithubᚗcomᚋzicopsᚋz
 		return graphql.Null
 	}
 	return ec._PaginatedCourse(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOPaginatedExams2ᚖgithubᚗcomᚋzicopsᚋzicopsᚑcourseᚑqueryᚋgraphᚋmodelᚐPaginatedExams(ctx context.Context, sel ast.SelectionSet, v *model.PaginatedExams) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._PaginatedExams(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOPaginatedQuestionBank2ᚖgithubᚗcomᚋzicopsᚋzicopsᚑcourseᚑqueryᚋgraphᚋmodelᚐPaginatedQuestionBank(ctx context.Context, sel ast.SelectionSet, v *model.PaginatedQuestionBank) graphql.Marshaler {

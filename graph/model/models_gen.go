@@ -154,6 +154,13 @@ type PaginatedCourse struct {
 	PageSize   *int      `json:"pageSize"`
 }
 
+type PaginatedExams struct {
+	Exams      []*Exam `json:"exams"`
+	PageCursor *string `json:"pageCursor"`
+	Direction  *string `json:"direction"`
+	PageSize   *int    `json:"pageSize"`
+}
+
 type PaginatedQuestionBank struct {
 	QuestionBanks []*QuestionBank `json:"questionBanks"`
 	PageCursor    *string         `json:"pageCursor"`

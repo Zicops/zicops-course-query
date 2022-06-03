@@ -201,6 +201,15 @@ func (r *queryResolver) GetLatestQuestionPapers(ctx context.Context, publishTime
 	return resp, nil
 }
 
+func (r *queryResolver) GetLatestExams(ctx context.Context, publishTime *int, pageCursor *string, direction *string, pageSize *int) (*model.PaginatedExams, error) {
+	resp, err := handlers.GetLatestExams(ctx, publishTime, pageCursor, direction, pageSize)
+	if err != nil {
+		log.Errorf("error getting exams: %v", err)
+		return nil, err
+	}
+	return resp, nil
+}
+
 func (r *queryResolver) GetQuestionPaperSections(ctx context.Context, questionPaperID *string) ([]*model.QuestionPaperSection, error) {
 	resp, err := handlers.GetQuestionBankSections(ctx, questionPaperID)
 	if err != nil {
