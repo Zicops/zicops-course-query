@@ -44,6 +44,7 @@ func GetQuestionBankQuestions(ctx context.Context, questionBankID *string) ([]*m
 		}
 		currentQuestion := &model.QuestionBankQuestion{
 			ID:             &copiedQuestion.ID,
+			Name:           &copiedQuestion.Name,
 			Description:    &copiedQuestion.Description,
 			Type:           &copiedQuestion.Type,
 			AttachmentType: &copiedQuestion.AttachmentType,

@@ -184,6 +184,7 @@ type QuestionBank struct {
 
 type QuestionBankQuestion struct {
 	ID             *string `json:"id"`
+	Name           *string `json:"Name"`
 	Description    *string `json:"Description"`
 	Type           *string `json:"Type"`
 	Difficulty     *int    `json:"Difficulty"`

@@ -195,6 +195,7 @@ type PaginatedQuestionBank{
 
 type QuestionBankQuestion {
     id: ID
+    Name: String
     Description: String
     Type: String
     Difficulty: Int
