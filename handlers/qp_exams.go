@@ -107,6 +107,7 @@ func GetExamInstruction(ctx context.Context, examID *string) (*model.ExamInstruc
 		attempts := strconv.Itoa(copiedQuestion.NoAttempts)
 		currentQuestion := &model.ExamInstruction{
 			ID:              &copiedQuestion.ID,
+			Instructions:    &copiedQuestion.Instructions,
 			CreatedBy:       &copiedQuestion.CreatedBy,
 			CreatedAt:       &createdAt,
 			UpdatedBy:       &copiedQuestion.UpdatedBy,

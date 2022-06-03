@@ -329,6 +329,7 @@ type ExamSchedule {
 type ExamInstruction {
     id: ID
     ExamId: String
+    Instructions: String
     PassingCriteria: String
     NoAttempts: String
     AccessType: String

@@ -139,6 +139,7 @@ type ComplexityRoot struct {
 		CreatedBy       func(childComplexity int) int
 		ExamID          func(childComplexity int) int
 		ID              func(childComplexity int) int
+		Instructions    func(childComplexity int) int
 		IsActive        func(childComplexity int) int
 		NoAttempts      func(childComplexity int) int
 		PassingCriteria func(childComplexity int) int
@@ -1053,6 +1054,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.ExamInstruction.ID(childComplexity), true
+
+	case "ExamInstruction.Instructions":
+		if e.complexity.ExamInstruction.Instructions == nil {
+			break
+		}
+
+		return e.complexity.ExamInstruction.Instructions(childComplexity), true
 
 	case "ExamInstruction.IsActive":
 		if e.complexity.ExamInstruction.IsActive == nil {
@@ -3120,6 +3128,7 @@ type ExamSchedule {
 type ExamInstruction {
     id: ID
     ExamId: String
+    Instructions: String
     PassingCriteria: String
     NoAttempts: String
     AccessType: String
@@ -6289,6 +6298,38 @@ func (ec *executionContext) _ExamInstruction_ExamId(ctx context.Context, field g
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.ExamID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _ExamInstruction_Instructions(ctx context.Context, field graphql.CollectedField, obj *model.ExamInstruction) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "ExamInstruction",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Instructions, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -15570,6 +15611,13 @@ func (ec *executionContext) _ExamInstruction(ctx context.Context, sel ast.Select
 		case "ExamId":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._ExamInstruction_ExamId(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+		case "Instructions":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._ExamInstruction_Instructions(ctx, field, obj)
 			}
 
 			out.Values[i] = innerFunc(ctx)

@@ -103,6 +103,7 @@ type ExamConfiguration struct {
 type ExamInstruction struct {
 	ID              *string `json:"id"`
 	ExamID          *string `json:"ExamId"`
+	Instructions    *string `json:"Instructions"`
 	PassingCriteria *string `json:"PassingCriteria"`
 	NoAttempts      *string `json:"NoAttempts"`
 	AccessType      *string `json:"AccessType"`
