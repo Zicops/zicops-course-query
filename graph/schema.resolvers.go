@@ -264,7 +264,7 @@ func (r *queryResolver) GetExamsByQPId(ctx context.Context, questionPaperID *str
 	return resp, nil
 }
 
-func (r *queryResolver) GetExamSchedule(ctx context.Context, examID *string) (*model.ExamSchedule, error) {
+func (r *queryResolver) GetExamSchedule(ctx context.Context, examID *string) ([]*model.ExamSchedule, error) {
 	resp, err := handlers.GetExamSchedule(ctx, examID)
 	if err != nil {
 		log.Errorf("error getting exam schedule: %v", err)
@@ -273,7 +273,7 @@ func (r *queryResolver) GetExamSchedule(ctx context.Context, examID *string) (*m
 	return resp, nil
 }
 
-func (r *queryResolver) GetExamInstruction(ctx context.Context, examID *string) (*model.ExamInstruction, error) {
+func (r *queryResolver) GetExamInstruction(ctx context.Context, examID *string) ([]*model.ExamInstruction, error) {
 	resp, err := handlers.GetExamInstruction(ctx, examID)
 	if err != nil {
 		log.Errorf("error getting exam instructions: %v", err)
@@ -282,7 +282,7 @@ func (r *queryResolver) GetExamInstruction(ctx context.Context, examID *string) 
 	return resp, nil
 }
 
-func (r *queryResolver) GetExamCohort(ctx context.Context, examID *string) (*model.ExamCohort, error) {
+func (r *queryResolver) GetExamCohort(ctx context.Context, examID *string) ([]*model.ExamCohort, error) {
 	resp, err := handlers.GetExamCohort(ctx, examID)
 	if err != nil {
 		log.Errorf("error getting exam cohort: %v", err)
@@ -291,7 +291,7 @@ func (r *queryResolver) GetExamCohort(ctx context.Context, examID *string) (*mod
 	return resp, nil
 }
 
-func (r *queryResolver) GetExamConfiguration(ctx context.Context, examID *string) (*model.ExamConfiguration, error) {
+func (r *queryResolver) GetExamConfiguration(ctx context.Context, examID *string) ([]*model.ExamConfiguration, error) {
 	resp, err := handlers.GetExamConfiguration(ctx, examID)
 	if err != nil {
 		log.Errorf("error getting exam configuration: %v", err)

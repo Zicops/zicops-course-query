@@ -50,7 +50,7 @@ func GetExamsByQPId(ctx context.Context, questionPaperID *string) ([]*model.Exam
 	return allSections, nil
 }
 
-func GetExamSchedule(ctx context.Context, examID *string) (*model.ExamSchedule, error) {
+func GetExamSchedule(ctx context.Context, examID *string) ([]*model.ExamSchedule, error) {
 	qryStr := fmt.Sprintf(`SELECT * from qbankz.exam_schedule where exam_id = '%s'  ALLOW FILTERING`, *examID)
 	getBanks := func() (banks []qbankz.ExamSchedule, err error) {
 		q := global.CassSession.Session.Query(qryStr, nil)
@@ -84,10 +84,10 @@ func GetExamSchedule(ctx context.Context, examID *string) (*model.ExamSchedule, 
 		}
 		allSections = append(allSections, currentQuestion)
 	}
-	return allSections[0], nil
+	return allSections, nil
 }
 
-func GetExamInstruction(ctx context.Context, examID *string) (*model.ExamInstruction, error) {
+func GetExamInstruction(ctx context.Context, examID *string) ([]*model.ExamInstruction, error) {
 	qryStr := fmt.Sprintf(`SELECT * from qbankz.exam_instructions where exam_id = '%s'  ALLOW FILTERING`, *examID)
 	getBanks := func() (banks []qbankz.ExamInstructions, err error) {
 		q := global.CassSession.Session.Query(qryStr, nil)
@@ -120,10 +120,10 @@ func GetExamInstruction(ctx context.Context, examID *string) (*model.ExamInstruc
 		}
 		allSections = append(allSections, currentQuestion)
 	}
-	return allSections[0], nil
+	return allSections, nil
 }
 
-func GetExamCohort(ctx context.Context, examID *string) (*model.ExamCohort, error) {
+func GetExamCohort(ctx context.Context, examID *string) ([]*model.ExamCohort, error) {
 	qryStr := fmt.Sprintf(`SELECT * from qbankz.exam_cohort where exam_id = '%s'  ALLOW FILTERING`, *examID)
 	getBanks := func() (banks []qbankz.ExamCohort, err error) {
 		q := global.CassSession.Session.Query(qryStr, nil)
@@ -152,10 +152,10 @@ func GetExamCohort(ctx context.Context, examID *string) (*model.ExamCohort, erro
 		}
 		allSections = append(allSections, currentQuestion)
 	}
-	return allSections[0], nil
+	return allSections, nil
 }
 
-func GetExamConfiguration(ctx context.Context, examID *string) (*model.ExamConfiguration, error) {
+func GetExamConfiguration(ctx context.Context, examID *string) ([]*model.ExamConfiguration, error) {
 	qryStr := fmt.Sprintf(`SELECT * from qbankz.exam_config where exam_id = '%s'  ALLOW FILTERING`, *examID)
 	getBanks := func() (banks []qbankz.ExamConfig, err error) {
 		q := global.CassSession.Session.Query(qryStr, nil)
@@ -187,5 +187,5 @@ func GetExamConfiguration(ctx context.Context, examID *string) (*model.ExamConfi
 		}
 		allSections = append(allSections, currentQuestion)
 	}
-	return allSections[0], nil
+	return allSections, nil
 }

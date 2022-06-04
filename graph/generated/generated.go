@@ -469,10 +469,10 @@ type QueryResolver interface {
 	GetSectionFixedQuestions(ctx context.Context, sectionID *string) ([]*model.SectionFixedQuestions, error)
 	GetOptionsForQuestions(ctx context.Context, questionIds []*string) ([]*model.MapQuestionWithOption, error)
 	GetExamsByQPId(ctx context.Context, questionPaperID *string) ([]*model.Exam, error)
-	GetExamSchedule(ctx context.Context, examID *string) (*model.ExamSchedule, error)
-	GetExamInstruction(ctx context.Context, examID *string) (*model.ExamInstruction, error)
-	GetExamCohort(ctx context.Context, examID *string) (*model.ExamCohort, error)
-	GetExamConfiguration(ctx context.Context, examID *string) (*model.ExamConfiguration, error)
+	GetExamSchedule(ctx context.Context, examID *string) ([]*model.ExamSchedule, error)
+	GetExamInstruction(ctx context.Context, examID *string) ([]*model.ExamInstruction, error)
+	GetExamCohort(ctx context.Context, examID *string) ([]*model.ExamCohort, error)
+	GetExamConfiguration(ctx context.Context, examID *string) ([]*model.ExamConfiguration, error)
 }
 
 type executableSchema struct {
@@ -3249,10 +3249,10 @@ type Query{
   getSectionFixedQuestions(section_id: String): [SectionFixedQuestions]
   getOptionsForQuestions(question_ids: [String]): [MapQuestionWithOption]
   getExamsByQPId(question_paper_id: String): [Exam]
-  getExamSchedule(exam_id: String): ExamSchedule
-  getExamInstruction(exam_id: String): ExamInstruction
-  getExamCohort(exam_id: String): ExamCohort
-  getExamConfiguration(exam_id: String): ExamConfiguration
+  getExamSchedule(exam_id: String): [ExamSchedule]
+  getExamInstruction(exam_id: String): [ExamInstruction]
+  getExamCohort(exam_id: String): [ExamCohort]
+  getExamConfiguration(exam_id: String): [ExamConfiguration]
 }
 `, BuiltIn: false},
 }
@@ -9090,9 +9090,9 @@ func (ec *executionContext) _Query_getExamSchedule(ctx context.Context, field gr
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*model.ExamSchedule)
+	res := resTmp.([]*model.ExamSchedule)
 	fc.Result = res
-	return ec.marshalOExamSchedule2ᚖgithubᚗcomᚋzicopsᚋzicopsᚑcourseᚑqueryᚋgraphᚋmodelᚐExamSchedule(ctx, field.Selections, res)
+	return ec.marshalOExamSchedule2ᚕᚖgithubᚗcomᚋzicopsᚋzicopsᚑcourseᚑqueryᚋgraphᚋmodelᚐExamSchedule(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_getExamInstruction(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -9129,9 +9129,9 @@ func (ec *executionContext) _Query_getExamInstruction(ctx context.Context, field
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*model.ExamInstruction)
+	res := resTmp.([]*model.ExamInstruction)
 	fc.Result = res
-	return ec.marshalOExamInstruction2ᚖgithubᚗcomᚋzicopsᚋzicopsᚑcourseᚑqueryᚋgraphᚋmodelᚐExamInstruction(ctx, field.Selections, res)
+	return ec.marshalOExamInstruction2ᚕᚖgithubᚗcomᚋzicopsᚋzicopsᚑcourseᚑqueryᚋgraphᚋmodelᚐExamInstruction(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_getExamCohort(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -9168,9 +9168,9 @@ func (ec *executionContext) _Query_getExamCohort(ctx context.Context, field grap
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*model.ExamCohort)
+	res := resTmp.([]*model.ExamCohort)
 	fc.Result = res
-	return ec.marshalOExamCohort2ᚖgithubᚗcomᚋzicopsᚋzicopsᚑcourseᚑqueryᚋgraphᚋmodelᚐExamCohort(ctx, field.Selections, res)
+	return ec.marshalOExamCohort2ᚕᚖgithubᚗcomᚋzicopsᚋzicopsᚑcourseᚑqueryᚋgraphᚋmodelᚐExamCohort(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_getExamConfiguration(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -9207,9 +9207,9 @@ func (ec *executionContext) _Query_getExamConfiguration(ctx context.Context, fie
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*model.ExamConfiguration)
+	res := resTmp.([]*model.ExamConfiguration)
 	fc.Result = res
-	return ec.marshalOExamConfiguration2ᚖgithubᚗcomᚋzicopsᚋzicopsᚑcourseᚑqueryᚋgraphᚋmodelᚐExamConfiguration(ctx, field.Selections, res)
+	return ec.marshalOExamConfiguration2ᚕᚖgithubᚗcomᚋzicopsᚋzicopsᚑcourseᚑqueryᚋgraphᚋmodelᚐExamConfiguration(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -19314,11 +19314,93 @@ func (ec *executionContext) marshalOExam2ᚖgithubᚗcomᚋzicopsᚋzicopsᚑcou
 	return ec._Exam(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalOExamCohort2ᚕᚖgithubᚗcomᚋzicopsᚋzicopsᚑcourseᚑqueryᚋgraphᚋmodelᚐExamCohort(ctx context.Context, sel ast.SelectionSet, v []*model.ExamCohort) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOExamCohort2ᚖgithubᚗcomᚋzicopsᚋzicopsᚑcourseᚑqueryᚋgraphᚋmodelᚐExamCohort(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	return ret
+}
+
 func (ec *executionContext) marshalOExamCohort2ᚖgithubᚗcomᚋzicopsᚋzicopsᚑcourseᚑqueryᚋgraphᚋmodelᚐExamCohort(ctx context.Context, sel ast.SelectionSet, v *model.ExamCohort) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._ExamCohort(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOExamConfiguration2ᚕᚖgithubᚗcomᚋzicopsᚋzicopsᚑcourseᚑqueryᚋgraphᚋmodelᚐExamConfiguration(ctx context.Context, sel ast.SelectionSet, v []*model.ExamConfiguration) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOExamConfiguration2ᚖgithubᚗcomᚋzicopsᚋzicopsᚑcourseᚑqueryᚋgraphᚋmodelᚐExamConfiguration(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	return ret
 }
 
 func (ec *executionContext) marshalOExamConfiguration2ᚖgithubᚗcomᚋzicopsᚋzicopsᚑcourseᚑqueryᚋgraphᚋmodelᚐExamConfiguration(ctx context.Context, sel ast.SelectionSet, v *model.ExamConfiguration) graphql.Marshaler {
@@ -19328,11 +19410,93 @@ func (ec *executionContext) marshalOExamConfiguration2ᚖgithubᚗcomᚋzicops�
 	return ec._ExamConfiguration(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalOExamInstruction2ᚕᚖgithubᚗcomᚋzicopsᚋzicopsᚑcourseᚑqueryᚋgraphᚋmodelᚐExamInstruction(ctx context.Context, sel ast.SelectionSet, v []*model.ExamInstruction) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOExamInstruction2ᚖgithubᚗcomᚋzicopsᚋzicopsᚑcourseᚑqueryᚋgraphᚋmodelᚐExamInstruction(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	return ret
+}
+
 func (ec *executionContext) marshalOExamInstruction2ᚖgithubᚗcomᚋzicopsᚋzicopsᚑcourseᚑqueryᚋgraphᚋmodelᚐExamInstruction(ctx context.Context, sel ast.SelectionSet, v *model.ExamInstruction) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._ExamInstruction(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOExamSchedule2ᚕᚖgithubᚗcomᚋzicopsᚋzicopsᚑcourseᚑqueryᚋgraphᚋmodelᚐExamSchedule(ctx context.Context, sel ast.SelectionSet, v []*model.ExamSchedule) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOExamSchedule2ᚖgithubᚗcomᚋzicopsᚋzicopsᚑcourseᚑqueryᚋgraphᚋmodelᚐExamSchedule(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	return ret
 }
 
 func (ec *executionContext) marshalOExamSchedule2ᚖgithubᚗcomᚋzicopsᚋzicopsᚑcourseᚑqueryᚋgraphᚋmodelᚐExamSchedule(ctx context.Context, sel ast.SelectionSet, v *model.ExamSchedule) graphql.Marshaler {

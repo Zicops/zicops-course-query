@@ -401,8 +401,8 @@ type Query{
   getSectionFixedQuestions(section_id: String): [SectionFixedQuestions]
   getOptionsForQuestions(question_ids: [String]): [MapQuestionWithOption]
   getExamsByQPId(question_paper_id: String): [Exam]
-  getExamSchedule(exam_id: String): ExamSchedule
-  getExamInstruction(exam_id: String): ExamInstruction
-  getExamCohort(exam_id: String): ExamCohort
-  getExamConfiguration(exam_id: String): ExamConfiguration
+  getExamSchedule(exam_id: String): [ExamSchedule]
+  getExamInstruction(exam_id: String): [ExamInstruction]
+  getExamCohort(exam_id: String): [ExamCohort]
+  getExamConfiguration(exam_id: String): [ExamConfiguration]
 }
