@@ -223,13 +223,11 @@ func GetLatestExams(ctx context.Context, publishTime *int, pageCursor *string, d
 	return &outputResponse, nil
 }
 
-func GetQPMeta(ctx context.Context, questionPapersIds []*string) ([]*model.QuestionPaper, error) {
-	responseMap := make([]*model.QuestionPaper, 0)
-	for _, questionId := range questionPapersIds {
-		currentMap := &model.QuestionPaper{}
-		currentMap.ID = questionId
-		qryStr := fmt.Sprintf(`SELECT * from qbankz.question_paper_main where id='%s'  ALLOW FILTERING`, *questionId)
-		getPapers := func() (banks []qbankz.QuestionPaperMain, err error) {
+func GetExamsMeta(ctx context.Context, examIds []*string) ([]*model.Exam, error) {
+	responseMap := make([]*model.Exam, 0)
+	for _, questionId := range examIds {
+		qryStr := fmt.Sprintf(`SELECT * from qbankz.exam where id='%s'  ALLOW FILTERING`, *questionId)
+		getPapers := func() (banks []qbankz.Exam, err error) {
 			q := global.CassSession.Session.Query(qryStr, nil)
 			defer q.Release()
 			iter := q.Iter()
@@ -240,25 +238,28 @@ func GetQPMeta(ctx context.Context, questionPapersIds []*string) ([]*model.Quest
 			return nil, err
 		}
 		for _, bank := range banks {
-			copiedBank := bank
-			createdAt := strconv.FormatInt(copiedBank.CreatedAt, 10)
-			updatedAt := strconv.FormatInt(copiedBank.UpdatedAt, 10)
-			currentBank := &model.QuestionPaper{
-				ID:                &copiedBank.ID,
-				Name:              &copiedBank.Name,
-				Category:          &copiedBank.Category,
-				SubCategory:       &copiedBank.SubCategory,
-				SuggestedDuration: &copiedBank.SuggestedDuration,
-				SectionWise:       &copiedBank.SectionWise,
-				DifficultyLevel:   &copiedBank.DifficultyLevel,
-				Description:       &copiedBank.Description,
-				IsActive:          &copiedBank.IsActive,
-				CreatedAt:         &createdAt,
-				UpdatedAt:         &updatedAt,
-				CreatedBy:         &copiedBank.CreatedBy,
-				UpdatedBy:         &copiedBank.UpdatedBy,
+			copiedExam := bank
+			createdAt := strconv.FormatInt(copiedExam.CreatedAt, 10)
+			updatedAt := strconv.FormatInt(copiedExam.UpdatedAt, 10)
+			currentExam := &model.Exam{
+				ID:           &copiedExam.ID,
+				Name:         &copiedExam.Name,
+				Description:  &copiedExam.Description,
+				Code:         &copiedExam.Code,
+				QpID:         &copiedExam.QPID,
+				CreatedAt:    &createdAt,
+				UpdatedAt:    &updatedAt,
+				CreatedBy:    &copiedExam.CreatedBy,
+				UpdatedBy:    &copiedExam.UpdatedBy,
+				IsActive:     &copiedExam.IsActive,
+				Type:         &copiedExam.Type,
+				ScheduleType: &copiedExam.ScheduleType,
+				Duration:     &copiedExam.Duration,
+				Status:       &copiedExam.Status,
+				Category:     &copiedExam.Category,
+				SubCategory:  &copiedExam.SubCategory,
 			}
-			responseMap = append(responseMap, currentBank)
+			responseMap = append(responseMap, currentExam)
 		}
 	}
 

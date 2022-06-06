@@ -5,7 +5,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/zicops-course-query/graph/generated"
@@ -266,7 +265,12 @@ func (r *queryResolver) GetOptionsForQuestions(ctx context.Context, questionIds 
 }
 
 func (r *queryResolver) GetExamsMeta(ctx context.Context, examIds []*string) ([]*model.Exam, error) {
-	panic(fmt.Errorf("not implemented"))
+	resp, err := handlers.GetExamsMeta(ctx, examIds)
+	if err != nil {
+		log.Errorf("error getting exams: %v", err)
+		return nil, err
+	}
+	return resp, nil
 }
 
 func (r *queryResolver) GetExamsByQPId(ctx context.Context, questionPaperID *string) ([]*model.Exam, error) {

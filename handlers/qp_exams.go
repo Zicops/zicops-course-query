@@ -189,3 +189,45 @@ func GetExamConfiguration(ctx context.Context, examID *string) ([]*model.ExamCon
 	}
 	return allSections, nil
 }
+
+func GetQPMeta(ctx context.Context, questionPapersIds []*string) ([]*model.QuestionPaper, error) {
+	responseMap := make([]*model.QuestionPaper, 0)
+	for _, questionId := range questionPapersIds {
+		currentMap := &model.QuestionPaper{}
+		currentMap.ID = questionId
+		qryStr := fmt.Sprintf(`SELECT * from qbankz.question_paper_main where id='%s'  ALLOW FILTERING`, *questionId)
+		getPapers := func() (banks []qbankz.QuestionPaperMain, err error) {
+			q := global.CassSession.Session.Query(qryStr, nil)
+			defer q.Release()
+			iter := q.Iter()
+			return banks, iter.Select(&banks)
+		}
+		banks, err := getPapers()
+		if err != nil {
+			return nil, err
+		}
+		for _, bank := range banks {
+			copiedBank := bank
+			createdAt := strconv.FormatInt(copiedBank.CreatedAt, 10)
+			updatedAt := strconv.FormatInt(copiedBank.UpdatedAt, 10)
+			currentBank := &model.QuestionPaper{
+				ID:                &copiedBank.ID,
+				Name:              &copiedBank.Name,
+				Category:          &copiedBank.Category,
+				SubCategory:       &copiedBank.SubCategory,
+				SuggestedDuration: &copiedBank.SuggestedDuration,
+				SectionWise:       &copiedBank.SectionWise,
+				DifficultyLevel:   &copiedBank.DifficultyLevel,
+				Description:       &copiedBank.Description,
+				IsActive:          &copiedBank.IsActive,
+				CreatedAt:         &createdAt,
+				UpdatedAt:         &updatedAt,
+				CreatedBy:         &copiedBank.CreatedBy,
+				UpdatedBy:         &copiedBank.UpdatedBy,
+			}
+			responseMap = append(responseMap, currentBank)
+		}
+	}
+
+	return responseMap, nil
+}
