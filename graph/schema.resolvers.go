@@ -5,6 +5,7 @@ package graph
 
 import (
 	"context"
+	"fmt"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/zicops-course-query/graph/generated"
@@ -201,6 +202,15 @@ func (r *queryResolver) GetLatestQuestionPapers(ctx context.Context, publishTime
 	return resp, nil
 }
 
+func (r *queryResolver) GetQPMeta(ctx context.Context, questionPapersIds []*string) ([]*model.QuestionPaper, error) {
+	resp, err := handlers.GetQPMeta(ctx, questionPapersIds)
+	if err != nil {
+		log.Errorf("error getting question papers: %v", err)
+		return nil, err
+	}
+	return resp, nil
+}
+
 func (r *queryResolver) GetLatestExams(ctx context.Context, publishTime *int, pageCursor *string, direction *string, pageSize *int) (*model.PaginatedExams, error) {
 	resp, err := handlers.GetLatestExams(ctx, publishTime, pageCursor, direction, pageSize)
 	if err != nil {
@@ -253,6 +263,10 @@ func (r *queryResolver) GetOptionsForQuestions(ctx context.Context, questionIds 
 		return nil, err
 	}
 	return resp, nil
+}
+
+func (r *queryResolver) GetExamsMeta(ctx context.Context, examIds []*string) ([]*model.Exam, error) {
+	panic(fmt.Errorf("not implemented"))
 }
 
 func (r *queryResolver) GetExamsByQPId(ctx context.Context, questionPaperID *string) ([]*model.Exam, error) {

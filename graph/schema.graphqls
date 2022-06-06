@@ -394,12 +394,14 @@ type Query{
   getLatestQuestionBank(publish_time: Int, pageCursor: String, Direction: String, pageSize:Int): PaginatedQuestionBank
   getQuestionBankQuestions(question_bank_id: String): [QuestionBankQuestion]
   getLatestQuestionPapers(publish_time: Int, pageCursor: String, Direction: String, pageSize:Int): PaginatedQuestionPapers
+  getQPMeta(question_papers_ids:[String]): [QuestionPaper]
   getLatestExams(publish_time: Int, pageCursor: String, Direction: String, pageSize:Int): PaginatedExams
   getQuestionPaperSections(question_paper_id: String): [QuestionPaperSection]
   getQPBankMappingByQBId(question_bank_id: String): [SectionQBMapping]
   getQPBankMappingBySectionId(section_id: String): [SectionQBMapping]
   getSectionFixedQuestions(section_id: String): [SectionFixedQuestions]
   getOptionsForQuestions(question_ids: [String]): [MapQuestionWithOption]
+  getExamsMeta(exam_ids:[String]): [Exam]
   getExamsByQPId(question_paper_id: String): [Exam]
   getExamSchedule(exam_id: String): [ExamSchedule]
   getExamInstruction(exam_id: String): [ExamInstruction]
