@@ -265,3 +265,41 @@ func GetExamsMeta(ctx context.Context, examIds []*string) ([]*model.Exam, error)
 
 	return responseMap, nil
 }
+
+func GetQBMeta(ctx context.Context, qbIds []*string) ([]*model.QuestionBank, error) {
+	responseMap := make([]*model.QuestionBank, 0)
+	for _, qbId := range qbIds {
+		qryStr := fmt.Sprintf(`SELECT * from qbankz.question_bank_main where id='%s'  ALLOW FILTERING`, *qbId)
+		getBanks := func() (banks []qbankz.QuestionBankMain, err error) {
+			q := global.CassSession.Session.Query(qryStr, nil)
+			defer q.Release()
+			iter := q.Iter()
+			return banks, iter.Select(&banks)
+		}
+		banks, err := getBanks()
+		if err != nil {
+			return nil, err
+		}
+		for _, bank := range banks {
+			copiedBank := bank
+			createdAt := strconv.FormatInt(copiedBank.CreatedAt, 10)
+			updatedAt := strconv.FormatInt(copiedBank.UpdatedAt, 10)
+			currentBank := &model.QuestionBank{
+				ID:          &copiedBank.ID,
+				Name:        &copiedBank.Name,
+				Description: &copiedBank.Description,
+				Category:    &copiedBank.Category,
+				SubCategory: &copiedBank.SubCategory,
+				Owner:       &copiedBank.Owner,
+				IsActive:    &copiedBank.IsActive,
+				CreatedAt:   &createdAt,
+				UpdatedAt:   &updatedAt,
+				CreatedBy:   &copiedBank.CreatedBy,
+				UpdatedBy:   &copiedBank.UpdatedBy,
+				IsDefault:   &copiedBank.IsDefault,
+			}
+			responseMap = append(responseMap, currentBank)
+		}
+	}
+	return responseMap, nil
+}

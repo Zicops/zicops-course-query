@@ -228,6 +228,7 @@ type ComplexityRoot struct {
 		GetMCQQuiz                  func(childComplexity int, quizID *string) int
 		GetModuleByID               func(childComplexity int, moduleID *string) int
 		GetOptionsForQuestions      func(childComplexity int, questionIds []*string) int
+		GetQBMeta                   func(childComplexity int, qbIds []*string) int
 		GetQPBankMappingByQBId      func(childComplexity int, questionBankID *string) int
 		GetQPBankMappingBySectionID func(childComplexity int, sectionID *string) int
 		GetQPMeta                   func(childComplexity int, questionPapersIds []*string) int
@@ -462,6 +463,7 @@ type QueryResolver interface {
 	GetTopicContentByCourseID(ctx context.Context, courseID *string) ([]*model.TopicContent, error)
 	GetResourcesByCourseID(ctx context.Context, courseID *string) ([]*model.TopicResource, error)
 	GetLatestQuestionBank(ctx context.Context, publishTime *int, pageCursor *string, direction *string, pageSize *int) (*model.PaginatedQuestionBank, error)
+	GetQBMeta(ctx context.Context, qbIds []*string) ([]*model.QuestionBank, error)
 	GetQuestionBankQuestions(ctx context.Context, questionBankID *string) ([]*model.QuestionBankQuestion, error)
 	GetLatestQuestionPapers(ctx context.Context, publishTime *int, pageCursor *string, direction *string, pageSize *int) (*model.PaginatedQuestionPapers, error)
 	GetQPMeta(ctx context.Context, questionPapersIds []*string) ([]*model.QuestionPaper, error)
@@ -1607,6 +1609,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.GetOptionsForQuestions(childComplexity, args["question_ids"].([]*string)), true
+
+	case "Query.getQBMeta":
+		if e.complexity.Query.GetQBMeta == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getQBMeta_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetQBMeta(childComplexity, args["qb_ids"].([]*string)), true
 
 	case "Query.getQPBankMappingByQBId":
 		if e.complexity.Query.GetQPBankMappingByQBId == nil {
@@ -3268,6 +3282,7 @@ type Query{
   getTopicContentByCourseId(course_id: String): [TopicContent]
   getResourcesByCourseId(course_id: String): [TopicResource]
   getLatestQuestionBank(publish_time: Int, pageCursor: String, Direction: String, pageSize:Int): PaginatedQuestionBank
+  getQBMeta(qb_ids:[String]): [QuestionBank]
   getQuestionBankQuestions(question_bank_id: String): [QuestionBankQuestion]
   getLatestQuestionPapers(publish_time: Int, pageCursor: String, Direction: String, pageSize:Int): PaginatedQuestionPapers
   getQPMeta(question_papers_ids:[String]): [QuestionPaper]
@@ -3640,6 +3655,21 @@ func (ec *executionContext) field_Query_getOptionsForQuestions_args(ctx context.
 		}
 	}
 	args["question_ids"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_getQBMeta_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 []*string
+	if tmp, ok := rawArgs["qb_ids"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("qb_ids"))
+		arg0, err = ec.unmarshalOString2ᚕᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["qb_ids"] = arg0
 	return args, nil
 }
 
@@ -8763,6 +8793,45 @@ func (ec *executionContext) _Query_getLatestQuestionBank(ctx context.Context, fi
 	res := resTmp.(*model.PaginatedQuestionBank)
 	fc.Result = res
 	return ec.marshalOPaginatedQuestionBank2ᚖgithubᚗcomᚋzicopsᚋzicopsᚑcourseᚑqueryᚋgraphᚋmodelᚐPaginatedQuestionBank(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_getQBMeta(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_getQBMeta_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetQBMeta(rctx, args["qb_ids"].([]*string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*model.QuestionBank)
+	fc.Result = res
+	return ec.marshalOQuestionBank2ᚕᚖgithubᚗcomᚋzicopsᚋzicopsᚑcourseᚑqueryᚋgraphᚋmodelᚐQuestionBank(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_getQuestionBankQuestions(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -16909,6 +16978,26 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_getLatestQuestionBank(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "getQBMeta":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getQBMeta(ctx, field)
 				return res
 			}
 

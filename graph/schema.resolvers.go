@@ -183,6 +183,15 @@ func (r *queryResolver) GetLatestQuestionBank(ctx context.Context, publishTime *
 	return resp, nil
 }
 
+func (r *queryResolver) GetQBMeta(ctx context.Context, qbIds []*string) ([]*model.QuestionBank, error) {
+	resp, err := handlers.GetQBMeta(ctx, qbIds)
+	if err != nil {
+		log.Errorf("error getting latest question banks: %v", err)
+		return nil, err
+	}
+	return resp, nil
+}
+
 func (r *queryResolver) GetQuestionBankQuestions(ctx context.Context, questionBankID *string) ([]*model.QuestionBankQuestion, error) {
 	resp, err := handlers.GetQuestionBankQuestions(ctx, questionBankID)
 	if err != nil {
