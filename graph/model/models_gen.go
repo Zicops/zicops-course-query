@@ -235,6 +235,7 @@ type QuestionPaper struct {
 	SectionWise       *bool   `json:"SectionWise"`
 	Description       *string `json:"Description"`
 	SuggestedDuration *string `json:"SuggestedDuration"`
+	Status            *string `json:"Status"`
 }
 
 type QuestionPaperSection struct {

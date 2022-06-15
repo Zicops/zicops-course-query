@@ -224,6 +224,7 @@ func GetQPMeta(ctx context.Context, questionPapersIds []*string) ([]*model.Quest
 				UpdatedAt:         &updatedAt,
 				CreatedBy:         &copiedBank.CreatedBy,
 				UpdatedBy:         &copiedBank.UpdatedBy,
+				Status: 		  &copiedBank.Status,
 			}
 			responseMap = append(responseMap, currentBank)
 		}

@@ -238,6 +238,7 @@ type QuestionPaper {
     SectionWise: Boolean
     Description: String
     SuggestedDuration: String
+    Status: String
 }
 
 type PaginatedQuestionPapers{

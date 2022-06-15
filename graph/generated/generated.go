@@ -302,6 +302,7 @@ type ComplexityRoot struct {
 		IsActive          func(childComplexity int) int
 		Name              func(childComplexity int) int
 		SectionWise       func(childComplexity int) int
+		Status            func(childComplexity int) int
 		SubCategory       func(childComplexity int) int
 		SuggestedDuration func(childComplexity int) int
 		UpdatedAt         func(childComplexity int) int
@@ -2124,6 +2125,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.QuestionPaper.SectionWise(childComplexity), true
 
+	case "QuestionPaper.Status":
+		if e.complexity.QuestionPaper.Status == nil {
+			break
+		}
+
+		return e.complexity.QuestionPaper.Status(childComplexity), true
+
 	case "QuestionPaper.SubCategory":
 		if e.complexity.QuestionPaper.SubCategory == nil {
 			break
@@ -3128,6 +3136,7 @@ type QuestionPaper {
     SectionWise: Boolean
     Description: String
     SuggestedDuration: String
+    Status: String
 }
 
 type PaginatedQuestionPapers{
@@ -11090,6 +11099,38 @@ func (ec *executionContext) _QuestionPaper_SuggestedDuration(ctx context.Context
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _QuestionPaper_Status(ctx context.Context, field graphql.CollectedField, obj *model.QuestionPaper) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "QuestionPaper",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Status, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _QuestionPaperSection_id(ctx context.Context, field graphql.CollectedField, obj *model.QuestionPaperSection) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -17752,6 +17793,13 @@ func (ec *executionContext) _QuestionPaper(ctx context.Context, sel ast.Selectio
 		case "SuggestedDuration":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._QuestionPaper_SuggestedDuration(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+		case "Status":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._QuestionPaper_Status(ctx, field, obj)
 			}
 
 			out.Values[i] = innerFunc(ctx)

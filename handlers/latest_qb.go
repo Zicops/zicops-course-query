@@ -140,6 +140,7 @@ func LatestQuestionPapers(ctx context.Context, publishTime *int, pageCursor *str
 			UpdatedAt:         &updatedAt,
 			CreatedBy:         &copiedBank.CreatedBy,
 			UpdatedBy:         &copiedBank.UpdatedBy,
+			Status: 		  &copiedBank.Status,
 		}
 		allBanks = append(allBanks, currentBank)
 	}
