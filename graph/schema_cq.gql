@@ -373,6 +373,16 @@ type ExamConfiguration {
     UpdatedAt: String
 }
 
+type TopicExam{
+    id: ID
+    topicId: String
+    examId: String
+    courseId: String
+    created_at: String
+    updated_at: String
+    language: String
+}
+
 type Query{
   allCategories: [String]
   allSubCategories: [String]
@@ -385,12 +395,14 @@ type Query{
   getTopics(course_id: String): [Topic]
   getTopicById(topic_id: String): Topic
   getTopicContent(topic_id: String): [TopicContent]
+  getTopicExams(topic_id: String): [TopicExam]
   getTopicResources(topic_id: String): [TopicResource]
   getTopicQuizes(topic_id: String): [Quiz]
   getQuizFiles(quiz_id: String): [QuizFile]
   getMCQQuiz(quiz_id: String): [QuizMcq]
   getDescriptiveQuiz(quiz_id: String): [QuizDescriptive]
   getTopicContentByCourseId(course_id: String): [TopicContent]
+  getTopicExamsByCourseId(course_id: String): [TopicExam]
   getResourcesByCourseId(course_id: String): [TopicResource]
   getLatestQuestionBank(publish_time: Int, pageCursor: String, Direction: String, pageSize:Int): PaginatedQuestionBank
   getQBMeta(qb_ids:[String]): [QuestionBank]

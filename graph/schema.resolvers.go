@@ -111,6 +111,15 @@ func (r *queryResolver) GetTopicContent(ctx context.Context, topicID *string) ([
 	return resp, nil
 }
 
+func (r *queryResolver) GetTopicExams(ctx context.Context, topicID *string) ([]*model.TopicExam, error) {
+	resp, err := handlers.GetTopicExams(ctx, topicID)
+	if err != nil {
+		log.Errorf("error getting topic content: %v", err)
+		return nil, err
+	}
+	return resp, nil
+}
+
 func (r *queryResolver) GetTopicResources(ctx context.Context, topicID *string) ([]*model.TopicResource, error) {
 	resp, err := handlers.GetTopicResources(ctx, topicID)
 	if err != nil {
@@ -160,6 +169,15 @@ func (r *queryResolver) GetTopicContentByCourseID(ctx context.Context, courseID 
 	resp, err := handlers.GetTopicContentByCourse(ctx, courseID)
 	if err != nil {
 		log.Errorf("error getting topic content: %v", err)
+		return nil, err
+	}
+	return resp, nil
+}
+
+func (r *queryResolver) GetTopicExamsByCourseID(ctx context.Context, courseID *string) ([]*model.TopicExam, error) {
+	resp, err := handlers.GetTopicExamsByCourse(ctx, courseID)
+	if err != nil {
+		log.Errorf("error getting topic exams: %v", err)
 		return nil, err
 	}
 	return resp, nil

@@ -71,6 +71,38 @@ func GetTopicContent(ctx context.Context, topicID *string) ([]*model.TopicConten
 	return topicsOut, nil
 }
 
+func GetTopicExams(ctx context.Context, topicID *string) ([]*model.TopicExam, error) {
+	topicsOut := make([]*model.TopicExam, 0)
+	qryStr := fmt.Sprintf(`SELECT * from coursez.topic_exam where topicid='%s' ALLOW FILTERING`, *topicID)
+	getTopicContent := func() (content []coursez.TopicExam, err error) {
+		q := global.CassSession.Session.Query(qryStr, nil)
+		defer q.Release()
+		iter := q.Iter()
+		return content, iter.Select(&content)
+	}
+	currentContent, err := getTopicContent()
+	if err != nil {
+		return nil, err
+	}
+	for _, topCon := range currentContent {
+		mod := topCon
+		createdAt := strconv.FormatInt(mod.CreatedAt, 10)
+		updatedAt := strconv.FormatInt(mod.UpdatedAt, 10)
+		currentModule := &model.TopicExam{
+			ID:        &mod.ID,
+			Language:  &mod.Language,
+			TopicID:   &mod.TopicId,
+			CourseID:  &mod.CourseId,
+			CreatedAt: &createdAt,
+			UpdatedAt: &updatedAt,
+			ExamID:    &mod.ExamId,
+		}
+
+		topicsOut = append(topicsOut, currentModule)
+	}
+	return topicsOut, nil
+}
+
 func GetTopicContentByCourse(ctx context.Context, courseID *string) ([]*model.TopicContent, error) {
 	topicsOut := make([]*model.TopicContent, 0)
 	qryStr := fmt.Sprintf(`SELECT * from coursez.topic_content where courseid='%s' ALLOW FILTERING`, *courseID)
@@ -122,6 +154,40 @@ func GetTopicContentByCourse(ctx context.Context, courseID *string) ([]*model.To
 			FromEndTime:       &mod.FromEndTime,
 			Type:              &mod.Type,
 			IsDefault:         &mod.IsDefault,
+		}
+
+		topicsOut = append(topicsOut, currentModule)
+	}
+
+	return topicsOut, nil
+}
+
+func GetTopicExamsByCourse(ctx context.Context, courseID *string) ([]*model.TopicExam, error) {
+	topicsOut := make([]*model.TopicExam, 0)
+	qryStr := fmt.Sprintf(`SELECT * from coursez.topic_exam where courseid='%s' ALLOW FILTERING`, *courseID)
+	getTopicContent := func() (content []coursez.TopicExam, err error) {
+		q := global.CassSession.Session.Query(qryStr, nil)
+		defer q.Release()
+		iter := q.Iter()
+		return content, iter.Select(&content)
+	}
+	currentContent, err := getTopicContent()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, topCon := range currentContent {
+		mod := topCon
+		createdAt := strconv.FormatInt(mod.CreatedAt, 10)
+		updatedAt := strconv.FormatInt(mod.UpdatedAt, 10)
+		currentModule := &model.TopicExam{
+			ID:        &mod.ID,
+			Language:  &mod.Language,
+			TopicID:   &mod.TopicId,
+			CourseID:  &mod.CourseId,
+			CreatedAt: &createdAt,
+			UpdatedAt: &updatedAt,
+			ExamID:    &mod.ExamId,
 		}
 
 		topicsOut = append(topicsOut, currentModule)

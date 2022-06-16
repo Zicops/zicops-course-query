@@ -354,6 +354,16 @@ type TopicContent struct {
 	IsDefault         *bool          `json:"is_default"`
 }
 
+type TopicExam struct {
+	ID        *string `json:"id"`
+	TopicID   *string `json:"topicId"`
+	ExamID    *string `json:"examId"`
+	CourseID  *string `json:"courseId"`
+	CreatedAt *string `json:"created_at"`
+	UpdatedAt *string `json:"updated_at"`
+	Language  *string `json:"language"`
+}
+
 type TopicResource struct {
 	ID        *string `json:"id"`
 	Name      *string `json:"name"`
