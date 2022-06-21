@@ -211,6 +211,7 @@ type ComplexityRoot struct {
 	Query struct {
 		AllCategories               func(childComplexity int) int
 		AllSubCategories            func(childComplexity int) int
+		AllSubCatsByCat             func(childComplexity int, category *string) int
 		GetChapterByID              func(childComplexity int, chapterID *string) int
 		GetCourse                   func(childComplexity int, courseID *string) int
 		GetCourseChapters           func(childComplexity int, courseID *string) int
@@ -459,6 +460,7 @@ type ComplexityRoot struct {
 type QueryResolver interface {
 	AllCategories(ctx context.Context) ([]*string, error)
 	AllSubCategories(ctx context.Context) ([]*string, error)
+	AllSubCatsByCat(ctx context.Context, category *string) ([]*string, error)
 	LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, direction *string, pageSize *int, status *model.Status) (*model.PaginatedCourse, error)
 	GetCourse(ctx context.Context, courseID *string) (*model.Course, error)
 	GetCourseModules(ctx context.Context, courseID *string) ([]*model.Module, error)
@@ -1420,6 +1422,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.AllSubCategories(childComplexity), true
+
+	case "Query.allSubCatsByCat":
+		if e.complexity.Query.AllSubCatsByCat == nil {
+			break
+		}
+
+		args, err := ec.field_Query_allSubCatsByCat_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.AllSubCatsByCat(childComplexity, args["category"].(*string)), true
 
 	case "Query.getChapterById":
 		if e.complexity.Query.GetChapterByID == nil {
@@ -3371,6 +3385,7 @@ type TopicExam{
 type Query{
   allCategories: [String]
   allSubCategories: [String]
+  allSubCatsByCat(category: String): [String]
   latestCourses(publish_time: Int, pageCursor: String, Direction: String, pageSize:Int, status:Status): PaginatedCourse
   getCourse(course_id: String): Course
   getCourseModules(course_id: String): [Module]
@@ -3427,6 +3442,21 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		}
 	}
 	args["name"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_allSubCatsByCat_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *string
+	if tmp, ok := rawArgs["category"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("category"))
+		arg0, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["category"] = arg0
 	return args, nil
 }
 
@@ -8257,6 +8287,45 @@ func (ec *executionContext) _Query_allSubCategories(ctx context.Context, field g
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Query().AllSubCategories(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*string)
+	fc.Result = res
+	return ec.marshalOString2ᚕᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_allSubCatsByCat(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_allSubCatsByCat_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().AllSubCatsByCat(rctx, args["category"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -17110,6 +17179,26 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_allSubCategories(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "allSubCatsByCat":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_allSubCatsByCat(ctx, field)
 				return res
 			}
 

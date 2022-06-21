@@ -15,7 +15,7 @@ import (
 func (r *queryResolver) AllCategories(ctx context.Context) ([]*string, error) {
 	resp, err := handlers.GetCategories(ctx)
 	if err != nil {
-		log.Errorf("error adding categotries: %v", err)
+		log.Errorf("error adding categories: %v", err)
 		return nil, err
 	}
 	return resp, nil
@@ -24,7 +24,16 @@ func (r *queryResolver) AllCategories(ctx context.Context) ([]*string, error) {
 func (r *queryResolver) AllSubCategories(ctx context.Context) ([]*string, error) {
 	resp, err := handlers.GetSubCategories(ctx)
 	if err != nil {
-		log.Errorf("error adding sub categotries: %v", err)
+		log.Errorf("error adding sub categories: %v", err)
+		return nil, err
+	}
+	return resp, nil
+}
+
+func (r *queryResolver) AllSubCatsByCat(ctx context.Context, category *string) ([]*string, error) {
+	resp, err := handlers.GetSubCategoriesForSub(ctx, category)
+	if err != nil {
+		log.Errorf("error adding sub categories: %v", err)
 		return nil, err
 	}
 	return resp, nil

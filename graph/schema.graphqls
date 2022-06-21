@@ -386,6 +386,7 @@ type TopicExam{
 type Query{
   allCategories: [String]
   allSubCategories: [String]
+  allSubCatsByCat(category: String): [String]
   latestCourses(publish_time: Int, pageCursor: String, Direction: String, pageSize:Int, status:Status): PaginatedCourse
   getCourse(course_id: String): Course
   getCourseModules(course_id: String): [Module]
