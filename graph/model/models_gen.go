@@ -175,6 +175,12 @@ type PaginatedQuestionPapers struct {
 	PageSize       *int             `json:"pageSize"`
 }
 
+type QBFilters struct {
+	Difficulty          *int      `json:"Difficulty"`
+	TotalQuestions      *int      `json:"TotalQuestions"`
+	ExcludedQuestionIds []*string `json:"ExcludedQuestionIds"`
+}
+
 type QuestionBank struct {
 	ID          *string `json:"id"`
 	Name        *string `json:"name"`

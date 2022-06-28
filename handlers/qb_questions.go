@@ -13,7 +13,7 @@ import (
 	"github.com/zicops/zicops-course-query/lib/googleprojectlib"
 )
 
-func GetQuestionBankQuestions(ctx context.Context, questionBankID *string) ([]*model.QuestionBankQuestion, error) {
+func GetQuestionBankQuestions(ctx context.Context, questionBankID *string, filters *model.QBFilters) ([]*model.QuestionBankQuestion, error) {
 	storageC := bucket.NewStorageHandler()
 	gproject := googleprojectlib.GetGoogleProjectID()
 	err := storageC.InitializeStorageClient(ctx, gproject)
@@ -21,7 +21,12 @@ func GetQuestionBankQuestions(ctx context.Context, questionBankID *string) ([]*m
 		log.Errorf("Failed to get questions: %v", err.Error())
 		return nil, err
 	}
-	qryStr := fmt.Sprintf(`SELECT * from qbankz.question_main where qbm_id = '%s'  ALLOW FILTERING`, *questionBankID)
+	whereClause := ""
+	if filters != nil {
+		whereClause = getWhereClause(filters, *questionBankID)
+	}
+
+	qryStr := fmt.Sprintf(`SELECT * from qbankz.question_main where '%s'  ALLOW FILTERING`, whereClause)
 	getBanks := func() (banks []qbankz.QuestionMain, err error) {
 		q := global.CassSession.Session.Query(qryStr, nil)
 		defer q.Release()
@@ -32,8 +37,33 @@ func GetQuestionBankQuestions(ctx context.Context, questionBankID *string) ([]*m
 	if err != nil {
 		return nil, err
 	}
+	filteredBanks := make([]qbankz.QuestionMain, 0)
+	excludedIds := []string{}
 	allQuestions := make([]*model.QuestionBankQuestion, 0)
-	for _, bank := range banks {
+	if filters != nil && filters.ExcludedQuestionIds != nil {
+		currentExclusion := filters.ExcludedQuestionIds
+		for _, id := range currentExclusion {
+			copiedId := *id
+			excludedIds = append(excludedIds, copiedId)
+		}
+		// filter out the questions that are in the excluded list
+		for _, bank := range banks {
+			if !contains(excludedIds, bank.ID) {
+				filteredBanks = append(filteredBanks, bank)
+			}
+		}
+	} else {
+		filteredBanks = banks
+	}
+	shuffledBanks := shuffle(filteredBanks)
+	if filters != nil && filters.TotalQuestions != nil {
+		totalQuestions := *filters.TotalQuestions
+		if totalQuestions > len(shuffledBanks) {
+			totalQuestions = len(shuffledBanks)
+		}
+		shuffledBanks = shuffledBanks[:totalQuestions]
+	}
+	for _, bank := range shuffledBanks {
 		copiedQuestion := bank
 		createdAt := strconv.FormatInt(copiedQuestion.CreatedAt, 10)
 		updatedAt := strconv.FormatInt(copiedQuestion.UpdatedAt, 10)
@@ -61,4 +91,36 @@ func GetQuestionBankQuestions(ctx context.Context, questionBankID *string) ([]*m
 		allQuestions = append(allQuestions, currentQuestion)
 	}
 	return allQuestions, nil
+}
+
+func getWhereClause(filters *model.QBFilters, qb_id string) string {
+	whereClause := ""
+	if filters.Difficulty != nil {
+		whereClause = fmt.Sprintf("%s difficulty_score = %d", whereClause, *filters.Difficulty)
+	}
+	if qb_id != "" {
+		if whereClause != "" {
+			whereClause = fmt.Sprintf("%s AND qbm_id = '%s'", whereClause, qb_id)
+		} else {
+			whereClause = fmt.Sprintf("qbm_id = '%s'", qb_id)
+		}
+	}
+	return whereClause
+}
+
+func contains(s []string, e string) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
+}
+
+func shuffle(s []qbankz.QuestionMain) []qbankz.QuestionMain {
+	for i := len(s) - 1; i > 0; i-- {
+		j := global.Rand.Intn(i + 1)
+		s[i], s[j] = s[j], s[i]
+	}
+	return s
 }

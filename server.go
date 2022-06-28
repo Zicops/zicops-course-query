@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"math/rand"
 	"os/signal"
 	"strconv"
 	"syscall"
@@ -35,6 +36,7 @@ func main() {
 	global.CassSession = cassSession
 	global.Cancel = cancel
 	global.CryptSession = &crySession
+	global.Rand = rand.New(rand.NewSource(99))
 	log.Infof("zicops course query initialization complete")
 	portFromEnv := os.Getenv("PORT")
 	port, err := strconv.Atoi(portFromEnv)

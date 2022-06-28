@@ -70,6 +70,7 @@ func LatestQuestionBanks(ctx context.Context, publishTime *int, pageCursor *stri
 			CreatedBy:   &copiedBank.CreatedBy,
 			UpdatedBy:   &copiedBank.UpdatedBy,
 			IsDefault:   &copiedBank.IsDefault,
+			
 		}
 		allBanks = append(allBanks, currentBank)
 	}

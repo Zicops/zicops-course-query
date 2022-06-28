@@ -233,7 +233,7 @@ type ComplexityRoot struct {
 		GetQPBankMappingByQBId      func(childComplexity int, questionBankID *string) int
 		GetQPBankMappingBySectionID func(childComplexity int, sectionID *string) int
 		GetQPMeta                   func(childComplexity int, questionPapersIds []*string) int
-		GetQuestionBankQuestions    func(childComplexity int, questionBankID *string) int
+		GetQuestionBankQuestions    func(childComplexity int, questionBankID *string, filters *model.QBFilters) int
 		GetQuestionPaperSections    func(childComplexity int, questionPaperID *string) int
 		GetQuizFiles                func(childComplexity int, quizID *string) int
 		GetResourcesByCourseID      func(childComplexity int, courseID *string) int
@@ -481,7 +481,7 @@ type QueryResolver interface {
 	GetResourcesByCourseID(ctx context.Context, courseID *string) ([]*model.TopicResource, error)
 	GetLatestQuestionBank(ctx context.Context, publishTime *int, pageCursor *string, direction *string, pageSize *int) (*model.PaginatedQuestionBank, error)
 	GetQBMeta(ctx context.Context, qbIds []*string) ([]*model.QuestionBank, error)
-	GetQuestionBankQuestions(ctx context.Context, questionBankID *string) ([]*model.QuestionBankQuestion, error)
+	GetQuestionBankQuestions(ctx context.Context, questionBankID *string, filters *model.QBFilters) ([]*model.QuestionBankQuestion, error)
 	GetLatestQuestionPapers(ctx context.Context, publishTime *int, pageCursor *string, direction *string, pageSize *int) (*model.PaginatedQuestionPapers, error)
 	GetQPMeta(ctx context.Context, questionPapersIds []*string) ([]*model.QuestionPaper, error)
 	GetLatestExams(ctx context.Context, publishTime *int, pageCursor *string, direction *string, pageSize *int) (*model.PaginatedExams, error)
@@ -1697,7 +1697,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.GetQuestionBankQuestions(childComplexity, args["question_bank_id"].(*string)), true
+		return e.complexity.Query.GetQuestionBankQuestions(childComplexity, args["question_bank_id"].(*string), args["filters"].(*model.QBFilters)), true
 
 	case "Query.getQuestionPaperSections":
 		if e.complexity.Query.GetQuestionPaperSections == nil {
@@ -3381,6 +3381,11 @@ type TopicExam{
     updated_at: String
     language: String
 }
+input QBFilters{
+    Difficulty: Int
+    TotalQuestions: Int
+    ExcludedQuestionIds: [String]
+}
 
 type Query{
   allCategories: [String]
@@ -3406,7 +3411,7 @@ type Query{
   getResourcesByCourseId(course_id: String): [TopicResource]
   getLatestQuestionBank(publish_time: Int, pageCursor: String, Direction: String, pageSize:Int): PaginatedQuestionBank
   getQBMeta(qb_ids:[String]): [QuestionBank]
-  getQuestionBankQuestions(question_bank_id: String): [QuestionBankQuestion]
+  getQuestionBankQuestions(question_bank_id: String, filters: QBFilters): [QuestionBankQuestion]
   getLatestQuestionPapers(publish_time: Int, pageCursor: String, Direction: String, pageSize:Int): PaginatedQuestionPapers
   getQPMeta(question_papers_ids:[String]): [QuestionPaper]
   getLatestExams(publish_time: Int, pageCursor: String, Direction: String, pageSize:Int): PaginatedExams
@@ -3868,6 +3873,15 @@ func (ec *executionContext) field_Query_getQuestionBankQuestions_args(ctx contex
 		}
 	}
 	args["question_bank_id"] = arg0
+	var arg1 *model.QBFilters
+	if tmp, ok := rawArgs["filters"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filters"))
+		arg1, err = ec.unmarshalOQBFilters2ᚖgithubᚗcomᚋzicopsᚋzicopsᚑcourseᚑqueryᚋgraphᚋmodelᚐQBFilters(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["filters"] = arg1
 	return args, nil
 }
 
@@ -9144,7 +9158,7 @@ func (ec *executionContext) _Query_getQuestionBankQuestions(ctx context.Context,
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetQuestionBankQuestions(rctx, args["question_bank_id"].(*string))
+		return ec.resolvers.Query().GetQuestionBankQuestions(rctx, args["question_bank_id"].(*string), args["filters"].(*model.QBFilters))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -15953,6 +15967,45 @@ func (ec *executionContext) _sub_categories_rank(ctx context.Context, field grap
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputQBFilters(ctx context.Context, obj interface{}) (model.QBFilters, error) {
+	var it model.QBFilters
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	for k, v := range asMap {
+		switch k {
+		case "Difficulty":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Difficulty"))
+			it.Difficulty, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "TotalQuestions":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("TotalQuestions"))
+			it.TotalQuestions, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "ExcludedQuestionIds":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ExcludedQuestionIds"))
+			it.ExcludedQuestionIds, err = ec.unmarshalOString2ᚕᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -20605,6 +20658,14 @@ func (ec *executionContext) marshalOPaginatedQuestionPapers2ᚖgithubᚗcomᚋzi
 		return graphql.Null
 	}
 	return ec._PaginatedQuestionPapers(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOQBFilters2ᚖgithubᚗcomᚋzicopsᚋzicopsᚑcourseᚑqueryᚋgraphᚋmodelᚐQBFilters(ctx context.Context, v interface{}) (*model.QBFilters, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputQBFilters(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalOQuestionBank2ᚕᚖgithubᚗcomᚋzicopsᚋzicopsᚑcourseᚑqueryᚋgraphᚋmodelᚐQuestionBank(ctx context.Context, sel ast.SelectionSet, v []*model.QuestionBank) graphql.Marshaler {

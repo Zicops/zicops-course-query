@@ -219,8 +219,8 @@ func (r *queryResolver) GetQBMeta(ctx context.Context, qbIds []*string) ([]*mode
 	return resp, nil
 }
 
-func (r *queryResolver) GetQuestionBankQuestions(ctx context.Context, questionBankID *string) ([]*model.QuestionBankQuestion, error) {
-	resp, err := handlers.GetQuestionBankQuestions(ctx, questionBankID)
+func (r *queryResolver) GetQuestionBankQuestions(ctx context.Context, questionBankID *string, filters *model.QBFilters) ([]*model.QuestionBankQuestion, error) {
+	resp, err := handlers.GetQuestionBankQuestions(ctx, questionBankID, filters)
 	if err != nil {
 		log.Errorf("error getting questions: %v", err)
 		return nil, err

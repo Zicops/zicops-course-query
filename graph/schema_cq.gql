@@ -382,6 +382,11 @@ type TopicExam{
     updated_at: String
     language: String
 }
+input QBFilters{
+    Difficulty: Int
+    TotalQuestions: Int
+    ExcludedQuestionIds: [String]
+}
 
 type Query{
   allCategories: [String]
@@ -407,7 +412,7 @@ type Query{
   getResourcesByCourseId(course_id: String): [TopicResource]
   getLatestQuestionBank(publish_time: Int, pageCursor: String, Direction: String, pageSize:Int): PaginatedQuestionBank
   getQBMeta(qb_ids:[String]): [QuestionBank]
-  getQuestionBankQuestions(question_bank_id: String): [QuestionBankQuestion]
+  getQuestionBankQuestions(question_bank_id: String, filters: QBFilters): [QuestionBankQuestion]
   getLatestQuestionPapers(publish_time: Int, pageCursor: String, Direction: String, pageSize:Int): PaginatedQuestionPapers
   getQPMeta(question_papers_ids:[String]): [QuestionPaper]
   getLatestExams(publish_time: Int, pageCursor: String, Direction: String, pageSize:Int): PaginatedExams
