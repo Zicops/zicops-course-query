@@ -21,12 +21,10 @@ func GetQuestionBankQuestions(ctx context.Context, questionBankID *string, filte
 		log.Errorf("Failed to get questions: %v", err.Error())
 		return nil, err
 	}
-	whereClause := ""
-	if filters != nil {
-		whereClause = getWhereClause(filters, *questionBankID)
-	}
 
-	qryStr := fmt.Sprintf(`SELECT * from qbankz.question_main where '%s'  ALLOW FILTERING`, whereClause)
+	whereClause := getWhereClause(filters, *questionBankID)
+
+	qryStr := fmt.Sprintf(`SELECT * from qbankz.question_main where %s  ALLOW FILTERING`, whereClause)
 	getBanks := func() (banks []qbankz.QuestionMain, err error) {
 		q := global.CassSession.Session.Query(qryStr, nil)
 		defer q.Release()
@@ -94,15 +92,13 @@ func GetQuestionBankQuestions(ctx context.Context, questionBankID *string, filte
 }
 
 func getWhereClause(filters *model.QBFilters, qb_id string) string {
-	whereClause := ""
-	if filters.Difficulty != nil {
-		whereClause = fmt.Sprintf("%s difficulty_score = %d", whereClause, *filters.Difficulty)
-	}
-	if qb_id != "" {
-		if whereClause != "" {
-			whereClause = fmt.Sprintf("%s AND qbm_id = '%s'", whereClause, qb_id)
-		} else {
-			whereClause = fmt.Sprintf("qbm_id = '%s'", qb_id)
+	whereClause := fmt.Sprintf("qbm_id = '%s'", qb_id)
+	if filters != nil {
+		if filters.DifficultyStart != nil {
+			whereClause = fmt.Sprintf("%s AND difficulty_score >= %d", whereClause, *filters.DifficultyStart)
+		}
+		if filters.DifficultyEnd != nil {
+			whereClause = fmt.Sprintf("%s AND difficulty_score <= %d", whereClause, *filters.DifficultyEnd)
 		}
 	}
 	return whereClause

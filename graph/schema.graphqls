@@ -383,7 +383,8 @@ type TopicExam{
     language: String
 }
 input QBFilters{
-    Difficulty: Int
+    DifficultyStart: Int
+    DifficultyEnd: Int
     TotalQuestions: Int
     ExcludedQuestionIds: [String]
 }

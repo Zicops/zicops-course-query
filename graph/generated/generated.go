@@ -3382,7 +3382,8 @@ type TopicExam{
     language: String
 }
 input QBFilters{
-    Difficulty: Int
+    DifficultyStart: Int
+    DifficultyEnd: Int
     TotalQuestions: Int
     ExcludedQuestionIds: [String]
 }
@@ -15976,11 +15977,19 @@ func (ec *executionContext) unmarshalInputQBFilters(ctx context.Context, obj int
 
 	for k, v := range asMap {
 		switch k {
-		case "Difficulty":
+		case "DifficultyStart":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Difficulty"))
-			it.Difficulty, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("DifficultyStart"))
+			it.DifficultyStart, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "DifficultyEnd":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("DifficultyEnd"))
+			it.DifficultyEnd, err = ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}

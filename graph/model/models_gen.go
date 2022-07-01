@@ -176,7 +176,8 @@ type PaginatedQuestionPapers struct {
 }
 
 type QBFilters struct {
-	Difficulty          *int      `json:"Difficulty"`
+	DifficultyStart     *int      `json:"DifficultyStart"`
+	DifficultyEnd       *int      `json:"DifficultyEnd"`
 	TotalQuestions      *int      `json:"TotalQuestions"`
 	ExcludedQuestionIds []*string `json:"ExcludedQuestionIds"`
 }
