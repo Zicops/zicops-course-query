@@ -428,4 +428,5 @@ type Query{
   getExamInstruction(exam_id: String): [ExamInstruction]
   getExamCohort(exam_id: String): [ExamCohort]
   getExamConfiguration(exam_id: String): [ExamConfiguration]
+  getQuestionsById(question_ids: [String]): [QuestionBankQuestion]
 }

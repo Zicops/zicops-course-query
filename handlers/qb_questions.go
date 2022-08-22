@@ -91,6 +91,58 @@ func GetQuestionBankQuestions(ctx context.Context, questionBankID *string, filte
 	return allQuestions, nil
 }
 
+func GetQuestionsByID(ctx context.Context, questionIds []*string) ([]*model.QuestionBankQuestion, error) {
+	storageC := bucket.NewStorageHandler()
+	gproject := googleprojectlib.GetGoogleProjectID()
+	err := storageC.InitializeStorageClient(ctx, gproject)
+	if err != nil {
+		log.Errorf("Failed to get questions: %v", err.Error())
+		return nil, err
+	}
+	allQuestions := make([]*model.QuestionBankQuestion, 0)
+	for _, id := range questionIds {
+		qryStr := fmt.Sprintf(`SELECT * from qbankz.question_main where id = '%s' ALLOW FILTERING`, *id)
+		getBanks := func() (banks []qbankz.QuestionMain, err error) {
+			q := global.CassSession.Session.Query(qryStr, nil)
+			defer q.Release()
+			iter := q.Iter()
+			return banks, iter.Select(&banks)
+		}
+		banks, err := getBanks()
+		if err != nil {
+			return nil, err
+		}
+		for _, bank := range banks {
+			copiedQuestion := bank
+			createdAt := strconv.FormatInt(copiedQuestion.CreatedAt, 10)
+			updatedAt := strconv.FormatInt(copiedQuestion.UpdatedAt, 10)
+			bucketQ := copiedQuestion.AttachmentBucket
+			attUrl := ""
+			if bucketQ != "" {
+				attUrl = storageC.GetSignedURLForObject(bucketQ)
+			}
+			currentQuestion := &model.QuestionBankQuestion{
+				ID:             &copiedQuestion.ID,
+				Name:           &copiedQuestion.Name,
+				Description:    &copiedQuestion.Description,
+				Type:           &copiedQuestion.Type,
+				AttachmentType: &copiedQuestion.AttachmentType,
+				Attachment:     &attUrl,
+				Hint:           &copiedQuestion.Hint,
+				Difficulty:     &copiedQuestion.Difficulty,
+				QbmID:          &copiedQuestion.QbmId,
+				Status:         &copiedQuestion.Status,
+				CreatedBy:      &copiedQuestion.CreatedBy,
+				CreatedAt:      &createdAt,
+				UpdatedBy:      &copiedQuestion.UpdatedBy,
+				UpdatedAt:      &updatedAt,
+			}
+			allQuestions = append(allQuestions, currentQuestion)
+		}
+	}
+	return allQuestions, nil
+}
+
 func getWhereClause(filters *model.QBFilters, qb_id string) string {
 	whereClause := fmt.Sprintf("qbm_id = '%s'", qb_id)
 	if filters != nil {

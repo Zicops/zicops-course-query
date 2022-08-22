@@ -354,6 +354,15 @@ func (r *queryResolver) GetExamConfiguration(ctx context.Context, examID *string
 	return resp, nil
 }
 
+func (r *queryResolver) GetQuestionsByID(ctx context.Context, questionIds []*string) ([]*model.QuestionBankQuestion, error) {
+	resp, err := handlers.GetQuestionsByID(ctx, questionIds)
+	if err != nil {
+		log.Errorf("error getting questions for ids: %v", err)
+		return nil, err
+	}
+	return resp, nil
+}
+
 // Query returns generated.QueryResolver implementation.
 func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 
