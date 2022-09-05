@@ -330,15 +330,19 @@ type ComplexityRoot struct {
 
 	Quiz struct {
 		Category    func(childComplexity int) int
+		CourseID    func(childComplexity int) int
 		CreatedAt   func(childComplexity int) int
 		ID          func(childComplexity int) int
 		IsMandatory func(childComplexity int) int
 		Name        func(childComplexity int) int
+		QbID        func(childComplexity int) int
+		QuestionID  func(childComplexity int) int
 		Sequence    func(childComplexity int) int
 		StartTime   func(childComplexity int) int
 		TopicID     func(childComplexity int) int
 		Type        func(childComplexity int) int
 		UpdatedAt   func(childComplexity int) int
+		Weightage   func(childComplexity int) int
 	}
 
 	QuizDescriptive struct {
@@ -2317,6 +2321,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Quiz.Category(childComplexity), true
 
+	case "Quiz.courseId":
+		if e.complexity.Quiz.CourseID == nil {
+			break
+		}
+
+		return e.complexity.Quiz.CourseID(childComplexity), true
+
 	case "Quiz.created_at":
 		if e.complexity.Quiz.CreatedAt == nil {
 			break
@@ -2344,6 +2355,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Quiz.Name(childComplexity), true
+
+	case "Quiz.qbId":
+		if e.complexity.Quiz.QbID == nil {
+			break
+		}
+
+		return e.complexity.Quiz.QbID(childComplexity), true
+
+	case "Quiz.questionId":
+		if e.complexity.Quiz.QuestionID == nil {
+			break
+		}
+
+		return e.complexity.Quiz.QuestionID(childComplexity), true
 
 	case "Quiz.sequence":
 		if e.complexity.Quiz.Sequence == nil {
@@ -2379,6 +2404,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Quiz.UpdatedAt(childComplexity), true
+
+	case "Quiz.weightage":
+		if e.complexity.Quiz.Weightage == nil {
+			break
+		}
+
+		return e.complexity.Quiz.Weightage(childComplexity), true
 
 	case "QuizDescriptive.correctAnswer":
 		if e.complexity.QuizDescriptive.CorrectAnswer == nil {
@@ -3180,6 +3212,10 @@ type Quiz {
     created_at: String
     updated_at: String
     topicId: String
+    courseId: String
+    questionId: String
+    qbId: String
+    weightage: Int
     sequence: Int
     startTime: Int
 }
@@ -3401,7 +3437,7 @@ input QBFilters{
     TotalQuestions: Int
     ExcludedQuestionIds: [String]
 }
-
+  
 type Query{
   allCategories: [String]
   allSubCategories: [String]
@@ -12131,6 +12167,134 @@ func (ec *executionContext) _Quiz_topicId(ctx context.Context, field graphql.Col
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Quiz_courseId(ctx context.Context, field graphql.CollectedField, obj *model.Quiz) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Quiz",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CourseID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Quiz_questionId(ctx context.Context, field graphql.CollectedField, obj *model.Quiz) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Quiz",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.QuestionID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Quiz_qbId(ctx context.Context, field graphql.CollectedField, obj *model.Quiz) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Quiz",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.QbID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Quiz_weightage(ctx context.Context, field graphql.CollectedField, obj *model.Quiz) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Quiz",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Weightage, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Quiz_sequence(ctx context.Context, field graphql.CollectedField, obj *model.Quiz) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -18693,6 +18857,34 @@ func (ec *executionContext) _Quiz(ctx context.Context, sel ast.SelectionSet, obj
 		case "topicId":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Quiz_topicId(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+		case "courseId":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Quiz_courseId(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+		case "questionId":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Quiz_questionId(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+		case "qbId":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Quiz_qbId(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+		case "weightage":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Quiz_weightage(ctx, field, obj)
 			}
 
 			out.Values[i] = innerFunc(ctx)

@@ -38,6 +38,10 @@ func GetTopicQuizes(ctx context.Context, topicID *string) ([]*model.Quiz, error)
 			IsMandatory: &mod.IsMandatory,
 			Sequence:    &mod.Sequence,
 			TopicID:     &mod.TopicID,
+			CourseID:    &mod.CourseID,
+			QuestionID:  &mod.QuestionID,
+			QbID:        &mod.QbId,
+			Weightage:   &mod.Weightage,
 			Category:    &mod.Category,
 			StartTime:   &mod.StartTime,
 		}

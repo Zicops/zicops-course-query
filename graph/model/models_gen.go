@@ -269,6 +269,10 @@ type Quiz struct {
 	CreatedAt   *string `json:"created_at"`
 	UpdatedAt   *string `json:"updated_at"`
 	TopicID     *string `json:"topicId"`
+	CourseID    *string `json:"courseId"`
+	QuestionID  *string `json:"questionId"`
+	QbID        *string `json:"qbId"`
+	Weightage   *int    `json:"weightage"`
 	Sequence    *int    `json:"sequence"`
 	StartTime   *int    `json:"startTime"`
 }
