@@ -18,6 +18,7 @@ type Client struct {
 	projectID string
 	client    *storage.Client
 	bucket    *storage.BucketHandle
+	bucketPublic *storage.BucketHandle
 }
 
 // NewStorageHandler return new database action
@@ -46,11 +47,24 @@ func (sc *Client) InitializeStorageClient(ctx context.Context, projectID string)
 	sc.client = client
 	sc.projectID = projectID
 	sc.bucket, _ = sc.CreateBucket(ctx, constants.COURSES_BUCKET)
+	sc.bucketPublic, _ = sc.CreateBucketPublic(ctx, constants.COURSES_PUBLIC_BUCKET)
 	return nil
 }
 
 // CreateBucket  ...........
 func (sc *Client) CreateBucket(ctx context.Context, bucketName string) (*storage.BucketHandle, error) {
+	bkt := sc.client.Bucket(bucketName)
+	exists, err := bkt.Attrs(ctx)
+	if err != nil && exists == nil {
+		if err := bkt.Create(ctx, sc.projectID, nil); err != nil {
+			return nil, err
+		}
+	}
+	return bkt, nil
+}
+
+// CreateBucketPublic  ...........
+func (sc *Client) CreateBucketPublic(ctx context.Context, bucketName string) (*storage.BucketHandle, error) {
 	bkt := sc.client.Bucket(bucketName)
 	exists, err := bkt.Attrs(ctx)
 	if err != nil && exists == nil {
@@ -110,4 +124,18 @@ func (sc *Client) GetSignedURLsForObjects(bucketPath string) []*model.SubtitleUR
 		urls = append(urls, &model.SubtitleURL{URL: &url, Language: &language})
 	}
 	return urls
+}
+
+func (sc *Client) GetSignedURLForObjectPub(object string) string {
+	opts := &storage.SignedURLOptions{
+		Scheme:  storage.SigningSchemeV4,
+		Method:  "GET",
+		Expires: time.Now().Add(24 * time.Hour),
+	}
+	url, err := sc.bucketPublic.SignedURL(object, opts)
+	if err != nil {
+		return ""
+	}
+
+	return url
 }
