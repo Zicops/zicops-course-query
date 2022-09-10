@@ -392,7 +392,24 @@ input QBFilters{
     TotalQuestions: Int
     ExcludedQuestionIds: [String]
 }
-  
+
+type CourseCohort {
+    id: ID
+    CourseId: String
+    CohortId: String
+    CourseType: String
+    LspId: String
+    CohortCode: String
+    isMandatory: Boolean
+    CourseStatus: String
+    AddedBy: String
+    CreatedAt: String
+    UpdatedAt: String
+    CreatedBy: String
+    UpdatedBy: String
+    IsActive : Boolean
+}
+
 type Query{
   allCategories: [String]
   allSubCategories: [String]
@@ -433,4 +450,5 @@ type Query{
   getExamCohort(exam_id: String): [ExamCohort]
   getExamConfiguration(exam_id: String): [ExamConfiguration]
   getQuestionsById(question_ids: [String]): [QuestionBankQuestion]
+  getCohortCourseMaps(cohort_id: String): [CourseCohort]
 }

@@ -363,6 +363,15 @@ func (r *queryResolver) GetQuestionsByID(ctx context.Context, questionIds []*str
 	return resp, nil
 }
 
+func (r *queryResolver) GetCohortCourseMaps(ctx context.Context, cohortID *string) ([]*model.CourseCohort, error) {
+	resp, err := handlers.GetCohortCourseMaps(ctx, cohortID)
+	if err != nil {
+		log.Errorf("error getting cohorts for id: %v", err)
+		return nil, err
+	}
+	return resp, nil
+}
+
 // Query returns generated.QueryResolver implementation.
 func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 
