@@ -11,8 +11,9 @@ require (
 	github.com/gocql/gocql v1.2.1
 	github.com/scylladb/gocqlx/v2 v2.7.0
 	github.com/sirupsen/logrus v1.9.0
-	github.com/vektah/gqlparser/v2 v2.5.0
-	github.com/zicops/contracts v0.0.0-20220909160152-c0adb21a9872
+	github.com/vektah/gqlparser/v2 v2.5.1
+	github.com/zicops/contracts v0.0.0-20220911132616-6ec3efce004e
+	github.com/zicops/zicops-cass-pool v0.0.0-20220912021025-73a923b97c67
 	golang.org/x/oauth2 v0.0.0-20220909003341-f21342109be1
 	google.golang.org/api v0.95.0
 	gopkg.in/tylerb/graceful.v1 v1.2.15
@@ -49,9 +50,8 @@ require (
 	github.com/scylladb/go-reflectx v1.0.1 // indirect
 	github.com/scylladb/gocqlx v1.5.0 // indirect
 	github.com/ugorji/go/codec v1.2.7 // indirect
-	github.com/urfave/cli/v2 v2.15.0 // indirect
+	github.com/urfave/cli/v2 v2.16.3 // indirect
 	github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 // indirect
-	github.com/zicops/zicops-cass-pool v0.0.0-20220912021025-73a923b97c67 // indirect
 	go.opencensus.io v0.23.0 // indirect
 	golang.org/x/crypto v0.0.0-20220829220503-c86fa9a7ed90 // indirect
 	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
