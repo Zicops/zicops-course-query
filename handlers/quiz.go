@@ -31,6 +31,7 @@ func GetTopicQuizes(ctx context.Context, topicID *string) ([]*model.Quiz, error)
 		createdAt := strconv.FormatInt(mod.CreatedAt, 10)
 		updatedAt := strconv.FormatInt(mod.UpdatedAt, 10)
 		currentQ := &model.Quiz{
+			ID:          &mod.ID,
 			Name:        &mod.Name,
 			Type:        &mod.Type,
 			CreatedAt:   &createdAt,
