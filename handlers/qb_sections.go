@@ -6,14 +6,21 @@ import (
 	"strconv"
 
 	"github.com/zicops/contracts/qbankz"
+	"github.com/zicops/zicops-cass-pool/cassandra"
 	"github.com/zicops/zicops-course-query/global"
 	"github.com/zicops/zicops-course-query/graph/model"
 )
 
 func GetQuestionBankSections(ctx context.Context, questionPaperID *string) ([]*model.QuestionPaperSection, error) {
 	qryStr := fmt.Sprintf(`SELECT * from qbankz.section_main where qp_id = '%s'  ALLOW FILTERING`, *questionPaperID)
+	session, err := cassandra.GetCassSession("coursez")
+	if err != nil {
+		return nil, err
+	}
+	global.CassSession = session
+	defer global.CassSession.Close()
 	getBanks := func() (banks []qbankz.SectionMain, err error) {
-		q := global.CassSession.Session.Query(qryStr, nil)
+		q := global.CassSession.Query(qryStr, nil)
 		defer q.Release()
 		iter := q.Iter()
 		return banks, iter.Select(&banks)
@@ -48,8 +55,14 @@ func GetQuestionBankSections(ctx context.Context, questionPaperID *string) ([]*m
 
 func GetQPBankMappingByQPId(ctx context.Context, questionPaperID *string) ([]*model.SectionQBMapping, error) {
 	qryStr := fmt.Sprintf(`SELECT * from qbankz.section_qb_mapping where qb_id = '%s'  ALLOW FILTERING`, *questionPaperID)
+	session, err := cassandra.GetCassSession("coursez")
+	if err != nil {
+		return nil, err
+	}
+	global.CassSession = session
+	defer global.CassSession.Close()
 	getBanks := func() (banks []qbankz.SectionQBMapping, err error) {
-		q := global.CassSession.Session.Query(qryStr, nil)
+		q := global.CassSession.Query(qryStr, nil)
 		defer q.Release()
 		iter := q.Iter()
 		return banks, iter.Select(&banks)
@@ -85,8 +98,14 @@ func GetQPBankMappingByQPId(ctx context.Context, questionPaperID *string) ([]*mo
 
 func GetQPBankMappingBySectionID(ctx context.Context, sectionID *string) ([]*model.SectionQBMapping, error) {
 	qryStr := fmt.Sprintf(`SELECT * from qbankz.section_qb_mapping where section_id = '%s'  ALLOW FILTERING`, *sectionID)
+	session, err := cassandra.GetCassSession("coursez")
+	if err != nil {
+		return nil, err
+	}
+	global.CassSession = session
+	defer global.CassSession.Close()
 	getBanks := func() (banks []qbankz.SectionQBMapping, err error) {
-		q := global.CassSession.Session.Query(qryStr, nil)
+		q := global.CassSession.Query(qryStr, nil)
 		defer q.Release()
 		iter := q.Iter()
 		return banks, iter.Select(&banks)
@@ -122,8 +141,14 @@ func GetQPBankMappingBySectionID(ctx context.Context, sectionID *string) ([]*mod
 
 func GetSectionFixedQuestions(ctx context.Context, sectionID *string) ([]*model.SectionFixedQuestions, error) {
 	qryStr := fmt.Sprintf(`SELECT * from qbankz.section_fixed_questions where sqb_id = '%s'  ALLOW FILTERING`, *sectionID)
+	session, err := cassandra.GetCassSession("coursez")
+	if err != nil {
+		return nil, err
+	}
+	global.CassSession = session
+	defer global.CassSession.Close()
 	getBanks := func() (banks []qbankz.SectionFixedQuestions, err error) {
-		q := global.CassSession.Session.Query(qryStr, nil)
+		q := global.CassSession.Query(qryStr, nil)
 		defer q.Release()
 		iter := q.Iter()
 		return banks, iter.Select(&banks)

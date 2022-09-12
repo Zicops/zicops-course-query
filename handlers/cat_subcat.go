@@ -5,14 +5,20 @@ import (
 	"fmt"
 
 	log "github.com/sirupsen/logrus"
+	"github.com/zicops/zicops-cass-pool/cassandra"
 	"github.com/zicops/zicops-course-query/global"
 )
 
 func GetCategories(ctx context.Context) ([]*string, error) {
 	log.Info("GetCategories")
-
+	session, err := cassandra.GetCassSession("coursez")
+	if err != nil {
+		return nil, err
+	}
+	global.CassSession = session
+	defer global.CassSession.Close()
 	resultOutput := make([]*string, 0)
-	getQueryCassandra := global.CassSession.Session.Query("SELECT * from coursez.category", nil)
+	getQueryCassandra := global.CassSession.Query("SELECT * from coursez.category", nil)
 
 	iter := getQueryCassandra.Iter()
 	var tempCat string
@@ -20,7 +26,7 @@ func GetCategories(ctx context.Context) ([]*string, error) {
 		copyCat := tempCat
 		resultOutput = append(resultOutput, &copyCat)
 	}
-	err := iter.Close()
+	err = iter.Close()
 	if err != nil {
 		return resultOutput, err
 	}
@@ -29,9 +35,14 @@ func GetCategories(ctx context.Context) ([]*string, error) {
 
 func GetSubCategories(ctx context.Context) ([]*string, error) {
 	log.Info("GetSubCategories")
-
+	session, err := cassandra.GetCassSession("coursez")
+	if err != nil {
+		return nil, err
+	}
+	global.CassSession = session
+	defer global.CassSession.Close()
 	resultOutput := make([]*string, 0)
-	getQueryCassandra := global.CassSession.Session.Query("SELECT * from coursez.sub_category", nil)
+	getQueryCassandra := global.CassSession.Query("SELECT * from coursez.sub_category", nil)
 
 	iter := getQueryCassandra.Iter()
 	var tempCat string
@@ -39,7 +50,7 @@ func GetSubCategories(ctx context.Context) ([]*string, error) {
 		copyCat := tempCat
 		resultOutput = append(resultOutput, &copyCat)
 	}
-	err := iter.Close()
+	err = iter.Close()
 	if err != nil {
 		return resultOutput, err
 	}
@@ -48,10 +59,15 @@ func GetSubCategories(ctx context.Context) ([]*string, error) {
 
 func GetSubCategoriesForSub(ctx context.Context, cat *string) ([]*string, error) {
 	log.Info("GetSubCategoriesForSub")
-
+	session, err := cassandra.GetCassSession("coursez")
+	if err != nil {
+		return nil, err
+	}
+	global.CassSession = session
+	defer global.CassSession.Close()
 	resultOutput := make([]*string, 0)
 	qryStr := fmt.Sprintf(`SELECT sub_category from coursez.cat_sub_mapping WHERE category = '%s'  ALLOW FILTERING`, *cat)
-	getQueryCassandra := global.CassSession.Session.Query(qryStr, nil)
+	getQueryCassandra := global.CassSession.Query(qryStr, nil)
 
 	iter := getQueryCassandra.Iter()
 	var tempCat string
@@ -59,7 +75,7 @@ func GetSubCategoriesForSub(ctx context.Context, cat *string) ([]*string, error)
 		copyCat := tempCat
 		resultOutput = append(resultOutput, &copyCat)
 	}
-	err := iter.Close()
+	err = iter.Close()
 	if err != nil {
 		return resultOutput, err
 	}

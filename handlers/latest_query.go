@@ -7,6 +7,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/coursez"
+	"github.com/zicops/zicops-cass-pool/cassandra"
 	"github.com/zicops/zicops-course-query/global"
 	"github.com/zicops/zicops-course-query/graph/model"
 	"github.com/zicops/zicops-course-query/lib/db/bucket"
@@ -36,9 +37,15 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 	} else {
 		statusNew = *status
 	}
+	session, err := cassandra.GetCassSession("coursez")
+	if err != nil {
+		return nil, err
+	}
+	global.CassSession = session
+	defer global.CassSession.Close()
 	qryStr := fmt.Sprintf(`SELECT * from coursez.course where status='%s' and updated_at <= %d  ALLOW FILTERING`, statusNew, *publishTime)
 	getCourses := func(page []byte) (courses []coursez.Course, nextPage []byte, err error) {
-		q := global.CassSession.Session.Query(qryStr, nil)
+		q := global.CassSession.Query(qryStr, nil)
 		defer q.Release()
 		q.PageState(page)
 		q.PageSize(pageSizeInt)

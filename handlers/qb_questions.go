@@ -7,6 +7,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/qbankz"
+	"github.com/zicops/zicops-cass-pool/cassandra"
 	"github.com/zicops/zicops-course-query/global"
 	"github.com/zicops/zicops-course-query/graph/model"
 	"github.com/zicops/zicops-course-query/lib/db/bucket"
@@ -23,10 +24,15 @@ func GetQuestionBankQuestions(ctx context.Context, questionBankID *string, filte
 	}
 
 	whereClause := getWhereClause(filters, *questionBankID)
-
+	session, err := cassandra.GetCassSession("coursez")
+	if err != nil {
+		return nil, err
+	}
+	global.CassSession = session
+	defer global.CassSession.Close()
 	qryStr := fmt.Sprintf(`SELECT * from qbankz.question_main where %s  ALLOW FILTERING`, whereClause)
 	getBanks := func() (banks []qbankz.QuestionMain, err error) {
-		q := global.CassSession.Session.Query(qryStr, nil)
+		q := global.CassSession.Query(qryStr, nil)
 		defer q.Release()
 		iter := q.Iter()
 		return banks, iter.Select(&banks)
@@ -99,11 +105,17 @@ func GetQuestionsByID(ctx context.Context, questionIds []*string) ([]*model.Ques
 		log.Errorf("Failed to get questions: %v", err.Error())
 		return nil, err
 	}
+	session, err := cassandra.GetCassSession("coursez")
+	if err != nil {
+		return nil, err
+	}
+	global.CassSession = session
+	defer global.CassSession.Close()
 	allQuestions := make([]*model.QuestionBankQuestion, 0)
 	for _, id := range questionIds {
 		qryStr := fmt.Sprintf(`SELECT * from qbankz.question_main where id = '%s' ALLOW FILTERING`, *id)
 		getBanks := func() (banks []qbankz.QuestionMain, err error) {
-			q := global.CassSession.Session.Query(qryStr, nil)
+			q := global.CassSession.Query(qryStr, nil)
 			defer q.Release()
 			iter := q.Iter()
 			return banks, iter.Select(&banks)

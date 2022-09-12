@@ -7,6 +7,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/coursez"
+	"github.com/zicops/zicops-cass-pool/cassandra"
 	"github.com/zicops/zicops-course-query/global"
 	"github.com/zicops/zicops-course-query/graph/model"
 	"github.com/zicops/zicops-course-query/lib/db/bucket"
@@ -53,9 +54,15 @@ func GetCourseByID(ctx context.Context, courseID *string) (*model.Course, error)
 		SubCategory:        "",
 		SubCategories:      []coursez.SubCat{},
 	}
+	session, err := cassandra.GetCassSession("coursez")
+	if err != nil {
+		return nil, err
+	}
+	global.CassSession = session
+	defer global.CassSession.Close()
 	qryStr := fmt.Sprintf(`SELECT * from coursez.course where id='%s'`, *courseID)
 	getCourse := func() (courses []coursez.Course, err error) {
-		q := global.CassSession.Session.Query(qryStr, nil)
+		q := global.CassSession.Query(qryStr, nil)
 		defer q.Release()
 		iter := q.Iter()
 		return courses, iter.Select(&courses)

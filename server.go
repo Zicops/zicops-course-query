@@ -11,11 +11,9 @@ import (
 	"os"
 
 	log "github.com/sirupsen/logrus"
-	"github.com/zicops/zicops-course-query/config"
 	"github.com/zicops/zicops-course-query/controller"
 	"github.com/zicops/zicops-course-query/global"
 	cry "github.com/zicops/zicops-course-query/lib/crypto"
-	"github.com/zicops/zicops-course-query/lib/db/cassandra"
 )
 
 const defaultPort = "8080"
@@ -25,15 +23,7 @@ func main() {
 	log.Infof("Starting zicops course query service")
 	ctx, cancel := context.WithCancel(context.Background())
 	crySession := cry.New("09afa9f9544a7ff1ae9988f73ba42134")
-	cassConfig := config.NewCassandraConfig()
-	cassSession, err := cassandra.New(cassConfig)
-	if err != nil {
-		log.Errorf("Error connecting to cassandra: %s", err)
-		log.Infof("zicops course creator intialization failed")
-	}
-
 	global.CTX = ctx
-	global.CassSession = cassSession
 	global.Cancel = cancel
 	global.CryptSession = &crySession
 	global.Rand = rand.New(rand.NewSource(99))

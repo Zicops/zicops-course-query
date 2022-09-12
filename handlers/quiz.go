@@ -7,6 +7,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/coursez"
+	"github.com/zicops/zicops-cass-pool/cassandra"
 	"github.com/zicops/zicops-course-query/global"
 	"github.com/zicops/zicops-course-query/graph/model"
 	"github.com/zicops/zicops-course-query/lib/db/bucket"
@@ -15,9 +16,15 @@ import (
 
 func GetTopicQuizes(ctx context.Context, topicID *string) ([]*model.Quiz, error) {
 	topicQuizes := make([]*model.Quiz, 0)
+	session, err := cassandra.GetCassSession("coursez")
+	if err != nil {
+		return nil, err
+	}
+	global.CassSession = session
+	defer global.CassSession.Close()
 	qryStr := fmt.Sprintf(`SELECT * from coursez.quiz where topicid='%s' ALLOW FILTERING`, *topicID)
 	getTopicQuiz := func() (quizes []coursez.Quiz, err error) {
-		q := global.CassSession.Session.Query(qryStr, nil)
+		q := global.CassSession.Query(qryStr, nil)
 		defer q.Release()
 		iter := q.Iter()
 		return quizes, iter.Select(&quizes)
@@ -53,9 +60,15 @@ func GetTopicQuizes(ctx context.Context, topicID *string) ([]*model.Quiz, error)
 
 func GetQuizFiles(ctx context.Context, quizID *string) ([]*model.QuizFile, error) {
 	quizFiles := make([]*model.QuizFile, 0)
+	session, err := cassandra.GetCassSession("coursez")
+	if err != nil {
+		return nil, err
+	}
+	global.CassSession = session
+	defer global.CassSession.Close()
 	qryStr := fmt.Sprintf(`SELECT * from coursez.quiz_file where quizid='%s' ALLOW FILTERING`, *quizID)
 	getQuizFiles := func() (files []coursez.QuizFile, err error) {
-		q := global.CassSession.Session.Query(qryStr, nil)
+		q := global.CassSession.Query(qryStr, nil)
 		defer q.Release()
 		iter := q.Iter()
 		return files, iter.Select(&files)
@@ -91,9 +104,15 @@ func GetQuizFiles(ctx context.Context, quizID *string) ([]*model.QuizFile, error
 
 func GetMCQQuiz(ctx context.Context, quizID *string) ([]*model.QuizMcq, error) {
 	quizMcqs := make([]*model.QuizMcq, 0)
+	session, err := cassandra.GetCassSession("coursez")
+	if err != nil {
+		return nil, err
+	}
+	global.CassSession = session
+	defer global.CassSession.Close()
 	qryStr := fmt.Sprintf(`SELECT * from coursez.quiz_mcq where quizid='%s' ALLOW FILTERING`, *quizID)
 	getQuizMcq := func() (mcqs []coursez.QuizMcq, err error) {
-		q := global.CassSession.Session.Query(qryStr, nil)
+		q := global.CassSession.Query(qryStr, nil)
 		defer q.Release()
 		iter := q.Iter()
 		return mcqs, iter.Select(&mcqs)
@@ -123,9 +142,15 @@ func GetMCQQuiz(ctx context.Context, quizID *string) ([]*model.QuizMcq, error) {
 
 func GetQuizDes(ctx context.Context, quizID *string) ([]*model.QuizDescriptive, error) {
 	quizDes := make([]*model.QuizDescriptive, 0)
+	session, err := cassandra.GetCassSession("coursez")
+	if err != nil {
+		return nil, err
+	}
+	global.CassSession = session
+	defer global.CassSession.Close()
 	qryStr := fmt.Sprintf(`SELECT * from coursez.quiz_descriptive where quizid='%s' ALLOW FILTERING`, *quizID)
 	getQuizDes := func() (desq []coursez.QuizDescriptive, err error) {
-		q := global.CassSession.Session.Query(qryStr, nil)
+		q := global.CassSession.Query(qryStr, nil)
 		defer q.Release()
 		iter := q.Iter()
 		return desq, iter.Select(&desq)

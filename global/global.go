@@ -5,14 +5,14 @@ import (
 	"math/rand"
 	"sync"
 
+	"github.com/scylladb/gocqlx/v2"
 	cry "github.com/zicops/zicops-course-query/lib/crypto"
-	"github.com/zicops/zicops-course-query/lib/db/cassandra"
 )
 
 // some global variables commonly used
 var (
 	CTX             context.Context
-	CassSession     *cassandra.Cassandra
+	CassSession     *gocqlx.Session
 	CryptSession    *cry.Cryptography
 	Cancel          context.CancelFunc
 	WaitGroupServer sync.WaitGroup
