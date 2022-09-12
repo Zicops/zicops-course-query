@@ -22,7 +22,7 @@ func GetOptionsForQuestions(ctx context.Context, questionIds []*string) ([]*mode
 		log.Errorf("Failed to get options: %v", err.Error())
 		return nil, err
 	}
-	session, err := cassandra.GetCassSession("coursez")
+	session, err := cassandra.GetCassSession("qbankz")
 	if err != nil {
 		return nil, err
 	}

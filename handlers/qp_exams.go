@@ -13,7 +13,7 @@ import (
 
 func GetExamsByQPId(ctx context.Context, questionPaperID *string) ([]*model.Exam, error) {
 	qryStr := fmt.Sprintf(`SELECT * from qbankz.exam where qp_id = '%s'  ALLOW FILTERING`, *questionPaperID)
-	session, err := cassandra.GetCassSession("coursez")
+	session, err := cassandra.GetCassSession("qbankz")
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +59,7 @@ func GetExamsByQPId(ctx context.Context, questionPaperID *string) ([]*model.Exam
 
 func GetExamSchedule(ctx context.Context, examID *string) ([]*model.ExamSchedule, error) {
 	qryStr := fmt.Sprintf(`SELECT * from qbankz.exam_schedule where exam_id = '%s'  ALLOW FILTERING`, *examID)
-	session, err := cassandra.GetCassSession("coursez")
+	session, err := cassandra.GetCassSession("qbankz")
 	if err != nil {
 		return nil, err
 	}
@@ -102,7 +102,7 @@ func GetExamSchedule(ctx context.Context, examID *string) ([]*model.ExamSchedule
 
 func GetExamInstruction(ctx context.Context, examID *string) ([]*model.ExamInstruction, error) {
 	qryStr := fmt.Sprintf(`SELECT * from qbankz.exam_instructions where exam_id = '%s'  ALLOW FILTERING`, *examID)
-	session, err := cassandra.GetCassSession("coursez")
+	session, err := cassandra.GetCassSession("qbankz")
 	if err != nil {
 		return nil, err
 	}
@@ -144,7 +144,7 @@ func GetExamInstruction(ctx context.Context, examID *string) ([]*model.ExamInstr
 
 func GetExamCohort(ctx context.Context, examID *string) ([]*model.ExamCohort, error) {
 	qryStr := fmt.Sprintf(`SELECT * from qbankz.exam_cohort where exam_id = '%s'  ALLOW FILTERING`, *examID)
-	session, err := cassandra.GetCassSession("coursez")
+	session, err := cassandra.GetCassSession("qbankz")
 	if err != nil {
 		return nil, err
 	}
@@ -182,7 +182,7 @@ func GetExamCohort(ctx context.Context, examID *string) ([]*model.ExamCohort, er
 
 func GetExamConfiguration(ctx context.Context, examID *string) ([]*model.ExamConfiguration, error) {
 	qryStr := fmt.Sprintf(`SELECT * from qbankz.exam_config where exam_id = '%s'  ALLOW FILTERING`, *examID)
-	session, err := cassandra.GetCassSession("coursez")
+	session, err := cassandra.GetCassSession("qbankz")
 	if err != nil {
 		return nil, err
 	}
@@ -223,7 +223,7 @@ func GetExamConfiguration(ctx context.Context, examID *string) ([]*model.ExamCon
 
 func GetQPMeta(ctx context.Context, questionPapersIds []*string) ([]*model.QuestionPaper, error) {
 	responseMap := make([]*model.QuestionPaper, 0)
-	session, err := cassandra.GetCassSession("coursez")
+	session, err := cassandra.GetCassSession("qbankz")
 	if err != nil {
 		return nil, err
 	}

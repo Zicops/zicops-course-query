@@ -24,7 +24,7 @@ func GetQuestionBankQuestions(ctx context.Context, questionBankID *string, filte
 	}
 
 	whereClause := getWhereClause(filters, *questionBankID)
-	session, err := cassandra.GetCassSession("coursez")
+	session, err := cassandra.GetCassSession("qbankz")
 	if err != nil {
 		return nil, err
 	}
@@ -105,7 +105,7 @@ func GetQuestionsByID(ctx context.Context, questionIds []*string) ([]*model.Ques
 		log.Errorf("Failed to get questions: %v", err.Error())
 		return nil, err
 	}
-	session, err := cassandra.GetCassSession("coursez")
+	session, err := cassandra.GetCassSession("qbankz")
 	if err != nil {
 		return nil, err
 	}

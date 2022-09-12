@@ -29,7 +29,7 @@ func LatestQuestionBanks(ctx context.Context, publishTime *int, pageCursor *stri
 		pageSizeInt = *pageSize
 	}
 	var newCursor string
-	session, err := cassandra.GetCassSession("coursez")
+	session, err := cassandra.GetCassSession("qbankz")
 	if err != nil {
 		return nil, err
 	}
@@ -103,7 +103,7 @@ func LatestQuestionPapers(ctx context.Context, publishTime *int, pageCursor *str
 		pageSizeInt = *pageSize
 	}
 	var newCursor string
-	session, err := cassandra.GetCassSession("coursez")
+	session, err := cassandra.GetCassSession("qbankz")
 	if err != nil {
 		return nil, err
 	}
@@ -179,7 +179,7 @@ func GetLatestExams(ctx context.Context, publishTime *int, pageCursor *string, d
 		pageSizeInt = *pageSize
 	}
 	var newCursor string
-	session, err := cassandra.GetCassSession("coursez")
+	session, err := cassandra.GetCassSession("qbankz")
 	if err != nil {
 		return nil, err
 	}
@@ -242,7 +242,7 @@ func GetLatestExams(ctx context.Context, publishTime *int, pageCursor *string, d
 
 func GetExamsMeta(ctx context.Context, examIds []*string) ([]*model.Exam, error) {
 	responseMap := make([]*model.Exam, 0)
-	session, err := cassandra.GetCassSession("coursez")
+	session, err := cassandra.GetCassSession("qbankz")
 	if err != nil {
 		return nil, err
 	}
@@ -291,7 +291,7 @@ func GetExamsMeta(ctx context.Context, examIds []*string) ([]*model.Exam, error)
 
 func GetQBMeta(ctx context.Context, qbIds []*string) ([]*model.QuestionBank, error) {
 	responseMap := make([]*model.QuestionBank, 0)
-	session, err := cassandra.GetCassSession("coursez")
+	session, err := cassandra.GetCassSession("qbankz")
 	if err != nil {
 		return nil, err
 	}

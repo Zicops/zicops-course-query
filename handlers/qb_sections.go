@@ -13,7 +13,7 @@ import (
 
 func GetQuestionBankSections(ctx context.Context, questionPaperID *string) ([]*model.QuestionPaperSection, error) {
 	qryStr := fmt.Sprintf(`SELECT * from qbankz.section_main where qp_id = '%s'  ALLOW FILTERING`, *questionPaperID)
-	session, err := cassandra.GetCassSession("coursez")
+	session, err := cassandra.GetCassSession("qbankz")
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +55,7 @@ func GetQuestionBankSections(ctx context.Context, questionPaperID *string) ([]*m
 
 func GetQPBankMappingByQPId(ctx context.Context, questionPaperID *string) ([]*model.SectionQBMapping, error) {
 	qryStr := fmt.Sprintf(`SELECT * from qbankz.section_qb_mapping where qb_id = '%s'  ALLOW FILTERING`, *questionPaperID)
-	session, err := cassandra.GetCassSession("coursez")
+	session, err := cassandra.GetCassSession("qbankz")
 	if err != nil {
 		return nil, err
 	}
@@ -98,7 +98,7 @@ func GetQPBankMappingByQPId(ctx context.Context, questionPaperID *string) ([]*mo
 
 func GetQPBankMappingBySectionID(ctx context.Context, sectionID *string) ([]*model.SectionQBMapping, error) {
 	qryStr := fmt.Sprintf(`SELECT * from qbankz.section_qb_mapping where section_id = '%s'  ALLOW FILTERING`, *sectionID)
-	session, err := cassandra.GetCassSession("coursez")
+	session, err := cassandra.GetCassSession("qbankz")
 	if err != nil {
 		return nil, err
 	}
@@ -141,7 +141,7 @@ func GetQPBankMappingBySectionID(ctx context.Context, sectionID *string) ([]*mod
 
 func GetSectionFixedQuestions(ctx context.Context, sectionID *string) ([]*model.SectionFixedQuestions, error) {
 	qryStr := fmt.Sprintf(`SELECT * from qbankz.section_fixed_questions where sqb_id = '%s'  ALLOW FILTERING`, *sectionID)
-	session, err := cassandra.GetCassSession("coursez")
+	session, err := cassandra.GetCassSession("qbankz")
 	if err != nil {
 		return nil, err
 	}
