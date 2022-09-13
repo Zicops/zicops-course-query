@@ -44,10 +44,12 @@ func GetTopicContent(ctx context.Context, topicID *string) ([]*model.TopicConten
 		if mainBucket != "" {
 			urlSub = storageC.GetSignedURLsForObjects(mainBucket)
 		}
-
+		
 		urlCon := ""
 		if mod.TopicContentBucket != "" {
 			urlCon = storageC.GetSignedURLForObject(mod.TopicContentBucket)
+		} else {
+			urlCon = mod.Url
 		}
 		currentModule := &model.TopicContent{
 			ID:                &mod.ID,
