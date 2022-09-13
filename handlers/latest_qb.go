@@ -7,6 +7,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/qbankz"
+	"github.com/zicops/zicops-cass-pool/cassandra"
 	"github.com/zicops/zicops-course-query/global"
 	"github.com/zicops/zicops-course-query/graph/model"
 )
@@ -28,10 +29,15 @@ func LatestQuestionBanks(ctx context.Context, publishTime *int, pageCursor *stri
 		pageSizeInt = *pageSize
 	}
 	var newCursor string
-
+	session, err := cassandra.GetCassSession("qbankz")
+	if err != nil {
+		return nil, err
+	}
+	global.CassSession = session
+	defer global.CassSession.Close()
 	qryStr := fmt.Sprintf(`SELECT * from qbankz.question_bank_main where updated_at <= %d  ALLOW FILTERING`, *publishTime)
 	getBanks := func(page []byte) (banks []qbankz.QuestionBankMain, nextPage []byte, err error) {
-		q := global.CassSession.Session.Query(qryStr, nil)
+		q := global.CassSession.Query(qryStr, nil)
 		defer q.Release()
 		q.PageState(page)
 		q.PageSize(pageSizeInt)
@@ -70,7 +76,6 @@ func LatestQuestionBanks(ctx context.Context, publishTime *int, pageCursor *stri
 			CreatedBy:   &copiedBank.CreatedBy,
 			UpdatedBy:   &copiedBank.UpdatedBy,
 			IsDefault:   &copiedBank.IsDefault,
-			
 		}
 		allBanks = append(allBanks, currentBank)
 	}
@@ -98,10 +103,15 @@ func LatestQuestionPapers(ctx context.Context, publishTime *int, pageCursor *str
 		pageSizeInt = *pageSize
 	}
 	var newCursor string
-
+	session, err := cassandra.GetCassSession("qbankz")
+	if err != nil {
+		return nil, err
+	}
+	global.CassSession = session
+	defer global.CassSession.Close()
 	qryStr := fmt.Sprintf(`SELECT * from qbankz.question_paper_main where updated_at <= %d  ALLOW FILTERING`, *publishTime)
 	getBanks := func(page []byte) (banks []qbankz.QuestionPaperMain, nextPage []byte, err error) {
-		q := global.CassSession.Session.Query(qryStr, nil)
+		q := global.CassSession.Query(qryStr, nil)
 		defer q.Release()
 		q.PageState(page)
 		q.PageSize(pageSizeInt)
@@ -141,7 +151,7 @@ func LatestQuestionPapers(ctx context.Context, publishTime *int, pageCursor *str
 			UpdatedAt:         &updatedAt,
 			CreatedBy:         &copiedBank.CreatedBy,
 			UpdatedBy:         &copiedBank.UpdatedBy,
-			Status: 		  &copiedBank.Status,
+			Status:            &copiedBank.Status,
 		}
 		allBanks = append(allBanks, currentBank)
 	}
@@ -169,10 +179,15 @@ func GetLatestExams(ctx context.Context, publishTime *int, pageCursor *string, d
 		pageSizeInt = *pageSize
 	}
 	var newCursor string
-
+	session, err := cassandra.GetCassSession("qbankz")
+	if err != nil {
+		return nil, err
+	}
+	global.CassSession = session
+	defer global.CassSession.Close()
 	qryStr := fmt.Sprintf(`SELECT * from qbankz.exam where updated_at <= %d  ALLOW FILTERING`, *publishTime)
 	getExams := func(page []byte) (exams []qbankz.Exam, nextPage []byte, err error) {
-		q := global.CassSession.Session.Query(qryStr, nil)
+		q := global.CassSession.Query(qryStr, nil)
 		defer q.Release()
 		q.PageState(page)
 		q.PageSize(pageSizeInt)
@@ -227,10 +242,16 @@ func GetLatestExams(ctx context.Context, publishTime *int, pageCursor *string, d
 
 func GetExamsMeta(ctx context.Context, examIds []*string) ([]*model.Exam, error) {
 	responseMap := make([]*model.Exam, 0)
+	session, err := cassandra.GetCassSession("qbankz")
+	if err != nil {
+		return nil, err
+	}
+	global.CassSession = session
+	defer global.CassSession.Close()
 	for _, questionId := range examIds {
 		qryStr := fmt.Sprintf(`SELECT * from qbankz.exam where id='%s'  ALLOW FILTERING`, *questionId)
 		getPapers := func() (banks []qbankz.Exam, err error) {
-			q := global.CassSession.Session.Query(qryStr, nil)
+			q := global.CassSession.Query(qryStr, nil)
 			defer q.Release()
 			iter := q.Iter()
 			return banks, iter.Select(&banks)
@@ -270,10 +291,16 @@ func GetExamsMeta(ctx context.Context, examIds []*string) ([]*model.Exam, error)
 
 func GetQBMeta(ctx context.Context, qbIds []*string) ([]*model.QuestionBank, error) {
 	responseMap := make([]*model.QuestionBank, 0)
+	session, err := cassandra.GetCassSession("qbankz")
+	if err != nil {
+		return nil, err
+	}
+	global.CassSession = session
+	defer global.CassSession.Close()
 	for _, qbId := range qbIds {
 		qryStr := fmt.Sprintf(`SELECT * from qbankz.question_bank_main where id='%s'  ALLOW FILTERING`, *qbId)
 		getBanks := func() (banks []qbankz.QuestionBankMain, err error) {
-			q := global.CassSession.Session.Query(qryStr, nil)
+			q := global.CassSession.Query(qryStr, nil)
 			defer q.Release()
 			iter := q.Iter()
 			return banks, iter.Select(&banks)

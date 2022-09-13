@@ -8,6 +8,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/coursez"
+	"github.com/zicops/zicops-cass-pool/cassandra"
 	"github.com/zicops/zicops-course-query/global"
 	"github.com/zicops/zicops-course-query/graph/model"
 	"github.com/zicops/zicops-course-query/lib/db/bucket"
@@ -16,9 +17,15 @@ import (
 
 func GetTopicContent(ctx context.Context, topicID *string) ([]*model.TopicContent, error) {
 	topicsOut := make([]*model.TopicContent, 0)
+	session, err := cassandra.GetCassSession("coursez")
+	if err != nil {
+		return nil, err
+	}
+	global.CassSession = session
+	defer global.CassSession.Close()
 	qryStr := fmt.Sprintf(`SELECT * from coursez.topic_content where topicid='%s' ALLOW FILTERING`, *topicID)
 	getTopicContent := func() (content []coursez.TopicContent, err error) {
-		q := global.CassSession.Session.Query(qryStr, nil)
+		q := global.CassSession.Query(qryStr, nil)
 		defer q.Release()
 		iter := q.Iter()
 		return content, iter.Select(&content)
@@ -76,9 +83,15 @@ func GetTopicContent(ctx context.Context, topicID *string) ([]*model.TopicConten
 
 func GetTopicExams(ctx context.Context, topicID *string) ([]*model.TopicExam, error) {
 	topicsOut := make([]*model.TopicExam, 0)
+	session, err := cassandra.GetCassSession("coursez")
+	if err != nil {
+		return nil, err
+	}
+	global.CassSession = session
+	defer global.CassSession.Close()
 	qryStr := fmt.Sprintf(`SELECT * from coursez.topic_exam where topicid='%s' ALLOW FILTERING`, *topicID)
 	getTopicContent := func() (content []coursez.TopicExam, err error) {
-		q := global.CassSession.Session.Query(qryStr, nil)
+		q := global.CassSession.Query(qryStr, nil)
 		defer q.Release()
 		iter := q.Iter()
 		return content, iter.Select(&content)
@@ -108,9 +121,15 @@ func GetTopicExams(ctx context.Context, topicID *string) ([]*model.TopicExam, er
 
 func GetTopicContentByCourse(ctx context.Context, courseID *string) ([]*model.TopicContent, error) {
 	topicsOut := make([]*model.TopicContent, 0)
+	session, err := cassandra.GetCassSession("coursez")
+	if err != nil {
+		return nil, err
+	}
+	global.CassSession = session
+	defer global.CassSession.Close()
 	qryStr := fmt.Sprintf(`SELECT * from coursez.topic_content where courseid='%s' ALLOW FILTERING`, *courseID)
 	getTopicContent := func() (content []coursez.TopicContent, err error) {
-		q := global.CassSession.Session.Query(qryStr, nil)
+		q := global.CassSession.Query(qryStr, nil)
 		defer q.Release()
 		iter := q.Iter()
 		return content, iter.Select(&content)
@@ -170,9 +189,15 @@ func GetTopicContentByCourse(ctx context.Context, courseID *string) ([]*model.To
 
 func GetTopicExamsByCourse(ctx context.Context, courseID *string) ([]*model.TopicExam, error) {
 	topicsOut := make([]*model.TopicExam, 0)
+	session, err := cassandra.GetCassSession("coursez")
+	if err != nil {
+		return nil, err
+	}
+	global.CassSession = session
+	defer global.CassSession.Close()
 	qryStr := fmt.Sprintf(`SELECT * from coursez.topic_exam where courseid='%s' ALLOW FILTERING`, *courseID)
 	getTopicContent := func() (content []coursez.TopicExam, err error) {
-		q := global.CassSession.Session.Query(qryStr, nil)
+		q := global.CassSession.Query(qryStr, nil)
 		defer q.Release()
 		iter := q.Iter()
 		return content, iter.Select(&content)

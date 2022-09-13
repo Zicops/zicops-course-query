@@ -6,14 +6,21 @@ import (
 	"strconv"
 
 	"github.com/zicops/contracts/qbankz"
+	"github.com/zicops/zicops-cass-pool/cassandra"
 	"github.com/zicops/zicops-course-query/global"
 	"github.com/zicops/zicops-course-query/graph/model"
 )
 
 func GetExamsByQPId(ctx context.Context, questionPaperID *string) ([]*model.Exam, error) {
 	qryStr := fmt.Sprintf(`SELECT * from qbankz.exam where qp_id = '%s'  ALLOW FILTERING`, *questionPaperID)
+	session, err := cassandra.GetCassSession("qbankz")
+	if err != nil {
+		return nil, err
+	}
+	global.CassSession = session
+	defer global.CassSession.Close()
 	getBanks := func() (banks []qbankz.Exam, err error) {
-		q := global.CassSession.Session.Query(qryStr, nil)
+		q := global.CassSession.Query(qryStr, nil)
 		defer q.Release()
 		iter := q.Iter()
 		return banks, iter.Select(&banks)
@@ -52,8 +59,14 @@ func GetExamsByQPId(ctx context.Context, questionPaperID *string) ([]*model.Exam
 
 func GetExamSchedule(ctx context.Context, examID *string) ([]*model.ExamSchedule, error) {
 	qryStr := fmt.Sprintf(`SELECT * from qbankz.exam_schedule where exam_id = '%s'  ALLOW FILTERING`, *examID)
+	session, err := cassandra.GetCassSession("qbankz")
+	if err != nil {
+		return nil, err
+	}
+	global.CassSession = session
+	defer global.CassSession.Close()
 	getBanks := func() (banks []qbankz.ExamSchedule, err error) {
-		q := global.CassSession.Session.Query(qryStr, nil)
+		q := global.CassSession.Query(qryStr, nil)
 		defer q.Release()
 		iter := q.Iter()
 		return banks, iter.Select(&banks)
@@ -89,8 +102,14 @@ func GetExamSchedule(ctx context.Context, examID *string) ([]*model.ExamSchedule
 
 func GetExamInstruction(ctx context.Context, examID *string) ([]*model.ExamInstruction, error) {
 	qryStr := fmt.Sprintf(`SELECT * from qbankz.exam_instructions where exam_id = '%s'  ALLOW FILTERING`, *examID)
+	session, err := cassandra.GetCassSession("qbankz")
+	if err != nil {
+		return nil, err
+	}
+	global.CassSession = session
+	defer global.CassSession.Close()
 	getBanks := func() (banks []qbankz.ExamInstructions, err error) {
-		q := global.CassSession.Session.Query(qryStr, nil)
+		q := global.CassSession.Query(qryStr, nil)
 		defer q.Release()
 		iter := q.Iter()
 		return banks, iter.Select(&banks)
@@ -125,8 +144,14 @@ func GetExamInstruction(ctx context.Context, examID *string) ([]*model.ExamInstr
 
 func GetExamCohort(ctx context.Context, examID *string) ([]*model.ExamCohort, error) {
 	qryStr := fmt.Sprintf(`SELECT * from qbankz.exam_cohort where exam_id = '%s'  ALLOW FILTERING`, *examID)
+	session, err := cassandra.GetCassSession("qbankz")
+	if err != nil {
+		return nil, err
+	}
+	global.CassSession = session
+	defer global.CassSession.Close()
 	getBanks := func() (banks []qbankz.ExamCohort, err error) {
-		q := global.CassSession.Session.Query(qryStr, nil)
+		q := global.CassSession.Query(qryStr, nil)
 		defer q.Release()
 		iter := q.Iter()
 		return banks, iter.Select(&banks)
@@ -157,8 +182,14 @@ func GetExamCohort(ctx context.Context, examID *string) ([]*model.ExamCohort, er
 
 func GetExamConfiguration(ctx context.Context, examID *string) ([]*model.ExamConfiguration, error) {
 	qryStr := fmt.Sprintf(`SELECT * from qbankz.exam_config where exam_id = '%s'  ALLOW FILTERING`, *examID)
+	session, err := cassandra.GetCassSession("qbankz")
+	if err != nil {
+		return nil, err
+	}
+	global.CassSession = session
+	defer global.CassSession.Close()
 	getBanks := func() (banks []qbankz.ExamConfig, err error) {
-		q := global.CassSession.Session.Query(qryStr, nil)
+		q := global.CassSession.Query(qryStr, nil)
 		defer q.Release()
 		iter := q.Iter()
 		return banks, iter.Select(&banks)
@@ -192,12 +223,18 @@ func GetExamConfiguration(ctx context.Context, examID *string) ([]*model.ExamCon
 
 func GetQPMeta(ctx context.Context, questionPapersIds []*string) ([]*model.QuestionPaper, error) {
 	responseMap := make([]*model.QuestionPaper, 0)
+	session, err := cassandra.GetCassSession("qbankz")
+	if err != nil {
+		return nil, err
+	}
+	global.CassSession = session
+	defer global.CassSession.Close()
 	for _, questionId := range questionPapersIds {
 		currentMap := &model.QuestionPaper{}
 		currentMap.ID = questionId
 		qryStr := fmt.Sprintf(`SELECT * from qbankz.question_paper_main where id='%s'  ALLOW FILTERING`, *questionId)
 		getPapers := func() (banks []qbankz.QuestionPaperMain, err error) {
-			q := global.CassSession.Session.Query(qryStr, nil)
+			q := global.CassSession.Query(qryStr, nil)
 			defer q.Release()
 			iter := q.Iter()
 			return banks, iter.Select(&banks)
@@ -224,7 +261,7 @@ func GetQPMeta(ctx context.Context, questionPapersIds []*string) ([]*model.Quest
 				UpdatedAt:         &updatedAt,
 				CreatedBy:         &copiedBank.CreatedBy,
 				UpdatedBy:         &copiedBank.UpdatedBy,
-				Status: 		  &copiedBank.Status,
+				Status:            &copiedBank.Status,
 			}
 			responseMap = append(responseMap, currentBank)
 		}

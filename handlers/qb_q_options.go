@@ -7,6 +7,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/qbankz"
+	"github.com/zicops/zicops-cass-pool/cassandra"
 	"github.com/zicops/zicops-course-query/global"
 	"github.com/zicops/zicops-course-query/graph/model"
 	"github.com/zicops/zicops-course-query/lib/db/bucket"
@@ -21,13 +22,19 @@ func GetOptionsForQuestions(ctx context.Context, questionIds []*string) ([]*mode
 		log.Errorf("Failed to get options: %v", err.Error())
 		return nil, err
 	}
+	session, err := cassandra.GetCassSession("qbankz")
+	if err != nil {
+		return nil, err
+	}
+	global.CassSession = session
+	defer global.CassSession.Close()
 	responseMap := make([]*model.MapQuestionWithOption, 0)
 	for _, questionId := range questionIds {
 		currentMap := &model.MapQuestionWithOption{}
 		currentMap.QuestionID = questionId
 		qryStr := fmt.Sprintf(`SELECT * from qbankz.options_main where qm_id='%s'  ALLOW FILTERING`, *questionId)
 		getBanks := func() (banks []qbankz.OptionsMain, err error) {
-			q := global.CassSession.Session.Query(qryStr, nil)
+			q := global.CassSession.Query(qryStr, nil)
 			defer q.Release()
 			iter := q.Iter()
 			return banks, iter.Select(&banks)
