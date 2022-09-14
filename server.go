@@ -11,6 +11,7 @@ import (
 	"os"
 
 	log "github.com/sirupsen/logrus"
+	"github.com/zicops/zicops-cass-pool/cassandra"
 	"github.com/zicops/zicops-course-query/controller"
 	"github.com/zicops/zicops-course-query/global"
 	cry "github.com/zicops/zicops-course-query/lib/crypto"
@@ -33,6 +34,14 @@ func main() {
 
 	if err != nil {
 		port = 8091
+	}
+	// test cassandra connection
+	session, err := cassandra.GetCassSession("coursez")
+	if err != nil {
+		log.Fatalf("Error connecting to cassandra: %v", err)
+	} else {
+		log.Infof("Cassandra connection successful")
+		session.Close()
 	}
 	bootUPErrors := make(chan error, 1)
 	go monitorSystem(cancel, bootUPErrors)
