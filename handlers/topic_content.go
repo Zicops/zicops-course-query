@@ -9,7 +9,6 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/coursez"
 	"github.com/zicops/zicops-cass-pool/cassandra"
-	"github.com/zicops/zicops-course-query/global"
 	"github.com/zicops/zicops-course-query/graph/model"
 	"github.com/zicops/zicops-course-query/lib/db/bucket"
 	"github.com/zicops/zicops-course-query/lib/googleprojectlib"
@@ -21,11 +20,11 @@ func GetTopicContent(ctx context.Context, topicID *string) ([]*model.TopicConten
 	if err != nil {
 		return nil, err
 	}
-	global.CassSession = session
+	CassSession := session
 
 	qryStr := fmt.Sprintf(`SELECT * from coursez.topic_content where topicid='%s' ALLOW FILTERING`, *topicID)
 	getTopicContent := func() (content []coursez.TopicContent, err error) {
-		q := global.CassSession.Query(qryStr, nil)
+		q := CassSession.Query(qryStr, nil)
 		defer q.Release()
 		iter := q.Iter()
 		return content, iter.Select(&content)
@@ -87,11 +86,11 @@ func GetTopicExams(ctx context.Context, topicID *string) ([]*model.TopicExam, er
 	if err != nil {
 		return nil, err
 	}
-	global.CassSession = session
+	CassSession := session
 
 	qryStr := fmt.Sprintf(`SELECT * from coursez.topic_exam where topicid='%s' ALLOW FILTERING`, *topicID)
 	getTopicContent := func() (content []coursez.TopicExam, err error) {
-		q := global.CassSession.Query(qryStr, nil)
+		q := CassSession.Query(qryStr, nil)
 		defer q.Release()
 		iter := q.Iter()
 		return content, iter.Select(&content)
@@ -125,11 +124,11 @@ func GetTopicContentByCourse(ctx context.Context, courseID *string) ([]*model.To
 	if err != nil {
 		return nil, err
 	}
-	global.CassSession = session
+	CassSession := session
 
 	qryStr := fmt.Sprintf(`SELECT * from coursez.topic_content where courseid='%s' ALLOW FILTERING`, *courseID)
 	getTopicContent := func() (content []coursez.TopicContent, err error) {
-		q := global.CassSession.Query(qryStr, nil)
+		q := CassSession.Query(qryStr, nil)
 		defer q.Release()
 		iter := q.Iter()
 		return content, iter.Select(&content)
@@ -193,11 +192,11 @@ func GetTopicExamsByCourse(ctx context.Context, courseID *string) ([]*model.Topi
 	if err != nil {
 		return nil, err
 	}
-	global.CassSession = session
+	CassSession := session
 
 	qryStr := fmt.Sprintf(`SELECT * from coursez.topic_exam where courseid='%s' ALLOW FILTERING`, *courseID)
 	getTopicContent := func() (content []coursez.TopicExam, err error) {
-		q := global.CassSession.Query(qryStr, nil)
+		q := CassSession.Query(qryStr, nil)
 		defer q.Release()
 		iter := q.Iter()
 		return content, iter.Select(&content)

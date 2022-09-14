@@ -7,7 +7,6 @@ import (
 
 	"github.com/zicops/contracts/coursez"
 	"github.com/zicops/zicops-cass-pool/cassandra"
-	"github.com/zicops/zicops-course-query/global"
 	"github.com/zicops/zicops-course-query/graph/model"
 )
 
@@ -16,11 +15,11 @@ func GetCohortCourseMaps(ctx context.Context, cohortID *string) ([]*model.Course
 	if err != nil {
 		return nil, err
 	}
-	global.CassSession = session
+	CassSession := session
 
 	qryStr := fmt.Sprintf(`SELECT * from coursez.course_cohort_mapping where cohortid = '%s'  ALLOW FILTERING`, *cohortID)
 	getCCohorts := func() (banks []coursez.CourseCohortMapping, err error) {
-		q := global.CassSession.Query(qryStr, nil)
+		q := CassSession.Query(qryStr, nil)
 		defer q.Release()
 		iter := q.Iter()
 		return banks, iter.Select(&banks)

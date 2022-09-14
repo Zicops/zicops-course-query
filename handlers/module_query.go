@@ -7,7 +7,6 @@ import (
 
 	"github.com/zicops/contracts/coursez"
 	"github.com/zicops/zicops-cass-pool/cassandra"
-	"github.com/zicops/zicops-course-query/global"
 	"github.com/zicops/zicops-course-query/graph/model"
 )
 
@@ -17,11 +16,11 @@ func GetModulesCourseByID(ctx context.Context, courseID *string) ([]*model.Modul
 	if err != nil {
 		return nil, err
 	}
-	global.CassSession = session
+	CassSession := session
 
 	qryStr := fmt.Sprintf(`SELECT * from coursez.module where courseid='%s' ALLOW FILTERING`, *courseID)
 	getModules := func() (modules []coursez.Module, err error) {
-		q := global.CassSession.Query(qryStr, nil)
+		q := CassSession.Query(qryStr, nil)
 		defer q.Release()
 		iter := q.Iter()
 		return modules, iter.Select(&modules)
@@ -59,11 +58,11 @@ func GetModuleByID(ctx context.Context, moduleID *string) (*model.Module, error)
 	if err != nil {
 		return nil, err
 	}
-	global.CassSession = session
+	CassSession := session
 
 	qryStr := fmt.Sprintf(`SELECT * from coursez.module where id='%s' ALLOW FILTERING`, *moduleID)
 	getModules := func() (modules []coursez.Module, err error) {
-		q := global.CassSession.Query(qryStr, nil)
+		q := CassSession.Query(qryStr, nil)
 		defer q.Release()
 		iter := q.Iter()
 		return modules, iter.Select(&modules)

@@ -8,7 +8,6 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/coursez"
 	"github.com/zicops/zicops-cass-pool/cassandra"
-	"github.com/zicops/zicops-course-query/global"
 	"github.com/zicops/zicops-course-query/graph/model"
 	"github.com/zicops/zicops-course-query/lib/db/bucket"
 	"github.com/zicops/zicops-course-query/lib/googleprojectlib"
@@ -20,11 +19,11 @@ func GetTopicQuizes(ctx context.Context, topicID *string) ([]*model.Quiz, error)
 	if err != nil {
 		return nil, err
 	}
-	global.CassSession = session
+	CassSession := session
 
 	qryStr := fmt.Sprintf(`SELECT * from coursez.quiz where topicid='%s' ALLOW FILTERING`, *topicID)
 	getTopicQuiz := func() (quizes []coursez.Quiz, err error) {
-		q := global.CassSession.Query(qryStr, nil)
+		q := CassSession.Query(qryStr, nil)
 		defer q.Release()
 		iter := q.Iter()
 		return quizes, iter.Select(&quizes)
@@ -65,11 +64,11 @@ func GetQuizFiles(ctx context.Context, quizID *string) ([]*model.QuizFile, error
 	if err != nil {
 		return nil, err
 	}
-	global.CassSession = session
+	CassSession := session
 
 	qryStr := fmt.Sprintf(`SELECT * from coursez.quiz_file where quizid='%s' ALLOW FILTERING`, *quizID)
 	getQuizFiles := func() (files []coursez.QuizFile, err error) {
-		q := global.CassSession.Query(qryStr, nil)
+		q := CassSession.Query(qryStr, nil)
 		defer q.Release()
 		iter := q.Iter()
 		return files, iter.Select(&files)
@@ -109,11 +108,11 @@ func GetMCQQuiz(ctx context.Context, quizID *string) ([]*model.QuizMcq, error) {
 	if err != nil {
 		return nil, err
 	}
-	global.CassSession = session
+	CassSession := session
 
 	qryStr := fmt.Sprintf(`SELECT * from coursez.quiz_mcq where quizid='%s' ALLOW FILTERING`, *quizID)
 	getQuizMcq := func() (mcqs []coursez.QuizMcq, err error) {
-		q := global.CassSession.Query(qryStr, nil)
+		q := CassSession.Query(qryStr, nil)
 		defer q.Release()
 		iter := q.Iter()
 		return mcqs, iter.Select(&mcqs)
@@ -147,11 +146,11 @@ func GetQuizDes(ctx context.Context, quizID *string) ([]*model.QuizDescriptive, 
 	if err != nil {
 		return nil, err
 	}
-	global.CassSession = session
+	CassSession := session
 
 	qryStr := fmt.Sprintf(`SELECT * from coursez.quiz_descriptive where quizid='%s' ALLOW FILTERING`, *quizID)
 	getQuizDes := func() (desq []coursez.QuizDescriptive, err error) {
-		q := global.CassSession.Query(qryStr, nil)
+		q := CassSession.Query(qryStr, nil)
 		defer q.Release()
 		iter := q.Iter()
 		return desq, iter.Select(&desq)

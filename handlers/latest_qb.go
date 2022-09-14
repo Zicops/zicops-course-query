@@ -33,11 +33,11 @@ func LatestQuestionBanks(ctx context.Context, publishTime *int, pageCursor *stri
 	if err != nil {
 		return nil, err
 	}
-	global.CassSession = session
+	CassSession := session
 
 	qryStr := fmt.Sprintf(`SELECT * from qbankz.question_bank_main where updated_at <= %d  ALLOW FILTERING`, *publishTime)
 	getBanks := func(page []byte) (banks []qbankz.QuestionBankMain, nextPage []byte, err error) {
-		q := global.CassSession.Query(qryStr, nil)
+		q := CassSession.Query(qryStr, nil)
 		defer q.Release()
 		q.PageState(page)
 		q.PageSize(pageSizeInt)
@@ -107,11 +107,11 @@ func LatestQuestionPapers(ctx context.Context, publishTime *int, pageCursor *str
 	if err != nil {
 		return nil, err
 	}
-	global.CassSession = session
+	CassSession := session
 
 	qryStr := fmt.Sprintf(`SELECT * from qbankz.question_paper_main where updated_at <= %d  ALLOW FILTERING`, *publishTime)
 	getBanks := func(page []byte) (banks []qbankz.QuestionPaperMain, nextPage []byte, err error) {
-		q := global.CassSession.Query(qryStr, nil)
+		q := CassSession.Query(qryStr, nil)
 		defer q.Release()
 		q.PageState(page)
 		q.PageSize(pageSizeInt)
@@ -183,11 +183,11 @@ func GetLatestExams(ctx context.Context, publishTime *int, pageCursor *string, d
 	if err != nil {
 		return nil, err
 	}
-	global.CassSession = session
+	CassSession := session
 
 	qryStr := fmt.Sprintf(`SELECT * from qbankz.exam where updated_at <= %d  ALLOW FILTERING`, *publishTime)
 	getExams := func(page []byte) (exams []qbankz.Exam, nextPage []byte, err error) {
-		q := global.CassSession.Query(qryStr, nil)
+		q := CassSession.Query(qryStr, nil)
 		defer q.Release()
 		q.PageState(page)
 		q.PageSize(pageSizeInt)
@@ -246,12 +246,12 @@ func GetExamsMeta(ctx context.Context, examIds []*string) ([]*model.Exam, error)
 	if err != nil {
 		return nil, err
 	}
-	global.CassSession = session
+	CassSession := session
 
 	for _, questionId := range examIds {
 		qryStr := fmt.Sprintf(`SELECT * from qbankz.exam where id='%s'  ALLOW FILTERING`, *questionId)
 		getPapers := func() (banks []qbankz.Exam, err error) {
-			q := global.CassSession.Query(qryStr, nil)
+			q := CassSession.Query(qryStr, nil)
 			defer q.Release()
 			iter := q.Iter()
 			return banks, iter.Select(&banks)
@@ -295,12 +295,12 @@ func GetQBMeta(ctx context.Context, qbIds []*string) ([]*model.QuestionBank, err
 	if err != nil {
 		return nil, err
 	}
-	global.CassSession = session
+	CassSession := session
 
 	for _, qbId := range qbIds {
 		qryStr := fmt.Sprintf(`SELECT * from qbankz.question_bank_main where id='%s'  ALLOW FILTERING`, *qbId)
 		getBanks := func() (banks []qbankz.QuestionBankMain, err error) {
-			q := global.CassSession.Query(qryStr, nil)
+			q := CassSession.Query(qryStr, nil)
 			defer q.Release()
 			iter := q.Iter()
 			return banks, iter.Select(&banks)

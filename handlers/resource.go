@@ -8,7 +8,6 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/coursez"
 	"github.com/zicops/zicops-cass-pool/cassandra"
-	"github.com/zicops/zicops-course-query/global"
 	"github.com/zicops/zicops-course-query/graph/model"
 	"github.com/zicops/zicops-course-query/lib/db/bucket"
 	"github.com/zicops/zicops-course-query/lib/googleprojectlib"
@@ -20,11 +19,11 @@ func GetTopicResources(ctx context.Context, topicID *string) ([]*model.TopicReso
 	if err != nil {
 		return nil, err
 	}
-	global.CassSession = session
+	CassSession := session
 
 	qryStr := fmt.Sprintf(`SELECT * from coursez.resource where topicid='%s' ALLOW FILTERING`, *topicID)
 	getTopicrRes := func() (resources []coursez.Resource, err error) {
-		q := global.CassSession.Query(qryStr, nil)
+		q := CassSession.Query(qryStr, nil)
 		defer q.Release()
 		iter := q.Iter()
 		return resources, iter.Select(&resources)
@@ -72,11 +71,11 @@ func GetCourseResources(ctx context.Context, courseID *string) ([]*model.TopicRe
 	if err != nil {
 		return nil, err
 	}
-	global.CassSession = session
+	CassSession := session
 
 	qryStr := fmt.Sprintf(`SELECT * from coursez.resource where courseid='%s' ALLOW FILTERING`, *courseID)
 	getTopicrRes := func() (resources []coursez.Resource, err error) {
-		q := global.CassSession.Query(qryStr, nil)
+		q := CassSession.Query(qryStr, nil)
 		defer q.Release()
 		iter := q.Iter()
 		return resources, iter.Select(&resources)

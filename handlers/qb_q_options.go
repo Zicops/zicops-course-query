@@ -8,7 +8,6 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/qbankz"
 	"github.com/zicops/zicops-cass-pool/cassandra"
-	"github.com/zicops/zicops-course-query/global"
 	"github.com/zicops/zicops-course-query/graph/model"
 	"github.com/zicops/zicops-course-query/lib/db/bucket"
 	"github.com/zicops/zicops-course-query/lib/googleprojectlib"
@@ -26,7 +25,7 @@ func GetOptionsForQuestions(ctx context.Context, questionIds []*string) ([]*mode
 	if err != nil {
 		return nil, err
 	}
-	global.CassSession = session
+	CassSession := session
 
 	responseMap := make([]*model.MapQuestionWithOption, 0)
 	for _, questionId := range questionIds {
@@ -34,7 +33,7 @@ func GetOptionsForQuestions(ctx context.Context, questionIds []*string) ([]*mode
 		currentMap.QuestionID = questionId
 		qryStr := fmt.Sprintf(`SELECT * from qbankz.options_main where qm_id='%s'  ALLOW FILTERING`, *questionId)
 		getBanks := func() (banks []qbankz.OptionsMain, err error) {
-			q := global.CassSession.Query(qryStr, nil)
+			q := CassSession.Query(qryStr, nil)
 			defer q.Release()
 			iter := q.Iter()
 			return banks, iter.Select(&banks)

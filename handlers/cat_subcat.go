@@ -6,7 +6,6 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/zicops-cass-pool/cassandra"
-	"github.com/zicops/zicops-course-query/global"
 )
 
 func GetCategories(ctx context.Context) ([]*string, error) {
@@ -15,10 +14,10 @@ func GetCategories(ctx context.Context) ([]*string, error) {
 	if err != nil {
 		return nil, err
 	}
-	global.CassSession = session
+	CassSession := session
 
 	resultOutput := make([]*string, 0)
-	getQueryCassandra := global.CassSession.Query("SELECT * from coursez.category", nil)
+	getQueryCassandra := CassSession.Query("SELECT * from coursez.category", nil)
 
 	iter := getQueryCassandra.Iter()
 	var tempCat string
@@ -39,10 +38,10 @@ func GetSubCategories(ctx context.Context) ([]*string, error) {
 	if err != nil {
 		return nil, err
 	}
-	global.CassSession = session
+	CassSession := session
 
 	resultOutput := make([]*string, 0)
-	getQueryCassandra := global.CassSession.Query("SELECT * from coursez.sub_category", nil)
+	getQueryCassandra := CassSession.Query("SELECT * from coursez.sub_category", nil)
 
 	iter := getQueryCassandra.Iter()
 	var tempCat string
@@ -63,11 +62,11 @@ func GetSubCategoriesForSub(ctx context.Context, cat *string) ([]*string, error)
 	if err != nil {
 		return nil, err
 	}
-	global.CassSession = session
+	CassSession := session
 
 	resultOutput := make([]*string, 0)
 	qryStr := fmt.Sprintf(`SELECT sub_category from coursez.cat_sub_mapping WHERE category = '%s'  ALLOW FILTERING`, *cat)
-	getQueryCassandra := global.CassSession.Query(qryStr, nil)
+	getQueryCassandra := CassSession.Query(qryStr, nil)
 
 	iter := getQueryCassandra.Iter()
 	var tempCat string
