@@ -108,3 +108,12 @@ spec:
       - name: zicops-cc
         secret:
           secretName: {{ .Values.zcServiceAccount.secret }}
+      - name: zdevastracert
+        secret:
+          secretName: {{ .Values.zcCertAstra.secret }}
+      - name: zdevastracertca
+        secret:
+          secretName: {{ .Values.zcCertCAAstra.secret }}
+      - name: zdevastrakey
+        secret:
+          secretName: {{ .Values.zcAstraKey.secret }}
