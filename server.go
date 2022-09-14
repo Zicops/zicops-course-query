@@ -39,7 +39,7 @@ func main() {
 	_, err1 := cassandra.GetCassSession("coursez")
 	_, err2 := cassandra.GetCassSession("qbankz")
 	if err1 != nil && err2 != nil {
-		log.Fatalf("Error connecting to cassandra: %v", err)
+		log.Fatalf("Error connecting to cassandra: %v and %v ", err1, err2)
 	} else {
 		log.Infof("Cassandra connection successful")
 	}
