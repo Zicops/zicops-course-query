@@ -21,7 +21,7 @@ func GetTopicsCourseByID(ctx context.Context, courseID *string) ([]*model.Topic,
 		return nil, err
 	}
 	global.CassSession = session
-	defer global.CassSession.Close()
+
 	qryStr := fmt.Sprintf(`SELECT * from coursez.topic where courseid='%s' ALLOW FILTERING`, *courseID)
 	getTopics := func() (topics []coursez.Topic, err error) {
 		q := global.CassSession.Query(qryStr, nil)
@@ -76,7 +76,7 @@ func GetTopicByID(ctx context.Context, topicID *string) (*model.Topic, error) {
 		return nil, err
 	}
 	global.CassSession = session
-	defer global.CassSession.Close()
+
 	qryStr := fmt.Sprintf(`SELECT * from coursez.topic where id='%s' ALLOW FILTERING`, *topicID)
 	getTopics := func() (topics []coursez.Topic, err error) {
 		q := global.CassSession.Query(qryStr, nil)

@@ -16,7 +16,7 @@ func GetCategories(ctx context.Context) ([]*string, error) {
 		return nil, err
 	}
 	global.CassSession = session
-	defer global.CassSession.Close()
+
 	resultOutput := make([]*string, 0)
 	getQueryCassandra := global.CassSession.Query("SELECT * from coursez.category", nil)
 
@@ -40,7 +40,7 @@ func GetSubCategories(ctx context.Context) ([]*string, error) {
 		return nil, err
 	}
 	global.CassSession = session
-	defer global.CassSession.Close()
+
 	resultOutput := make([]*string, 0)
 	getQueryCassandra := global.CassSession.Query("SELECT * from coursez.sub_category", nil)
 
@@ -64,7 +64,7 @@ func GetSubCategoriesForSub(ctx context.Context, cat *string) ([]*string, error)
 		return nil, err
 	}
 	global.CassSession = session
-	defer global.CassSession.Close()
+
 	resultOutput := make([]*string, 0)
 	qryStr := fmt.Sprintf(`SELECT sub_category from coursez.cat_sub_mapping WHERE category = '%s'  ALLOW FILTERING`, *cat)
 	getQueryCassandra := global.CassSession.Query(qryStr, nil)

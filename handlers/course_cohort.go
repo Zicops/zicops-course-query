@@ -17,7 +17,7 @@ func GetCohortCourseMaps(ctx context.Context, cohortID *string) ([]*model.Course
 		return nil, err
 	}
 	global.CassSession = session
-	defer global.CassSession.Close()
+
 	qryStr := fmt.Sprintf(`SELECT * from coursez.course_cohort_mapping where cohortid = '%s'  ALLOW FILTERING`, *cohortID)
 	getCCohorts := func() (banks []coursez.CourseCohortMapping, err error) {
 		q := global.CassSession.Query(qryStr, nil)

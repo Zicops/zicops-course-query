@@ -18,7 +18,7 @@ func GetQuestionBankSections(ctx context.Context, questionPaperID *string) ([]*m
 		return nil, err
 	}
 	global.CassSession = session
-	defer global.CassSession.Close()
+
 	getBanks := func() (banks []qbankz.SectionMain, err error) {
 		q := global.CassSession.Query(qryStr, nil)
 		defer q.Release()
@@ -60,7 +60,7 @@ func GetQPBankMappingByQPId(ctx context.Context, questionPaperID *string) ([]*mo
 		return nil, err
 	}
 	global.CassSession = session
-	defer global.CassSession.Close()
+
 	getBanks := func() (banks []qbankz.SectionQBMapping, err error) {
 		q := global.CassSession.Query(qryStr, nil)
 		defer q.Release()
@@ -103,7 +103,7 @@ func GetQPBankMappingBySectionID(ctx context.Context, sectionID *string) ([]*mod
 		return nil, err
 	}
 	global.CassSession = session
-	defer global.CassSession.Close()
+
 	getBanks := func() (banks []qbankz.SectionQBMapping, err error) {
 		q := global.CassSession.Query(qryStr, nil)
 		defer q.Release()
@@ -146,7 +146,7 @@ func GetSectionFixedQuestions(ctx context.Context, sectionID *string) ([]*model.
 		return nil, err
 	}
 	global.CassSession = session
-	defer global.CassSession.Close()
+
 	getBanks := func() (banks []qbankz.SectionFixedQuestions, err error) {
 		q := global.CassSession.Query(qryStr, nil)
 		defer q.Release()

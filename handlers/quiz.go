@@ -21,7 +21,7 @@ func GetTopicQuizes(ctx context.Context, topicID *string) ([]*model.Quiz, error)
 		return nil, err
 	}
 	global.CassSession = session
-	defer global.CassSession.Close()
+
 	qryStr := fmt.Sprintf(`SELECT * from coursez.quiz where topicid='%s' ALLOW FILTERING`, *topicID)
 	getTopicQuiz := func() (quizes []coursez.Quiz, err error) {
 		q := global.CassSession.Query(qryStr, nil)
@@ -66,7 +66,7 @@ func GetQuizFiles(ctx context.Context, quizID *string) ([]*model.QuizFile, error
 		return nil, err
 	}
 	global.CassSession = session
-	defer global.CassSession.Close()
+
 	qryStr := fmt.Sprintf(`SELECT * from coursez.quiz_file where quizid='%s' ALLOW FILTERING`, *quizID)
 	getQuizFiles := func() (files []coursez.QuizFile, err error) {
 		q := global.CassSession.Query(qryStr, nil)
@@ -110,7 +110,7 @@ func GetMCQQuiz(ctx context.Context, quizID *string) ([]*model.QuizMcq, error) {
 		return nil, err
 	}
 	global.CassSession = session
-	defer global.CassSession.Close()
+
 	qryStr := fmt.Sprintf(`SELECT * from coursez.quiz_mcq where quizid='%s' ALLOW FILTERING`, *quizID)
 	getQuizMcq := func() (mcqs []coursez.QuizMcq, err error) {
 		q := global.CassSession.Query(qryStr, nil)
@@ -148,7 +148,7 @@ func GetQuizDes(ctx context.Context, quizID *string) ([]*model.QuizDescriptive, 
 		return nil, err
 	}
 	global.CassSession = session
-	defer global.CassSession.Close()
+
 	qryStr := fmt.Sprintf(`SELECT * from coursez.quiz_descriptive where quizid='%s' ALLOW FILTERING`, *quizID)
 	getQuizDes := func() (desq []coursez.QuizDescriptive, err error) {
 		q := global.CassSession.Query(qryStr, nil)

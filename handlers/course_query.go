@@ -59,7 +59,7 @@ func GetCourseByID(ctx context.Context, courseID *string) (*model.Course, error)
 		return nil, err
 	}
 	global.CassSession = session
-	defer global.CassSession.Close()
+
 	qryStr := fmt.Sprintf(`SELECT * from coursez.course where id='%s'`, *courseID)
 	getCourse := func() (courses []coursez.Course, err error) {
 		q := global.CassSession.Query(qryStr, nil)

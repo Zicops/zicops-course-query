@@ -27,7 +27,7 @@ func GetOptionsForQuestions(ctx context.Context, questionIds []*string) ([]*mode
 		return nil, err
 	}
 	global.CassSession = session
-	defer global.CassSession.Close()
+
 	responseMap := make([]*model.MapQuestionWithOption, 0)
 	for _, questionId := range questionIds {
 		currentMap := &model.MapQuestionWithOption{}

@@ -29,7 +29,7 @@ func GetQuestionBankQuestions(ctx context.Context, questionBankID *string, filte
 		return nil, err
 	}
 	global.CassSession = session
-	defer global.CassSession.Close()
+
 	qryStr := fmt.Sprintf(`SELECT * from qbankz.question_main where %s  ALLOW FILTERING`, whereClause)
 	getBanks := func() (banks []qbankz.QuestionMain, err error) {
 		q := global.CassSession.Query(qryStr, nil)
@@ -110,7 +110,7 @@ func GetQuestionsByID(ctx context.Context, questionIds []*string) ([]*model.Ques
 		return nil, err
 	}
 	global.CassSession = session
-	defer global.CassSession.Close()
+
 	allQuestions := make([]*model.QuestionBankQuestion, 0)
 	for _, id := range questionIds {
 		qryStr := fmt.Sprintf(`SELECT * from qbankz.question_main where id = '%s' ALLOW FILTERING`, *id)

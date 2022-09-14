@@ -34,7 +34,7 @@ func LatestQuestionBanks(ctx context.Context, publishTime *int, pageCursor *stri
 		return nil, err
 	}
 	global.CassSession = session
-	defer global.CassSession.Close()
+
 	qryStr := fmt.Sprintf(`SELECT * from qbankz.question_bank_main where updated_at <= %d  ALLOW FILTERING`, *publishTime)
 	getBanks := func(page []byte) (banks []qbankz.QuestionBankMain, nextPage []byte, err error) {
 		q := global.CassSession.Query(qryStr, nil)
@@ -108,7 +108,7 @@ func LatestQuestionPapers(ctx context.Context, publishTime *int, pageCursor *str
 		return nil, err
 	}
 	global.CassSession = session
-	defer global.CassSession.Close()
+
 	qryStr := fmt.Sprintf(`SELECT * from qbankz.question_paper_main where updated_at <= %d  ALLOW FILTERING`, *publishTime)
 	getBanks := func(page []byte) (banks []qbankz.QuestionPaperMain, nextPage []byte, err error) {
 		q := global.CassSession.Query(qryStr, nil)
@@ -184,7 +184,7 @@ func GetLatestExams(ctx context.Context, publishTime *int, pageCursor *string, d
 		return nil, err
 	}
 	global.CassSession = session
-	defer global.CassSession.Close()
+
 	qryStr := fmt.Sprintf(`SELECT * from qbankz.exam where updated_at <= %d  ALLOW FILTERING`, *publishTime)
 	getExams := func(page []byte) (exams []qbankz.Exam, nextPage []byte, err error) {
 		q := global.CassSession.Query(qryStr, nil)
@@ -247,7 +247,7 @@ func GetExamsMeta(ctx context.Context, examIds []*string) ([]*model.Exam, error)
 		return nil, err
 	}
 	global.CassSession = session
-	defer global.CassSession.Close()
+
 	for _, questionId := range examIds {
 		qryStr := fmt.Sprintf(`SELECT * from qbankz.exam where id='%s'  ALLOW FILTERING`, *questionId)
 		getPapers := func() (banks []qbankz.Exam, err error) {
@@ -296,7 +296,7 @@ func GetQBMeta(ctx context.Context, qbIds []*string) ([]*model.QuestionBank, err
 		return nil, err
 	}
 	global.CassSession = session
-	defer global.CassSession.Close()
+
 	for _, qbId := range qbIds {
 		qryStr := fmt.Sprintf(`SELECT * from qbankz.question_bank_main where id='%s'  ALLOW FILTERING`, *qbId)
 		getBanks := func() (banks []qbankz.QuestionBankMain, err error) {

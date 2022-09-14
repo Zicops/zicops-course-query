@@ -18,7 +18,7 @@ func GetExamsByQPId(ctx context.Context, questionPaperID *string) ([]*model.Exam
 		return nil, err
 	}
 	global.CassSession = session
-	defer global.CassSession.Close()
+
 	getBanks := func() (banks []qbankz.Exam, err error) {
 		q := global.CassSession.Query(qryStr, nil)
 		defer q.Release()
@@ -64,7 +64,7 @@ func GetExamSchedule(ctx context.Context, examID *string) ([]*model.ExamSchedule
 		return nil, err
 	}
 	global.CassSession = session
-	defer global.CassSession.Close()
+
 	getBanks := func() (banks []qbankz.ExamSchedule, err error) {
 		q := global.CassSession.Query(qryStr, nil)
 		defer q.Release()
@@ -107,7 +107,7 @@ func GetExamInstruction(ctx context.Context, examID *string) ([]*model.ExamInstr
 		return nil, err
 	}
 	global.CassSession = session
-	defer global.CassSession.Close()
+
 	getBanks := func() (banks []qbankz.ExamInstructions, err error) {
 		q := global.CassSession.Query(qryStr, nil)
 		defer q.Release()
@@ -149,7 +149,7 @@ func GetExamCohort(ctx context.Context, examID *string) ([]*model.ExamCohort, er
 		return nil, err
 	}
 	global.CassSession = session
-	defer global.CassSession.Close()
+
 	getBanks := func() (banks []qbankz.ExamCohort, err error) {
 		q := global.CassSession.Query(qryStr, nil)
 		defer q.Release()
@@ -187,7 +187,7 @@ func GetExamConfiguration(ctx context.Context, examID *string) ([]*model.ExamCon
 		return nil, err
 	}
 	global.CassSession = session
-	defer global.CassSession.Close()
+
 	getBanks := func() (banks []qbankz.ExamConfig, err error) {
 		q := global.CassSession.Query(qryStr, nil)
 		defer q.Release()
@@ -228,7 +228,7 @@ func GetQPMeta(ctx context.Context, questionPapersIds []*string) ([]*model.Quest
 		return nil, err
 	}
 	global.CassSession = session
-	defer global.CassSession.Close()
+
 	for _, questionId := range questionPapersIds {
 		currentMap := &model.QuestionPaper{}
 		currentMap.ID = questionId

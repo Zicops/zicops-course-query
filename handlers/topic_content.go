@@ -22,7 +22,7 @@ func GetTopicContent(ctx context.Context, topicID *string) ([]*model.TopicConten
 		return nil, err
 	}
 	global.CassSession = session
-	defer global.CassSession.Close()
+
 	qryStr := fmt.Sprintf(`SELECT * from coursez.topic_content where topicid='%s' ALLOW FILTERING`, *topicID)
 	getTopicContent := func() (content []coursez.TopicContent, err error) {
 		q := global.CassSession.Query(qryStr, nil)
@@ -51,7 +51,7 @@ func GetTopicContent(ctx context.Context, topicID *string) ([]*model.TopicConten
 		if mainBucket != "" {
 			urlSub = storageC.GetSignedURLsForObjects(mainBucket)
 		}
-		
+
 		urlCon := ""
 		if mod.TopicContentBucket != "" {
 			urlCon = storageC.GetSignedURLForObject(mod.TopicContentBucket)
@@ -88,7 +88,7 @@ func GetTopicExams(ctx context.Context, topicID *string) ([]*model.TopicExam, er
 		return nil, err
 	}
 	global.CassSession = session
-	defer global.CassSession.Close()
+
 	qryStr := fmt.Sprintf(`SELECT * from coursez.topic_exam where topicid='%s' ALLOW FILTERING`, *topicID)
 	getTopicContent := func() (content []coursez.TopicExam, err error) {
 		q := global.CassSession.Query(qryStr, nil)
@@ -126,7 +126,7 @@ func GetTopicContentByCourse(ctx context.Context, courseID *string) ([]*model.To
 		return nil, err
 	}
 	global.CassSession = session
-	defer global.CassSession.Close()
+
 	qryStr := fmt.Sprintf(`SELECT * from coursez.topic_content where courseid='%s' ALLOW FILTERING`, *courseID)
 	getTopicContent := func() (content []coursez.TopicContent, err error) {
 		q := global.CassSession.Query(qryStr, nil)
@@ -194,7 +194,7 @@ func GetTopicExamsByCourse(ctx context.Context, courseID *string) ([]*model.Topi
 		return nil, err
 	}
 	global.CassSession = session
-	defer global.CassSession.Close()
+
 	qryStr := fmt.Sprintf(`SELECT * from coursez.topic_exam where courseid='%s' ALLOW FILTERING`, *courseID)
 	getTopicContent := func() (content []coursez.TopicExam, err error) {
 		q := global.CassSession.Query(qryStr, nil)

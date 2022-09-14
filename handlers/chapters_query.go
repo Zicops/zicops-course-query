@@ -18,7 +18,7 @@ func GetChaptersCourseByID(ctx context.Context, courseID *string) ([]*model.Chap
 		return nil, err
 	}
 	global.CassSession = session
-	defer global.CassSession.Close()
+
 	qryStr := fmt.Sprintf(`SELECT * from coursez.chapter where courseid='%s' ALLOW FILTERING`, *courseID)
 	getChapters := func() (modules []coursez.Chapter, err error) {
 		q := global.CassSession.Query(qryStr, nil)
@@ -56,7 +56,7 @@ func GetChapterByID(ctx context.Context, chapterID *string) (*model.Chapter, err
 		return nil, err
 	}
 	global.CassSession = session
-	defer global.CassSession.Close()
+
 	qryStr := fmt.Sprintf(`SELECT * from coursez.chapter where id='%s' ALLOW FILTERING`, *chapterID)
 	getChapters := func() (modules []coursez.Chapter, err error) {
 		q := global.CassSession.Query(qryStr, nil)

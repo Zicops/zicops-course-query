@@ -21,7 +21,7 @@ func GetTopicResources(ctx context.Context, topicID *string) ([]*model.TopicReso
 		return nil, err
 	}
 	global.CassSession = session
-	defer global.CassSession.Close()
+
 	qryStr := fmt.Sprintf(`SELECT * from coursez.resource where topicid='%s' ALLOW FILTERING`, *topicID)
 	getTopicrRes := func() (resources []coursez.Resource, err error) {
 		q := global.CassSession.Query(qryStr, nil)
@@ -73,7 +73,7 @@ func GetCourseResources(ctx context.Context, courseID *string) ([]*model.TopicRe
 		return nil, err
 	}
 	global.CassSession = session
-	defer global.CassSession.Close()
+
 	qryStr := fmt.Sprintf(`SELECT * from coursez.resource where courseid='%s' ALLOW FILTERING`, *courseID)
 	getTopicrRes := func() (resources []coursez.Resource, err error) {
 		q := global.CassSession.Query(qryStr, nil)

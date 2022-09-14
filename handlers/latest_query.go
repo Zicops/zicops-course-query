@@ -42,7 +42,7 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 		return nil, err
 	}
 	global.CassSession = session
-	defer global.CassSession.Close()
+
 	qryStr := fmt.Sprintf(`SELECT * from coursez.course where status='%s' and updated_at <= %d  ALLOW FILTERING`, statusNew, *publishTime)
 	getCourses := func(page []byte) (courses []coursez.Course, nextPage []byte, err error) {
 		q := global.CassSession.Query(qryStr, nil)
