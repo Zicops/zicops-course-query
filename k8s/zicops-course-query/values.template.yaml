@@ -49,7 +49,7 @@ zcCertCAAstra:
   secret: zdevastracertca
   cert:
     dir: /var/run/secrets/zdevastracertca
-    file: car.crt
+    file: ca.crt
 
 zcAstraKey:
   name: zdevastrakey
