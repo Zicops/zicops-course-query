@@ -155,7 +155,7 @@ func GetTopicContentByCourse(ctx context.Context, courseID *string) ([]*model.To
 			urlSub = storageC.GetSignedURLsForObjects(mainBucket)
 		}
 
-		urlCon := ""
+		urlCon := mod.Url
 		typeCon := strings.ToLower(mod.Type)
 		if mod.TopicContentBucket != "" && (strings.Contains(typeCon, "static") || strings.Contains(typeCon, "scorm") || strings.Contains(typeCon, "tincan") || strings.Contains(typeCon, "cmi5") || strings.Contains(typeCon, "html5")) {
 			urlCon = storageC.GetSignedURLForObjectPub(mod.TopicContentBucket)
