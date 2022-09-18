@@ -5,7 +5,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/zicops-course-query/graph/generated"
@@ -32,7 +31,12 @@ func (r *queryResolver) AllSubCatMain(ctx context.Context) ([]*model.SubCatMain,
 }
 
 func (r *queryResolver) AllSubCatByCatID(ctx context.Context, catID *string) ([]*model.SubCatMain, error) {
-	panic(fmt.Errorf("not implemented"))
+	resp, err := handlers.AllSubCatByCatID(ctx, catID)
+	if err != nil {
+		log.Errorf("error getting sub categories: %v", err)
+		return nil, err
+	}
+	return resp, nil
 }
 
 func (r *queryResolver) AllCategories(ctx context.Context) ([]*string, error) {

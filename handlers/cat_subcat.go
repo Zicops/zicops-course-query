@@ -192,3 +192,57 @@ func AllSubCatMain(ctx context.Context) ([]*model.SubCatMain, error) {
 	}
 	return resultOutput, nil
 }
+
+func AllSubCatByCatID(ctx context.Context, catID *string) ([]*model.SubCatMain, error) {
+	log.Info("AllSubCatByCatID")
+	session, err := cassandra.GetCassSession("coursez")
+	if err != nil {
+		return nil, err
+	}
+	CassSession := session
+
+	qryStr := fmt.Sprintf(`SELECT * from coursez.sub_cat_main WHERE parent_id = '%s' ALLOW FILTERING`, *catID)
+	getCats := func() (banks []coursez.SubCatMain, err error) {
+		q := CassSession.Query(qryStr, nil)
+		defer q.Release()
+		iter := q.Iter()
+		return banks, iter.Select(&banks)
+	}
+	cats, err := getCats()
+	if err != nil {
+		return nil, err
+	}
+	resultOutput := make([]*model.SubCatMain, 0)
+	for _, cat := range cats {
+		copiedCat := cat
+		createdAt := strconv.FormatInt(copiedCat.CreatedAt, 10)
+		updatedAt := strconv.FormatInt(copiedCat.UpdatedAt, 10)
+		imageUrl := copiedCat.ImageURL
+		if copiedCat.ImageBucket != "" {
+			storageC := bucket.NewStorageHandler()
+			gproject := googleprojectlib.GetGoogleProjectID()
+			err = storageC.InitializeStorageClient(ctx, gproject)
+			if err != nil {
+				log.Errorf("Failed to initialize storage: %v", err.Error())
+				continue
+			}
+			imageUrl = storageC.GetSignedURLForObject(copiedCat.ImageBucket)
+		}
+		currentCat := model.SubCatMain{
+			ID:          &copiedCat.ID,
+			Name:        &copiedCat.Name,
+			Description: &copiedCat.Description,
+			Code:        &copiedCat.Code,
+			ImageURL:    &imageUrl,
+			CreatedBy:   &copiedCat.CreatedBy,
+			CreatedAt:   &createdAt,
+			UpdatedAt:   &updatedAt,
+			UpdatedBy:   &copiedCat.UpdatedBy,
+			IsActive:    &copiedCat.IsActive,
+			CatID:       &copiedCat.ParentID,
+		}
+		resultOutput = append(resultOutput, &currentCat)
+
+	}
+	return resultOutput, nil
+}
