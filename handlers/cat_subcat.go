@@ -9,6 +9,8 @@ import (
 	"github.com/zicops/contracts/coursez"
 	"github.com/zicops/zicops-cass-pool/cassandra"
 	"github.com/zicops/zicops-course-query/graph/model"
+	"github.com/zicops/zicops-course-query/lib/db/bucket"
+	"github.com/zicops/zicops-course-query/lib/googleprojectlib"
 )
 
 func GetCategories(ctx context.Context) ([]*string, error) {
@@ -108,12 +110,23 @@ func AllCatMain(ctx context.Context) ([]*model.CatMain, error) {
 		copiedCat := cat
 		createdAt := strconv.FormatInt(copiedCat.CreatedAt, 10)
 		updatedAt := strconv.FormatInt(copiedCat.UpdatedAt, 10)
+		imageUrl := copiedCat.ImageURL
+		if copiedCat.ImageBucket != "" {
+			storageC := bucket.NewStorageHandler()
+			gproject := googleprojectlib.GetGoogleProjectID()
+			err = storageC.InitializeStorageClient(ctx, gproject)
+			if err != nil {
+				log.Errorf("Failed to initialize storage: %v", err.Error())
+				continue
+			}
+			imageUrl = storageC.GetSignedURLForObject(copiedCat.ImageBucket)
+		}
 		currentCat := model.CatMain{
 			ID:          &copiedCat.ID,
 			Name:        &copiedCat.Name,
 			Description: &copiedCat.Description,
 			Code:        &copiedCat.Code,
-			ImageURL:    &copiedCat.ImageURL,
+			ImageURL:    &imageUrl,
 			CreatedBy:   &copiedCat.CreatedBy,
 			CreatedAt:   &createdAt,
 			UpdatedAt:   &updatedAt,
@@ -150,12 +163,23 @@ func AllSubCatMain(ctx context.Context) ([]*model.SubCatMain, error) {
 		copiedCat := cat
 		createdAt := strconv.FormatInt(copiedCat.CreatedAt, 10)
 		updatedAt := strconv.FormatInt(copiedCat.UpdatedAt, 10)
+		imageUrl := copiedCat.ImageURL
+		if copiedCat.ImageBucket != "" {
+			storageC := bucket.NewStorageHandler()
+			gproject := googleprojectlib.GetGoogleProjectID()
+			err = storageC.InitializeStorageClient(ctx, gproject)
+			if err != nil {
+				log.Errorf("Failed to initialize storage: %v", err.Error())
+				continue
+			}
+			imageUrl = storageC.GetSignedURLForObject(copiedCat.ImageBucket)
+		}
 		currentCat := model.SubCatMain{
 			ID:          &copiedCat.ID,
 			Name:        &copiedCat.Name,
 			Description: &copiedCat.Description,
 			Code:        &copiedCat.Code,
-			ImageURL:    &copiedCat.ImageURL,
+			ImageURL:    &imageUrl,
 			CreatedBy:   &copiedCat.CreatedBy,
 			CreatedAt:   &createdAt,
 			UpdatedAt:   &updatedAt,
