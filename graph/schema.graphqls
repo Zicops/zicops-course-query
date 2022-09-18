@@ -410,7 +410,37 @@ type CourseCohort {
     IsActive : Boolean
 }
 
+type CatMain {
+    id: ID
+    Name: String
+    Description: String
+    ImageUrl: String
+    Code: String
+    CreatedAt: String
+    UpdatedAt: String
+    CreatedBy: String
+    UpdatedBy: String
+    IsActive : Boolean
+}
+
+type SubCatMain {
+    id: ID
+    Name: String
+    Description: String
+    ImageUrl: String
+    Code: String
+    CatId: String
+    CreatedAt: String
+    UpdatedAt: String
+    CreatedBy: String
+    UpdatedBy: String
+    IsActive : Boolean
+}
+
 type Query{
+  allCatMain: [CatMain]
+  allSubCatMain: [SubCatMain]
+  allSubCatByCatId(catId: String): [SubCatMain]
   allCategories: [String]
   allSubCategories: [String]
   allSubCatsByCat(category: String): [String]

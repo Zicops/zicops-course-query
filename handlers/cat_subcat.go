@@ -3,9 +3,12 @@ package handlers
 import (
 	"context"
 	"fmt"
+	"strconv"
 
 	log "github.com/sirupsen/logrus"
+	"github.com/zicops/contracts/coursez"
 	"github.com/zicops/zicops-cass-pool/cassandra"
+	"github.com/zicops/zicops-course-query/graph/model"
 )
 
 func GetCategories(ctx context.Context) ([]*string, error) {
@@ -77,6 +80,91 @@ func GetSubCategoriesForSub(ctx context.Context, cat *string) ([]*string, error)
 	err = iter.Close()
 	if err != nil {
 		return resultOutput, err
+	}
+	return resultOutput, nil
+}
+
+func AllCatMain(ctx context.Context) ([]*model.CatMain, error) {
+	log.Info("AllCatMain")
+	session, err := cassandra.GetCassSession("coursez")
+	if err != nil {
+		return nil, err
+	}
+	CassSession := session
+
+	qryStr := `SELECT * from coursez.cat_main `
+	getCats := func() (banks []coursez.CatMain, err error) {
+		q := CassSession.Query(qryStr, nil)
+		defer q.Release()
+		iter := q.Iter()
+		return banks, iter.Select(&banks)
+	}
+	cats, err := getCats()
+	if err != nil {
+		return nil, err
+	}
+	resultOutput := make([]*model.CatMain, 0)
+	for _, cat := range cats {
+		copiedCat := cat
+		createdAt := strconv.FormatInt(copiedCat.CreatedAt, 10)
+		updatedAt := strconv.FormatInt(copiedCat.UpdatedAt, 10)
+		currentCat := model.CatMain{
+			ID:          &copiedCat.ID,
+			Name:        &copiedCat.Name,
+			Description: &copiedCat.Description,
+			Code:        &copiedCat.Code,
+			ImageURL:    &copiedCat.ImageURL,
+			CreatedBy:   &copiedCat.CreatedBy,
+			CreatedAt:   &createdAt,
+			UpdatedAt:   &updatedAt,
+			UpdatedBy:   &copiedCat.UpdatedBy,
+			IsActive:    &copiedCat.IsActive,
+		}
+		resultOutput = append(resultOutput, &currentCat)
+
+	}
+	return resultOutput, nil
+}
+
+func AllSubCatMain(ctx context.Context) ([]*model.SubCatMain, error) {
+	log.Info("AllSubCatMain")
+	session, err := cassandra.GetCassSession("coursez")
+	if err != nil {
+		return nil, err
+	}
+	CassSession := session
+
+	qryStr := `SELECT * from coursez.sub_cat_main `
+	getCats := func() (banks []coursez.SubCatMain, err error) {
+		q := CassSession.Query(qryStr, nil)
+		defer q.Release()
+		iter := q.Iter()
+		return banks, iter.Select(&banks)
+	}
+	cats, err := getCats()
+	if err != nil {
+		return nil, err
+	}
+	resultOutput := make([]*model.SubCatMain, 0)
+	for _, cat := range cats {
+		copiedCat := cat
+		createdAt := strconv.FormatInt(copiedCat.CreatedAt, 10)
+		updatedAt := strconv.FormatInt(copiedCat.UpdatedAt, 10)
+		currentCat := model.SubCatMain{
+			ID:          &copiedCat.ID,
+			Name:        &copiedCat.Name,
+			Description: &copiedCat.Description,
+			Code:        &copiedCat.Code,
+			ImageURL:    &copiedCat.ImageURL,
+			CreatedBy:   &copiedCat.CreatedBy,
+			CreatedAt:   &createdAt,
+			UpdatedAt:   &updatedAt,
+			UpdatedBy:   &copiedCat.UpdatedBy,
+			IsActive:    &copiedCat.IsActive,
+			CatID:       &copiedCat.ParentID,
+		}
+		resultOutput = append(resultOutput, &currentCat)
+
 	}
 	return resultOutput, nil
 }

@@ -8,6 +8,19 @@ import (
 	"strconv"
 )
 
+type CatMain struct {
+	ID          *string `json:"id"`
+	Name        *string `json:"Name"`
+	Description *string `json:"Description"`
+	ImageURL    *string `json:"ImageUrl"`
+	Code        *string `json:"Code"`
+	CreatedAt   *string `json:"CreatedAt"`
+	UpdatedAt   *string `json:"UpdatedAt"`
+	CreatedBy   *string `json:"CreatedBy"`
+	UpdatedBy   *string `json:"UpdatedBy"`
+	IsActive    *bool   `json:"IsActive"`
+}
+
 type Chapter struct {
 	ID          *string `json:"id"`
 	Name        *string `json:"name"`
@@ -341,6 +354,20 @@ type SectionQBMapping struct {
 	CreatedBy       *string `json:"CreatedBy"`
 	UpdatedBy       *string `json:"UpdatedBy"`
 	IsActive        *bool   `json:"IsActive"`
+}
+
+type SubCatMain struct {
+	ID          *string `json:"id"`
+	Name        *string `json:"Name"`
+	Description *string `json:"Description"`
+	ImageURL    *string `json:"ImageUrl"`
+	Code        *string `json:"Code"`
+	CatID       *string `json:"CatId"`
+	CreatedAt   *string `json:"CreatedAt"`
+	UpdatedAt   *string `json:"UpdatedAt"`
+	CreatedBy   *string `json:"CreatedBy"`
+	UpdatedBy   *string `json:"UpdatedBy"`
+	IsActive    *bool   `json:"IsActive"`
 }
 
 type SubtitleURL struct {

@@ -5,12 +5,35 @@ package graph
 
 import (
 	"context"
+	"fmt"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/zicops-course-query/graph/generated"
 	"github.com/zicops/zicops-course-query/graph/model"
 	"github.com/zicops/zicops-course-query/handlers"
 )
+
+func (r *queryResolver) AllCatMain(ctx context.Context) ([]*model.CatMain, error) {
+	resp, err := handlers.AllCatMain(ctx)
+	if err != nil {
+		log.Errorf("error getting categories: %v", err)
+		return nil, err
+	}
+	return resp, nil
+}
+
+func (r *queryResolver) AllSubCatMain(ctx context.Context) ([]*model.SubCatMain, error) {
+	resp, err := handlers.AllSubCatMain(ctx)
+	if err != nil {
+		log.Errorf("error getting sub categories: %v", err)
+		return nil, err
+	}
+	return resp, nil
+}
+
+func (r *queryResolver) AllSubCatByCatID(ctx context.Context, catID *string) ([]*model.SubCatMain, error) {
+	panic(fmt.Errorf("not implemented"))
+}
 
 func (r *queryResolver) AllCategories(ctx context.Context) ([]*string, error) {
 	resp, err := handlers.GetCategories(ctx)
