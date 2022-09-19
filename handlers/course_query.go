@@ -2,12 +2,14 @@ package handlers
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strconv"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/coursez"
 	"github.com/zicops/zicops-cass-pool/cassandra"
+	"github.com/zicops/zicops-cass-pool/redis"
 	"github.com/zicops/zicops-course-query/graph/model"
 	"github.com/zicops/zicops-course-query/lib/db/bucket"
 	"github.com/zicops/zicops-course-query/lib/googleprojectlib"
@@ -52,6 +54,17 @@ func GetCourseByID(ctx context.Context, courseID *string) (*model.Course, error)
 		Category:           "",
 		SubCategory:        "",
 		SubCategories:      []coursez.SubCat{},
+	}
+	key := "GetCourseByID" + *courseID
+	result, err := redis.GetRedisValue(key)
+	if err != nil {
+		log.Error("Error in getting redis value for key: ", key)
+	}
+	if result != "" {
+		err = json.Unmarshal([]byte(result), &course)
+		if err != nil {
+			log.Error("Error in unmarshalling redis value for key: ", key)
+		}
 	}
 	session, err := cassandra.GetCassSession("coursez")
 	if err != nil {
@@ -197,6 +210,15 @@ func GetCourseByID(ctx context.Context, courseID *string) (*model.Course, error)
 	}
 	if course.PreviewVideoBucket != "" {
 		currentCourse.PreviewVideo = &previewUrl
+	}
+	redisBytes, err := json.Marshal(currentCourse)
+	if err != nil {
+		log.Errorf("Failed to marshal course: %v", err.Error())
+	} else {
+		err = redis.SetRedisValue(key, string(redisBytes))
+		if err != nil {
+			log.Errorf("Failed to set redis value: %v", err.Error())
+		}
 	}
 	return &currentCourse, nil
 }

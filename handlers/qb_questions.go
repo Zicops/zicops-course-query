@@ -2,12 +2,14 @@ package handlers
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strconv"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/qbankz"
 	"github.com/zicops/zicops-cass-pool/cassandra"
+	"github.com/zicops/zicops-cass-pool/redis"
 	"github.com/zicops/zicops-course-query/global"
 	"github.com/zicops/zicops-course-query/graph/model"
 	"github.com/zicops/zicops-course-query/lib/db/bucket"
@@ -22,7 +24,15 @@ func GetQuestionBankQuestions(ctx context.Context, questionBankID *string, filte
 		log.Errorf("Failed to get questions: %v", err.Error())
 		return nil, err
 	}
-
+	key := "GetQuestionBankQuestions" + *questionBankID + fmt.Sprintf("%v", filters)
+	result, err := redis.GetRedisValue(key)
+	if err == nil {
+		var tempMap []*model.QuestionBankQuestion
+		err = json.Unmarshal([]byte(result), &tempMap)
+		if err == nil {
+			return tempMap, nil
+		}
+	}
 	whereClause := getWhereClause(filters, *questionBankID)
 	session, err := cassandra.GetCassSession("qbankz")
 	if err != nil {
@@ -94,6 +104,10 @@ func GetQuestionBankQuestions(ctx context.Context, questionBankID *string, filte
 		}
 		allQuestions = append(allQuestions, currentQuestion)
 	}
+	redisBytes, err := json.Marshal(allQuestions)
+	if err == nil {
+		redis.SetRedisValue(key, string(redisBytes))
+	}
 	return allQuestions, nil
 }
 
@@ -113,6 +127,16 @@ func GetQuestionsByID(ctx context.Context, questionIds []*string) ([]*model.Ques
 
 	allQuestions := make([]*model.QuestionBankQuestion, 0)
 	for _, id := range questionIds {
+		key := "GetQuestionsByID" + *id
+		result, err := redis.GetRedisValue(key)
+		if err == nil {
+			var tempMap *model.QuestionBankQuestion
+			err = json.Unmarshal([]byte(result), &tempMap)
+			if err == nil {
+				allQuestions = append(allQuestions, tempMap)
+				continue
+			}
+		}
 		qryStr := fmt.Sprintf(`SELECT * from qbankz.question_main where id = '%s' ALLOW FILTERING`, *id)
 		getBanks := func() (banks []qbankz.QuestionMain, err error) {
 			q := CassSession.Query(qryStr, nil)
@@ -150,6 +174,10 @@ func GetQuestionsByID(ctx context.Context, questionIds []*string) ([]*model.Ques
 				UpdatedAt:      &updatedAt,
 			}
 			allQuestions = append(allQuestions, currentQuestion)
+			redisBytes, err := json.Marshal(currentQuestion)
+			if err == nil {
+				redis.SetRedisValue(key, string(redisBytes))
+			}
 		}
 	}
 	return allQuestions, nil

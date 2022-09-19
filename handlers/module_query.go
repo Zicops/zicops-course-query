@@ -2,16 +2,27 @@ package handlers
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strconv"
 
 	"github.com/zicops/contracts/coursez"
 	"github.com/zicops/zicops-cass-pool/cassandra"
+	"github.com/zicops/zicops-cass-pool/redis"
 	"github.com/zicops/zicops-course-query/graph/model"
 )
 
 func GetModulesCourseByID(ctx context.Context, courseID *string) ([]*model.Module, error) {
 	modules := make([]*model.Module, 0)
+	key := "GetModulesCourseByID" + *courseID
+	result, err := redis.GetRedisValue(key)
+	if err == nil {
+		err = json.Unmarshal([]byte(result), &modules)
+		if err == nil {
+			return modules, nil
+		}
+	}
+
 	session, err := cassandra.GetCassSession("coursez")
 	if err != nil {
 		return nil, err
@@ -49,11 +60,24 @@ func GetModulesCourseByID(ctx context.Context, courseID *string) ([]*model.Modul
 		}
 		modules = append(modules, currentModule)
 	}
+	redisBtres, err := json.Marshal(modules)
+	if err == nil {
+		redis.SetRedisValue(key, string(redisBtres))
+	}
 	return modules, nil
 }
 
 func GetModuleByID(ctx context.Context, moduleID *string) (*model.Module, error) {
 	modules := make([]*model.Module, 0)
+	key := "GetModuleByID" + *moduleID
+	result, err := redis.GetRedisValue(key)
+	if err == nil {
+		err = json.Unmarshal([]byte(result), &modules)
+		if err == nil {
+			return modules[0], nil
+		}
+	}
+
 	session, err := cassandra.GetCassSession("coursez")
 	if err != nil {
 		return nil, err
@@ -91,5 +115,10 @@ func GetModuleByID(ctx context.Context, moduleID *string) (*model.Module, error)
 		}
 		modules = append(modules, currentModule)
 	}
+	redisBtres, err := json.Marshal(modules)
+	if err == nil {
+		redis.SetRedisValue(key, string(redisBtres))
+	}
+
 	return modules[0], nil
 }

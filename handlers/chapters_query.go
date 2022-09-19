@@ -2,16 +2,33 @@ package handlers
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strconv"
 
+	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/coursez"
 	"github.com/zicops/zicops-cass-pool/cassandra"
+	"github.com/zicops/zicops-cass-pool/redis"
 	"github.com/zicops/zicops-course-query/graph/model"
 )
 
 func GetChaptersCourseByID(ctx context.Context, courseID *string) ([]*model.Chapter, error) {
 	chapters := make([]*model.Chapter, 0)
+	key := "GetChaptersCourseByID" + *courseID
+	result, err := redis.GetRedisValue(key)
+	if err != nil {
+		log.Errorf("GetChaptersCourseByID: %v", err)
+	}
+	if result != "" {
+		err = json.Unmarshal([]byte(result), &chapters)
+		if err != nil {
+			log.Errorf("GetChaptersCourseByID: %v", err)
+		}
+	}
+	if len(chapters) > 0 {
+		return chapters, nil
+	}
 	session, err := cassandra.GetCassSession("coursez")
 	if err != nil {
 		return nil, err
@@ -45,11 +62,34 @@ func GetChaptersCourseByID(ctx context.Context, courseID *string) ([]*model.Chap
 		}
 		chapters = append(chapters, currentChapter)
 	}
+	chaptersBytes, err := json.Marshal(chapters)
+	if err != nil {
+		log.Errorf("GetChaptersCourseByID: %v", err)
+	} else {
+		err = redis.SetRedisValue(key, string(chaptersBytes))
+		if err != nil {
+			log.Errorf("GetChaptersCourseByID: %v", err)
+		}
+	}
 	return chapters, nil
 }
 
 func GetChapterByID(ctx context.Context, chapterID *string) (*model.Chapter, error) {
 	chapters := make([]*model.Chapter, 0)
+	key := "GetChapterByID" + *chapterID
+	result, err := redis.GetRedisValue(key)
+	if err != nil {
+		log.Errorf("GetChapterByID: %v", err)
+	}
+	if result != "" {
+		err = json.Unmarshal([]byte(result), &chapters)
+		if err != nil {
+			log.Errorf("GetChapterByID: %v", err)
+		}
+	}
+	if len(chapters) > 0 {
+		return chapters[0], nil
+	}
 	session, err := cassandra.GetCassSession("coursez")
 	if err != nil {
 		return nil, err
@@ -82,6 +122,15 @@ func GetChapterByID(ctx context.Context, chapterID *string) (*model.Chapter, err
 			Sequence:    &mod.Sequence,
 		}
 		chapters = append(chapters, currentChapter)
+	}
+	chaptersBytes, err := json.Marshal(chapters)
+	if err != nil {
+		log.Errorf("GetChapterByID: %v", err)
+	} else {
+		err = redis.SetRedisValue(key, string(chaptersBytes))
+		if err != nil {
+			log.Errorf("GetChapterByID: %v", err)
+		}
 	}
 	return chapters[0], nil
 }

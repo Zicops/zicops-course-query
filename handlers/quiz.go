@@ -2,12 +2,14 @@ package handlers
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strconv"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/coursez"
 	"github.com/zicops/zicops-cass-pool/cassandra"
+	"github.com/zicops/zicops-cass-pool/redis"
 	"github.com/zicops/zicops-course-query/graph/model"
 	"github.com/zicops/zicops-course-query/lib/db/bucket"
 	"github.com/zicops/zicops-course-query/lib/googleprojectlib"
@@ -15,6 +17,14 @@ import (
 
 func GetTopicQuizes(ctx context.Context, topicID *string) ([]*model.Quiz, error) {
 	topicQuizes := make([]*model.Quiz, 0)
+	key := "GetTopicQuizes" + *topicID
+	result, err := redis.GetRedisValue(key)
+	if err == nil {
+		err = json.Unmarshal([]byte(result), &topicQuizes)
+		if err == nil {
+			return topicQuizes, nil
+		}
+	}
 	session, err := cassandra.GetCassSession("coursez")
 	if err != nil {
 		return nil, err
@@ -55,11 +65,24 @@ func GetTopicQuizes(ctx context.Context, topicID *string) ([]*model.Quiz, error)
 
 		topicQuizes = append(topicQuizes, currentQ)
 	}
+	redisBytes, err := json.Marshal(topicQuizes)
+	if err == nil {
+		redis.SetRedisValue(key, string(redisBytes))
+	}
 	return topicQuizes, nil
 }
 
 func GetQuizFiles(ctx context.Context, quizID *string) ([]*model.QuizFile, error) {
 	quizFiles := make([]*model.QuizFile, 0)
+	key := "GetQuizFiles" + *quizID
+	result, err := redis.GetRedisValue(key)
+	if err == nil {
+		err = json.Unmarshal([]byte(result), &quizFiles)
+		if err == nil {
+			return quizFiles, nil
+		}
+	}
+
 	session, err := cassandra.GetCassSession("coursez")
 	if err != nil {
 		return nil, err
@@ -99,11 +122,24 @@ func GetQuizFiles(ctx context.Context, quizID *string) ([]*model.QuizFile, error
 
 		quizFiles = append(quizFiles, currentFile)
 	}
+	redisBytes, err := json.Marshal(quizFiles)
+	if err == nil {
+		redis.SetRedisValue(key, string(redisBytes))
+	}
 	return quizFiles, nil
 }
 
 func GetMCQQuiz(ctx context.Context, quizID *string) ([]*model.QuizMcq, error) {
 	quizMcqs := make([]*model.QuizMcq, 0)
+	key := "GetMCQQuiz" + *quizID
+	result, err := redis.GetRedisValue(key)
+	if err == nil {
+		err = json.Unmarshal([]byte(result), &quizMcqs)
+		if err == nil {
+			return quizMcqs, nil
+		}
+	}
+
 	session, err := cassandra.GetCassSession("coursez")
 	if err != nil {
 		return nil, err
@@ -137,11 +173,23 @@ func GetMCQQuiz(ctx context.Context, quizID *string) ([]*model.QuizMcq, error) {
 
 		quizMcqs = append(quizMcqs, currentMcq)
 	}
+	redisBytes, err := json.Marshal(quizMcqs)
+	if err == nil {
+		redis.SetRedisValue(key, string(redisBytes))
+	}
 	return quizMcqs, nil
 }
 
 func GetQuizDes(ctx context.Context, quizID *string) ([]*model.QuizDescriptive, error) {
 	quizDes := make([]*model.QuizDescriptive, 0)
+	key := "GetQuizDes" + *quizID
+	result, err := redis.GetRedisValue(key)
+	if err == nil {
+		err = json.Unmarshal([]byte(result), &quizDes)
+		if err == nil {
+			return quizDes, nil
+		}
+	}
 	session, err := cassandra.GetCassSession("coursez")
 	if err != nil {
 		return nil, err
@@ -170,5 +218,10 @@ func GetQuizDes(ctx context.Context, quizID *string) ([]*model.QuizDescriptive, 
 
 		quizDes = append(quizDes, currentMcq)
 	}
+	redisBytes, err := json.Marshal(quizDes)
+	if err == nil {
+		redis.SetRedisValue(key, string(redisBytes))
+	}
+
 	return quizDes, nil
 }

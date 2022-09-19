@@ -2,12 +2,14 @@ package handlers
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strconv"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/coursez"
 	"github.com/zicops/zicops-cass-pool/cassandra"
+	"github.com/zicops/zicops-cass-pool/redis"
 	"github.com/zicops/zicops-course-query/graph/model"
 	"github.com/zicops/zicops-course-query/lib/db/bucket"
 	"github.com/zicops/zicops-course-query/lib/googleprojectlib"
@@ -88,6 +90,22 @@ func GetSubCategoriesForSub(ctx context.Context, cat *string) ([]*string, error)
 
 func AllCatMain(ctx context.Context) ([]*model.CatMain, error) {
 	log.Info("AllCatMain")
+	key := "AllCatMain"
+	resultOutput := make([]*model.CatMain, 0)
+	result, err := redis.GetRedisValue(key)
+	if err != nil {
+		log.Errorf("Failed to get value from redis: %v", err.Error())
+	}
+	if result != "" {
+		log.Info("Got value from redis")
+		err = json.Unmarshal([]byte(result), &resultOutput)
+		if err != nil {
+			log.Errorf("Failed to unmarshal value from redis: %v", err.Error())
+		}
+	}
+	if len(resultOutput) > 0 {
+		return resultOutput, nil
+	}
 	session, err := cassandra.GetCassSession("coursez")
 	if err != nil {
 		return nil, err
@@ -105,7 +123,6 @@ func AllCatMain(ctx context.Context) ([]*model.CatMain, error) {
 	if err != nil {
 		return nil, err
 	}
-	resultOutput := make([]*model.CatMain, 0)
 	for _, cat := range cats {
 		copiedCat := cat
 		createdAt := strconv.FormatInt(copiedCat.CreatedAt, 10)
@@ -136,11 +153,35 @@ func AllCatMain(ctx context.Context) ([]*model.CatMain, error) {
 		resultOutput = append(resultOutput, &currentCat)
 
 	}
+	redisValue, err := json.Marshal(resultOutput)
+	if err != nil {
+		log.Errorf("Failed to marshal value for redis: %v", err.Error())
+	}
+	err = redis.SetRedisValue(key, string(redisValue))
+	if err != nil {
+		log.Errorf("Failed to set value in redis: %v", err.Error())
+	}
 	return resultOutput, nil
 }
 
 func AllSubCatMain(ctx context.Context) ([]*model.SubCatMain, error) {
 	log.Info("AllSubCatMain")
+	key := "AllSubCatMain"
+	resultOutput := make([]*model.SubCatMain, 0)
+	result, err := redis.GetRedisValue(key)
+	if err != nil {
+		log.Errorf("Failed to get value from redis: %v", err.Error())
+	}
+	if result != "" {
+		log.Info("Got value from redis")
+		err = json.Unmarshal([]byte(result), &resultOutput)
+		if err != nil {
+			log.Errorf("Failed to unmarshal value from redis: %v", err.Error())
+		}
+	}
+	if len(resultOutput) > 0 {
+		return resultOutput, nil
+	}
 	session, err := cassandra.GetCassSession("coursez")
 	if err != nil {
 		return nil, err
@@ -158,7 +199,6 @@ func AllSubCatMain(ctx context.Context) ([]*model.SubCatMain, error) {
 	if err != nil {
 		return nil, err
 	}
-	resultOutput := make([]*model.SubCatMain, 0)
 	for _, cat := range cats {
 		copiedCat := cat
 		createdAt := strconv.FormatInt(copiedCat.CreatedAt, 10)
@@ -190,11 +230,35 @@ func AllSubCatMain(ctx context.Context) ([]*model.SubCatMain, error) {
 		resultOutput = append(resultOutput, &currentCat)
 
 	}
+	redisValue, err := json.Marshal(resultOutput)
+	if err != nil {
+		log.Errorf("Failed to marshal value for redis: %v", err.Error())
+	}
+	err = redis.SetRedisValue(key, string(redisValue))
+	if err != nil {
+		log.Errorf("Failed to set value in redis: %v", err.Error())
+	}
 	return resultOutput, nil
 }
 
 func AllSubCatByCatID(ctx context.Context, catID *string) ([]*model.SubCatMain, error) {
 	log.Info("AllSubCatByCatID")
+	key := "AllSubCatByCatID" + *catID
+	resultOutput := make([]*model.SubCatMain, 0)
+	result, err := redis.GetRedisValue(key)
+	if err != nil {
+		log.Errorf("Failed to get value from redis: %v", err.Error())
+	}
+	if result != "" {
+		log.Info("Got value from redis")
+		err = json.Unmarshal([]byte(result), &resultOutput)
+		if err != nil {
+			log.Errorf("Failed to unmarshal value from redis: %v", err.Error())
+		}
+	}
+	if len(resultOutput) > 0 {
+		return resultOutput, nil
+	}
 	session, err := cassandra.GetCassSession("coursez")
 	if err != nil {
 		return nil, err
@@ -212,7 +276,6 @@ func AllSubCatByCatID(ctx context.Context, catID *string) ([]*model.SubCatMain, 
 	if err != nil {
 		return nil, err
 	}
-	resultOutput := make([]*model.SubCatMain, 0)
 	for _, cat := range cats {
 		copiedCat := cat
 		createdAt := strconv.FormatInt(copiedCat.CreatedAt, 10)
@@ -243,6 +306,14 @@ func AllSubCatByCatID(ctx context.Context, catID *string) ([]*model.SubCatMain, 
 		}
 		resultOutput = append(resultOutput, &currentCat)
 
+	}
+	redisValue, err := json.Marshal(resultOutput)
+	if err != nil {
+		log.Errorf("Failed to marshal value for redis: %v", err.Error())
+	}
+	err = redis.SetRedisValue(key, string(redisValue))
+	if err != nil {
+		log.Errorf("Failed to set value in redis: %v", err.Error())
 	}
 	return resultOutput, nil
 }

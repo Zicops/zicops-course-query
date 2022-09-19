@@ -2,12 +2,14 @@ package handlers
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strconv"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/qbankz"
 	"github.com/zicops/zicops-cass-pool/cassandra"
+	"github.com/zicops/zicops-cass-pool/redis"
 	"github.com/zicops/zicops-course-query/graph/model"
 	"github.com/zicops/zicops-course-query/lib/db/bucket"
 	"github.com/zicops/zicops-course-query/lib/googleprojectlib"
@@ -29,6 +31,16 @@ func GetOptionsForQuestions(ctx context.Context, questionIds []*string) ([]*mode
 
 	responseMap := make([]*model.MapQuestionWithOption, 0)
 	for _, questionId := range questionIds {
+		key := "GetOptionsForQuestions" + *questionId
+		result, err := redis.GetRedisValue(key)
+		if err == nil {
+			var tempMap model.MapQuestionWithOption
+			err = json.Unmarshal([]byte(result), &tempMap)
+			if err == nil {
+				responseMap = append(responseMap, &tempMap)
+				continue
+			}
+		}
 		currentMap := &model.MapQuestionWithOption{}
 		currentMap.QuestionID = questionId
 		qryStr := fmt.Sprintf(`SELECT * from qbankz.options_main where qm_id='%s'  ALLOW FILTERING`, *questionId)
@@ -67,6 +79,10 @@ func GetOptionsForQuestions(ctx context.Context, questionIds []*string) ([]*mode
 			allSections = append(allSections, currentQuestion)
 		}
 		currentMap.Options = allSections
+		redisBytes, err := json.Marshal(currentMap)
+		if err == nil {
+			redis.SetRedisValue(key, string(redisBytes))
+		}
 		responseMap = append(responseMap, currentMap)
 	}
 

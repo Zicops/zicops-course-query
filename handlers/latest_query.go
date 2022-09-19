@@ -2,12 +2,14 @@ package handlers
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strconv"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/coursez"
 	"github.com/zicops/zicops-cass-pool/cassandra"
+	"github.com/zicops/zicops-cass-pool/redis"
 	"github.com/zicops/zicops-course-query/global"
 	"github.com/zicops/zicops-course-query/graph/model"
 	"github.com/zicops/zicops-course-query/lib/db/bucket"
@@ -24,6 +26,21 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 			return nil, fmt.Errorf("invalid page cursor: %v", err)
 		}
 		newPage = page
+	}
+	key := "LatestCourses" + string(newPage)
+	result, err := redis.GetRedisValue(key)
+	if err != nil {
+		log.Errorf("Error in getting redis value: %v", err)
+	}
+	if result != "" {
+		log.Infof("Redis value found for key: %v", key)
+		var paginatedCourse model.PaginatedCourse
+		err = json.Unmarshal([]byte(result), &paginatedCourse)
+		if err != nil {
+			log.Errorf("Error in unmarshalling redis value: %v", err)
+		} else {
+			return &paginatedCourse, nil
+		}
 	}
 	if pageSize == nil {
 		pageSizeInt = 10
@@ -188,5 +205,9 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 	outputResponse.PageCursor = &newCursor
 	outputResponse.PageSize = &pageSizeInt
 	outputResponse.Direction = direction
+	redisBytes, err := json.Marshal(outputResponse)
+	if err == nil {
+		redis.SetRedisValue(key, string(redisBytes))
+	}
 	return &outputResponse, nil
 }

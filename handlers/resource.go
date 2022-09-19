@@ -2,12 +2,14 @@ package handlers
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strconv"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/coursez"
 	"github.com/zicops/zicops-cass-pool/cassandra"
+	"github.com/zicops/zicops-cass-pool/redis"
 	"github.com/zicops/zicops-course-query/graph/model"
 	"github.com/zicops/zicops-course-query/lib/db/bucket"
 	"github.com/zicops/zicops-course-query/lib/googleprojectlib"
@@ -15,6 +17,14 @@ import (
 
 func GetTopicResources(ctx context.Context, topicID *string) ([]*model.TopicResource, error) {
 	topicsRes := make([]*model.TopicResource, 0)
+	key := "GetTopicResources" + *topicID
+	result, err := redis.GetRedisValue(key)
+	if err == nil {
+		err = json.Unmarshal([]byte(result), &topicsRes)
+		if err == nil {
+			return topicsRes, nil
+		}
+	}
 	session, err := cassandra.GetCassSession("coursez")
 	if err != nil {
 		return nil, err
@@ -62,11 +72,24 @@ func GetTopicResources(ctx context.Context, topicID *string) ([]*model.TopicReso
 
 		topicsRes = append(topicsRes, currentRes)
 	}
+	redisBytes, err := json.Marshal(topicsRes)
+	if err == nil {
+		redis.SetRedisValue(key, string(redisBytes))
+	}
 	return topicsRes, nil
 }
 
 func GetCourseResources(ctx context.Context, courseID *string) ([]*model.TopicResource, error) {
 	topicsRes := make([]*model.TopicResource, 0)
+	key := "GetCourseResources" + *courseID
+	result, err := redis.GetRedisValue(key)
+	if err == nil {
+		err = json.Unmarshal([]byte(result), &topicsRes)
+		if err == nil {
+			return topicsRes, nil
+		}
+	}
+
 	session, err := cassandra.GetCassSession("coursez")
 	if err != nil {
 		return nil, err
@@ -113,6 +136,11 @@ func GetCourseResources(ctx context.Context, courseID *string) ([]*model.TopicRe
 		}
 
 		topicsRes = append(topicsRes, currentRes)
+	}
+
+	redisBytes, err := json.Marshal(topicsRes)
+	if err == nil {
+		redis.SetRedisValue(key, string(redisBytes))
 	}
 	return topicsRes, nil
 }

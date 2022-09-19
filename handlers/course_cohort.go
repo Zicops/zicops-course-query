@@ -2,15 +2,32 @@ package handlers
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strconv"
 
+	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/coursez"
 	"github.com/zicops/zicops-cass-pool/cassandra"
+	"github.com/zicops/zicops-cass-pool/redis"
 	"github.com/zicops/zicops-course-query/graph/model"
 )
 
 func GetCohortCourseMaps(ctx context.Context, cohortID *string) ([]*model.CourseCohort, error) {
+	key := "GetCohortCourseMaps" + *cohortID
+	result, err := redis.GetRedisValue(key)
+	if err != nil {
+		log.Errorf("GetCohortCourseMaps: %v", err)
+	}
+	if result != "" {
+		var resultOutput []*model.CourseCohort
+		err = json.Unmarshal([]byte(result), &resultOutput)
+		if err != nil {
+			log.Errorf("GetCohortCourseMaps: %v", err)
+		}
+		return resultOutput, nil
+	}
+
 	session, err := cassandra.GetCassSession("coursez")
 	if err != nil {
 		return nil, err
@@ -50,6 +67,16 @@ func GetCohortCourseMaps(ctx context.Context, cohortID *string) ([]*model.Course
 			CohortCode:   &input.CohortCode,
 		}
 		allSections = append(allSections, currentQuestion)
+	}
+
+	redisBytes, err := json.Marshal(allSections)
+	if err != nil {
+		log.Errorf("GetCohortCourseMaps: %v", err)
+	} else {
+		err = redis.SetRedisValue(key, string(redisBytes))
+		if err != nil {
+			log.Errorf("GetCohortCourseMaps: %v", err)
+		}
 	}
 	return allSections, nil
 }

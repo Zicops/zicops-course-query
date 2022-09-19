@@ -2,15 +2,27 @@ package handlers
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strconv"
 
 	"github.com/zicops/contracts/qbankz"
 	"github.com/zicops/zicops-cass-pool/cassandra"
+	"github.com/zicops/zicops-cass-pool/redis"
 	"github.com/zicops/zicops-course-query/graph/model"
 )
 
 func GetQuestionBankSections(ctx context.Context, questionPaperID *string) ([]*model.QuestionPaperSection, error) {
+	allSections := make([]*model.QuestionPaperSection, 0)
+	key := "GetQuestionBankSections" + *questionPaperID
+	result, err := redis.GetRedisValue(key)
+	if err == nil {
+		err = json.Unmarshal([]byte(result), &allSections)
+		if err == nil {
+			return allSections, nil
+		}
+	}
+
 	qryStr := fmt.Sprintf(`SELECT * from qbankz.section_main where qp_id = '%s'  ALLOW FILTERING`, *questionPaperID)
 	session, err := cassandra.GetCassSession("qbankz")
 	if err != nil {
@@ -28,7 +40,6 @@ func GetQuestionBankSections(ctx context.Context, questionPaperID *string) ([]*m
 	if err != nil {
 		return nil, err
 	}
-	allSections := make([]*model.QuestionPaperSection, 0)
 	for _, bank := range banks {
 		copiedQuestion := bank
 		createdAt := strconv.FormatInt(copiedQuestion.CreatedAt, 10)
@@ -49,10 +60,23 @@ func GetQuestionBankSections(ctx context.Context, questionPaperID *string) ([]*m
 		}
 		allSections = append(allSections, currentQuestion)
 	}
+	redisBytes, err := json.Marshal(allSections)
+	if err == nil {
+		redis.SetRedisValue(key, string(redisBytes))
+	}
 	return allSections, nil
 }
 
 func GetQPBankMappingByQPId(ctx context.Context, questionPaperID *string) ([]*model.SectionQBMapping, error) {
+	key := "GetQPBankMappingByQPId" + *questionPaperID
+	result, err := redis.GetRedisValue(key)
+	if err == nil {
+		allSectionsMap := make([]*model.SectionQBMapping, 0)
+		err = json.Unmarshal([]byte(result), &allSectionsMap)
+		if err == nil {
+			return allSectionsMap, nil
+		}
+	}
 	qryStr := fmt.Sprintf(`SELECT * from qbankz.section_qb_mapping where qb_id = '%s'  ALLOW FILTERING`, *questionPaperID)
 	session, err := cassandra.GetCassSession("qbankz")
 	if err != nil {
@@ -92,10 +116,24 @@ func GetQPBankMappingByQPId(ctx context.Context, questionPaperID *string) ([]*mo
 		}
 		allSectionsMap = append(allSectionsMap, currentQuestion)
 	}
+	redisBytes, err := json.Marshal(allSectionsMap)
+	if err == nil {
+		redis.SetRedisValue(key, string(redisBytes))
+	}
 	return allSectionsMap, nil
 }
 
 func GetQPBankMappingBySectionID(ctx context.Context, sectionID *string) ([]*model.SectionQBMapping, error) {
+	key := "GetQPBankMappingBySectionID" + *sectionID
+	result, err := redis.GetRedisValue(key)
+	if err == nil {
+		allSectionsMap := make([]*model.SectionQBMapping, 0)
+		err = json.Unmarshal([]byte(result), &allSectionsMap)
+		if err == nil {
+			return allSectionsMap, nil
+		}
+	}
+
 	qryStr := fmt.Sprintf(`SELECT * from qbankz.section_qb_mapping where section_id = '%s'  ALLOW FILTERING`, *sectionID)
 	session, err := cassandra.GetCassSession("qbankz")
 	if err != nil {
@@ -135,10 +173,24 @@ func GetQPBankMappingBySectionID(ctx context.Context, sectionID *string) ([]*mod
 		}
 		allSectionsMap = append(allSectionsMap, currentQuestion)
 	}
+	redisBytes, err := json.Marshal(allSectionsMap)
+	if err == nil {
+		redis.SetRedisValue(key, string(redisBytes))
+	}
 	return allSectionsMap, nil
 }
 
 func GetSectionFixedQuestions(ctx context.Context, sectionID *string) ([]*model.SectionFixedQuestions, error) {
+	key := "GetSectionFixedQuestions" + *sectionID
+	result, err := redis.GetRedisValue(key)
+	if err == nil {
+		allSectionsMap := make([]*model.SectionFixedQuestions, 0)
+		err = json.Unmarshal([]byte(result), &allSectionsMap)
+		if err == nil {
+			return allSectionsMap, nil
+		}
+	}
+
 	qryStr := fmt.Sprintf(`SELECT * from qbankz.section_fixed_questions where sqb_id = '%s'  ALLOW FILTERING`, *sectionID)
 	session, err := cassandra.GetCassSession("qbankz")
 	if err != nil {
@@ -172,6 +224,10 @@ func GetSectionFixedQuestions(ctx context.Context, sectionID *string) ([]*model.
 			IsActive:   &copiedQuestion.IsActive,
 		}
 		allSectionsMap = append(allSectionsMap, currentQuestion)
+	}
+	redisBytes, err := json.Marshal(allSectionsMap)
+	if err == nil {
+		redis.SetRedisValue(key, string(redisBytes))
 	}
 	return allSectionsMap, nil
 }

@@ -2,15 +2,26 @@ package handlers
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strconv"
 
 	"github.com/zicops/contracts/qbankz"
 	"github.com/zicops/zicops-cass-pool/cassandra"
+	"github.com/zicops/zicops-cass-pool/redis"
 	"github.com/zicops/zicops-course-query/graph/model"
 )
 
 func GetExamsByQPId(ctx context.Context, questionPaperID *string) ([]*model.Exam, error) {
+	key := "GetExamsByQPId" + *questionPaperID
+	result, err := redis.GetRedisValue(key)
+	if err == nil {
+		output := make([]*model.Exam, 0)
+		err = json.Unmarshal([]byte(result), &output)
+		if err == nil {
+			return output, nil
+		}
+	}
 	qryStr := fmt.Sprintf(`SELECT * from qbankz.exam where qp_id = '%s'  ALLOW FILTERING`, *questionPaperID)
 	session, err := cassandra.GetCassSession("qbankz")
 	if err != nil {
@@ -53,10 +64,24 @@ func GetExamsByQPId(ctx context.Context, questionPaperID *string) ([]*model.Exam
 		}
 		allSections = append(allSections, currentQuestion)
 	}
+	output, err := json.Marshal(allSections)
+	if err == nil {
+		redis.SetRedisValue(key, string(output))
+	}
 	return allSections, nil
 }
 
 func GetExamSchedule(ctx context.Context, examID *string) ([]*model.ExamSchedule, error) {
+	key := "GetExamSchedule" + *examID
+	result, err := redis.GetRedisValue(key)
+	if err == nil {
+		output := make([]*model.ExamSchedule, 0)
+		err = json.Unmarshal([]byte(result), &output)
+		if err == nil {
+			return output, nil
+		}
+	}
+
 	qryStr := fmt.Sprintf(`SELECT * from qbankz.exam_schedule where exam_id = '%s'  ALLOW FILTERING`, *examID)
 	session, err := cassandra.GetCassSession("qbankz")
 	if err != nil {
@@ -96,10 +121,23 @@ func GetExamSchedule(ctx context.Context, examID *string) ([]*model.ExamSchedule
 		}
 		allSections = append(allSections, currentQuestion)
 	}
+	output, err := json.Marshal(allSections)
+	if err == nil {
+		redis.SetRedisValue(key, string(output))
+	}
 	return allSections, nil
 }
 
 func GetExamInstruction(ctx context.Context, examID *string) ([]*model.ExamInstruction, error) {
+	key := "GetExamInstruction" + *examID
+	result, err := redis.GetRedisValue(key)
+	if err == nil {
+		output := make([]*model.ExamInstruction, 0)
+		err = json.Unmarshal([]byte(result), &output)
+		if err == nil {
+			return output, nil
+		}
+	}
 	qryStr := fmt.Sprintf(`SELECT * from qbankz.exam_instructions where exam_id = '%s'  ALLOW FILTERING`, *examID)
 	session, err := cassandra.GetCassSession("qbankz")
 	if err != nil {
@@ -138,10 +176,24 @@ func GetExamInstruction(ctx context.Context, examID *string) ([]*model.ExamInstr
 		}
 		allSections = append(allSections, currentQuestion)
 	}
+	output, err := json.Marshal(allSections)
+	if err == nil {
+		redis.SetRedisValue(key, string(output))
+	}
 	return allSections, nil
 }
 
 func GetExamCohort(ctx context.Context, examID *string) ([]*model.ExamCohort, error) {
+	key := "GetExamCohort" + *examID
+	result, err := redis.GetRedisValue(key)
+	if err == nil {
+		output := make([]*model.ExamCohort, 0)
+		err = json.Unmarshal([]byte(result), &output)
+		if err == nil {
+			return output, nil
+		}
+	}
+
 	qryStr := fmt.Sprintf(`SELECT * from qbankz.exam_cohort where exam_id = '%s'  ALLOW FILTERING`, *examID)
 	session, err := cassandra.GetCassSession("qbankz")
 	if err != nil {
@@ -176,10 +228,23 @@ func GetExamCohort(ctx context.Context, examID *string) ([]*model.ExamCohort, er
 		}
 		allSections = append(allSections, currentQuestion)
 	}
+	output, err := json.Marshal(allSections)
+	if err == nil {
+		redis.SetRedisValue(key, string(output))
+	}
 	return allSections, nil
 }
 
 func GetExamConfiguration(ctx context.Context, examID *string) ([]*model.ExamConfiguration, error) {
+	key := "GetExamConfiguration" + *examID
+	result, err := redis.GetRedisValue(key)
+	if err == nil {
+		output := make([]*model.ExamConfiguration, 0)
+		err = json.Unmarshal([]byte(result), &output)
+		if err == nil {
+			return output, nil
+		}
+	}
 	qryStr := fmt.Sprintf(`SELECT * from qbankz.exam_config where exam_id = '%s'  ALLOW FILTERING`, *examID)
 	session, err := cassandra.GetCassSession("qbankz")
 	if err != nil {
@@ -217,6 +282,10 @@ func GetExamConfiguration(ctx context.Context, examID *string) ([]*model.ExamCon
 		}
 		allSections = append(allSections, currentQuestion)
 	}
+	output, err := json.Marshal(allSections)
+	if err == nil {
+		redis.SetRedisValue(key, string(output))
+	}
 	return allSections, nil
 }
 
@@ -229,6 +298,16 @@ func GetQPMeta(ctx context.Context, questionPapersIds []*string) ([]*model.Quest
 	CassSession := session
 
 	for _, questionId := range questionPapersIds {
+		key := "GetQPMeta" + *questionId
+		result, err := redis.GetRedisValue(key)
+		if err == nil {
+			output := &model.QuestionPaper{}
+			err = json.Unmarshal([]byte(result), output)
+			if err == nil {
+				responseMap = append(responseMap, output)
+				continue
+			}
+		}
 		currentMap := &model.QuestionPaper{}
 		currentMap.ID = questionId
 		qryStr := fmt.Sprintf(`SELECT * from qbankz.question_paper_main where id='%s'  ALLOW FILTERING`, *questionId)
@@ -263,6 +342,10 @@ func GetQPMeta(ctx context.Context, questionPapersIds []*string) ([]*model.Quest
 				Status:            &copiedBank.Status,
 			}
 			responseMap = append(responseMap, currentBank)
+			output, err := json.Marshal(currentBank)
+			if err == nil {
+				redis.SetRedisValue(key, string(output))
+			}
 		}
 	}
 

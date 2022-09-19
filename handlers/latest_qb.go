@@ -2,12 +2,15 @@ package handlers
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strconv"
 
+	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/qbankz"
 	"github.com/zicops/zicops-cass-pool/cassandra"
+	"github.com/zicops/zicops-cass-pool/redis"
 	"github.com/zicops/zicops-course-query/global"
 	"github.com/zicops/zicops-course-query/graph/model"
 )
@@ -23,6 +26,21 @@ func LatestQuestionBanks(ctx context.Context, publishTime *int, pageCursor *stri
 		}
 		newPage = page
 	}
+	key := "LatestQuestionBanks" + string(newPage)
+	result, err := redis.GetRedisValue(key)
+	if err != nil {
+		logrus.Errorf("Error getting redis value: %v", err)
+	}
+	if result != "" {
+		var outputResponse model.PaginatedQuestionBank
+		err = json.Unmarshal([]byte(result), &outputResponse)
+		if err != nil {
+			logrus.Errorf("Error unmarshalling redis value: %v", err)
+		} else {
+			return &outputResponse, nil
+		}
+	}
+
 	if pageSize == nil {
 		pageSizeInt = 10
 	} else {
@@ -83,6 +101,15 @@ func LatestQuestionBanks(ctx context.Context, publishTime *int, pageCursor *stri
 	outputResponse.PageCursor = &newCursor
 	outputResponse.PageSize = &pageSizeInt
 	outputResponse.Direction = direction
+	redisBytes, err := json.Marshal(outputResponse)
+	if err != nil {
+		logrus.Errorf("Error marshalling redis value: %v", err)
+	} else {
+		err = redis.SetRedisValue(key, string(redisBytes))
+		if err != nil {
+			logrus.Errorf("Error setting redis value: %v", err)
+		}
+	}
 	return &outputResponse, nil
 }
 
@@ -97,6 +124,21 @@ func LatestQuestionPapers(ctx context.Context, publishTime *int, pageCursor *str
 		}
 		newPage = page
 	}
+	key := "LatestQuestionPapers" + string(newPage)
+	result, err := redis.GetRedisValue(key)
+	if err != nil {
+		logrus.Errorf("Error getting redis value: %v", err)
+	}
+	if result != "" {
+		var outputResponse model.PaginatedQuestionPapers
+		err = json.Unmarshal([]byte(result), &outputResponse)
+		if err != nil {
+			logrus.Errorf("Error unmarshalling redis value: %v", err)
+		} else {
+			return &outputResponse, nil
+		}
+	}
+
 	if pageSize == nil {
 		pageSizeInt = 10
 	} else {
@@ -159,6 +201,15 @@ func LatestQuestionPapers(ctx context.Context, publishTime *int, pageCursor *str
 	outputResponse.PageCursor = &newCursor
 	outputResponse.PageSize = &pageSizeInt
 	outputResponse.Direction = direction
+	redisBytes, err := json.Marshal(outputResponse)
+	if err != nil {
+		logrus.Errorf("Error marshalling redis value: %v", err)
+	} else {
+		err = redis.SetRedisValue(key, string(redisBytes))
+		if err != nil {
+			logrus.Errorf("Error setting redis value: %v", err)
+		}
+	}
 	return &outputResponse, nil
 }
 
@@ -172,6 +223,20 @@ func GetLatestExams(ctx context.Context, publishTime *int, pageCursor *string, d
 			return nil, fmt.Errorf("invalid page cursor: %v", err)
 		}
 		newPage = page
+	}
+	key := "GetLatestExams" + string(newPage)
+	result, err := redis.GetRedisValue(key)
+	if err != nil {
+		logrus.Errorf("Error getting redis value: %v", err)
+	}
+	if result != "" {
+		var outputResponse model.PaginatedExams
+		err = json.Unmarshal([]byte(result), &outputResponse)
+		if err != nil {
+			logrus.Errorf("Error unmarshalling redis value: %v", err)
+		} else {
+			return &outputResponse, nil
+		}
 	}
 	if pageSize == nil {
 		pageSizeInt = 10
@@ -237,6 +302,15 @@ func GetLatestExams(ctx context.Context, publishTime *int, pageCursor *string, d
 	outputResponse.PageCursor = &newCursor
 	outputResponse.PageSize = &pageSizeInt
 	outputResponse.Direction = direction
+	redisBytes, err := json.Marshal(outputResponse)
+	if err != nil {
+		logrus.Errorf("Error marshalling redis value: %v", err)
+	} else {
+		err = redis.SetRedisValue(key, string(redisBytes))
+		if err != nil {
+			logrus.Errorf("Error setting redis value: %v", err)
+		}
+	}
 	return &outputResponse, nil
 }
 
@@ -249,6 +323,16 @@ func GetExamsMeta(ctx context.Context, examIds []*string) ([]*model.Exam, error)
 	CassSession := session
 
 	for _, questionId := range examIds {
+		result, _ := redis.GetRedisValue("GetExamsMeta" + *questionId)
+		if result != "" {
+			var outputResponse model.Exam
+			err = json.Unmarshal([]byte(result), &outputResponse)
+			if err == nil {
+				responseMap = append(responseMap, &outputResponse)
+				continue
+			}
+		}
+
 		qryStr := fmt.Sprintf(`SELECT * from qbankz.exam where id='%s'  ALLOW FILTERING`, *questionId)
 		getPapers := func() (banks []qbankz.Exam, err error) {
 			q := CassSession.Query(qryStr, nil)
@@ -283,6 +367,10 @@ func GetExamsMeta(ctx context.Context, examIds []*string) ([]*model.Exam, error)
 				SubCategory:  &copiedExam.SubCategory,
 			}
 			responseMap = append(responseMap, currentExam)
+			redisBytes, err := json.Marshal(currentExam)
+			if err == nil {
+				redis.SetRedisValue("GetExamsMeta"+*questionId, string(redisBytes))
+			}
 		}
 	}
 
@@ -298,6 +386,16 @@ func GetQBMeta(ctx context.Context, qbIds []*string) ([]*model.QuestionBank, err
 	CassSession := session
 
 	for _, qbId := range qbIds {
+		result, _ := redis.GetRedisValue("GetQBMeta" + *qbId)
+		if result != "" {
+			var outputResponse model.QuestionBank
+			err = json.Unmarshal([]byte(result), &outputResponse)
+			if err == nil {
+				responseMap = append(responseMap, &outputResponse)
+				continue
+			}
+		}
+
 		qryStr := fmt.Sprintf(`SELECT * from qbankz.question_bank_main where id='%s'  ALLOW FILTERING`, *qbId)
 		getBanks := func() (banks []qbankz.QuestionBankMain, err error) {
 			q := CassSession.Query(qryStr, nil)
@@ -328,6 +426,10 @@ func GetQBMeta(ctx context.Context, qbIds []*string) ([]*model.QuestionBank, err
 				IsDefault:   &copiedBank.IsDefault,
 			}
 			responseMap = append(responseMap, currentBank)
+			redisBytes, err := json.Marshal(currentBank)
+			if err == nil {
+				redis.SetRedisValue("GetQBMeta"+*qbId, string(redisBytes))
+			}
 		}
 	}
 	return responseMap, nil
