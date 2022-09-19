@@ -408,6 +408,7 @@ type CourseCohort {
     CreatedBy: String
     UpdatedBy: String
     IsActive : Boolean
+    ExpectedCompletion: Int 
 }
 
 type CatMain {

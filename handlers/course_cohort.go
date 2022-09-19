@@ -51,20 +51,21 @@ func GetCohortCourseMaps(ctx context.Context, cohortID *string) ([]*model.Course
 		created := strconv.FormatInt(input.CreatedAt, 10)
 		updated := strconv.FormatInt(input.UpdatedAt, 10)
 		currentQuestion := &model.CourseCohort{
-			ID:           &input.ID,
-			CourseID:     &input.CourseID,
-			CourseType:   &input.CourseType,
-			CohortID:     &input.CohortID,
-			CourseStatus: &input.CourseStatus,
-			LspID:        &input.LspID,
-			IsMandatory:  &input.IsMandatory,
-			AddedBy:      &input.AddedBy,
-			IsActive:     &input.IsActive,
-			CreatedBy:    &input.CreatedBy,
-			UpdatedBy:    &input.UpdatedBy,
-			CreatedAt:    &created,
-			UpdatedAt:    &updated,
-			CohortCode:   &input.CohortCode,
+			ID:                 &input.ID,
+			CourseID:           &input.CourseID,
+			CourseType:         &input.CourseType,
+			CohortID:           &input.CohortID,
+			CourseStatus:       &input.CourseStatus,
+			LspID:              &input.LspID,
+			IsMandatory:        &input.IsMandatory,
+			AddedBy:            &input.AddedBy,
+			IsActive:           &input.IsActive,
+			CreatedBy:          &input.CreatedBy,
+			UpdatedBy:          &input.UpdatedBy,
+			CreatedAt:          &created,
+			UpdatedAt:          &updated,
+			CohortCode:         &input.CohortCode,
+			ExpectedCompletion: &input.ExpectedCompletionDays,
 		}
 		allSections = append(allSections, currentQuestion)
 	}
