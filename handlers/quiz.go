@@ -67,6 +67,7 @@ func GetTopicQuizes(ctx context.Context, topicID *string) ([]*model.Quiz, error)
 	}
 	redisBytes, err := json.Marshal(topicQuizes)
 	if err == nil {
+		redis.SetTTL(key, 3600)
 		redis.SetRedisValue(key, string(redisBytes))
 	}
 	return topicQuizes, nil
@@ -124,6 +125,7 @@ func GetQuizFiles(ctx context.Context, quizID *string) ([]*model.QuizFile, error
 	}
 	redisBytes, err := json.Marshal(quizFiles)
 	if err == nil {
+		redis.SetTTL(key, 3600)
 		redis.SetRedisValue(key, string(redisBytes))
 	}
 	return quizFiles, nil
@@ -175,6 +177,7 @@ func GetMCQQuiz(ctx context.Context, quizID *string) ([]*model.QuizMcq, error) {
 	}
 	redisBytes, err := json.Marshal(quizMcqs)
 	if err == nil {
+		redis.SetTTL(key, 3600)
 		redis.SetRedisValue(key, string(redisBytes))
 	}
 	return quizMcqs, nil
@@ -220,6 +223,7 @@ func GetQuizDes(ctx context.Context, quizID *string) ([]*model.QuizDescriptive, 
 	}
 	redisBytes, err := json.Marshal(quizDes)
 	if err == nil {
+		redis.SetTTL(key, 3600)
 		redis.SetRedisValue(key, string(redisBytes))
 	}
 

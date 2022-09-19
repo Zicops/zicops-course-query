@@ -73,6 +73,7 @@ func GetCohortCourseMaps(ctx context.Context, cohortID *string) ([]*model.Course
 	if err != nil {
 		log.Errorf("GetCohortCourseMaps: %v", err)
 	} else {
+		redis.SetTTL(key, 3600)
 		err = redis.SetRedisValue(key, string(redisBytes))
 		if err != nil {
 			log.Errorf("GetCohortCourseMaps: %v", err)

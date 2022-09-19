@@ -62,6 +62,7 @@ func GetQuestionBankSections(ctx context.Context, questionPaperID *string) ([]*m
 	}
 	redisBytes, err := json.Marshal(allSections)
 	if err == nil {
+		redis.SetTTL(key, 3600)
 		redis.SetRedisValue(key, string(redisBytes))
 	}
 	return allSections, nil
@@ -118,6 +119,7 @@ func GetQPBankMappingByQPId(ctx context.Context, questionPaperID *string) ([]*mo
 	}
 	redisBytes, err := json.Marshal(allSectionsMap)
 	if err == nil {
+		redis.SetTTL(key, 3600)
 		redis.SetRedisValue(key, string(redisBytes))
 	}
 	return allSectionsMap, nil
@@ -175,6 +177,7 @@ func GetQPBankMappingBySectionID(ctx context.Context, sectionID *string) ([]*mod
 	}
 	redisBytes, err := json.Marshal(allSectionsMap)
 	if err == nil {
+		redis.SetTTL(key, 3600)
 		redis.SetRedisValue(key, string(redisBytes))
 	}
 	return allSectionsMap, nil
@@ -227,6 +230,7 @@ func GetSectionFixedQuestions(ctx context.Context, sectionID *string) ([]*model.
 	}
 	redisBytes, err := json.Marshal(allSectionsMap)
 	if err == nil {
+		redis.SetTTL(key, 3600)
 		redis.SetRedisValue(key, string(redisBytes))
 	}
 	return allSectionsMap, nil

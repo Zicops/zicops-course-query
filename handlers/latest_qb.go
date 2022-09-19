@@ -105,6 +105,7 @@ func LatestQuestionBanks(ctx context.Context, publishTime *int, pageCursor *stri
 	if err != nil {
 		logrus.Errorf("Error marshalling redis value: %v", err)
 	} else {
+		redis.SetTTL(key, 3600)
 		err = redis.SetRedisValue(key, string(redisBytes))
 		if err != nil {
 			logrus.Errorf("Error setting redis value: %v", err)
@@ -205,6 +206,7 @@ func LatestQuestionPapers(ctx context.Context, publishTime *int, pageCursor *str
 	if err != nil {
 		logrus.Errorf("Error marshalling redis value: %v", err)
 	} else {
+		redis.SetTTL(key, 3600)
 		err = redis.SetRedisValue(key, string(redisBytes))
 		if err != nil {
 			logrus.Errorf("Error setting redis value: %v", err)
@@ -306,6 +308,7 @@ func GetLatestExams(ctx context.Context, publishTime *int, pageCursor *string, d
 	if err != nil {
 		logrus.Errorf("Error marshalling redis value: %v", err)
 	} else {
+		redis.SetTTL(key, 3600)
 		err = redis.SetRedisValue(key, string(redisBytes))
 		if err != nil {
 			logrus.Errorf("Error setting redis value: %v", err)
@@ -369,6 +372,7 @@ func GetExamsMeta(ctx context.Context, examIds []*string) ([]*model.Exam, error)
 			responseMap = append(responseMap, currentExam)
 			redisBytes, err := json.Marshal(currentExam)
 			if err == nil {
+				redis.SetTTL("GetExamsMeta"+*questionId, 3600)
 				redis.SetRedisValue("GetExamsMeta"+*questionId, string(redisBytes))
 			}
 		}
@@ -428,6 +432,7 @@ func GetQBMeta(ctx context.Context, qbIds []*string) ([]*model.QuestionBank, err
 			responseMap = append(responseMap, currentBank)
 			redisBytes, err := json.Marshal(currentBank)
 			if err == nil {
+				redis.SetTTL("GetQBMeta"+*qbId, 3600)
 				redis.SetRedisValue("GetQBMeta"+*qbId, string(redisBytes))
 			}
 		}

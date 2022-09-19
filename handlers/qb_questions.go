@@ -106,6 +106,7 @@ func GetQuestionBankQuestions(ctx context.Context, questionBankID *string, filte
 	}
 	redisBytes, err := json.Marshal(allQuestions)
 	if err == nil {
+		redis.SetTTL(key, 3600)
 		redis.SetRedisValue(key, string(redisBytes))
 	}
 	return allQuestions, nil
@@ -176,6 +177,7 @@ func GetQuestionsByID(ctx context.Context, questionIds []*string) ([]*model.Ques
 			allQuestions = append(allQuestions, currentQuestion)
 			redisBytes, err := json.Marshal(currentQuestion)
 			if err == nil {
+				redis.SetTTL(key, 3600)
 				redis.SetRedisValue(key, string(redisBytes))
 			}
 		}

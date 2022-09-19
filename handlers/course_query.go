@@ -215,6 +215,7 @@ func GetCourseByID(ctx context.Context, courseID *string) (*model.Course, error)
 	if err != nil {
 		log.Errorf("Failed to marshal course: %v", err.Error())
 	} else {
+		redis.SetTTL(key, 3600)
 		err = redis.SetRedisValue(key, string(redisBytes))
 		if err != nil {
 			log.Errorf("Failed to set redis value: %v", err.Error())

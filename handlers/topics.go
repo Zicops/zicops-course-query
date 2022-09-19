@@ -78,6 +78,7 @@ func GetTopicsCourseByID(ctx context.Context, courseID *string) ([]*model.Topic,
 	}
 	redisBytes, err := json.Marshal(topicsOut)
 	if err == nil {
+		redis.SetTTL(key, 3600)
 		redis.SetRedisValue(key, string(redisBytes))
 	}
 	return topicsOut, nil
@@ -144,6 +145,7 @@ func GetTopicByID(ctx context.Context, topicID *string) (*model.Topic, error) {
 	}
 	redisBytes, err := json.Marshal(topics)
 	if err == nil {
+		redis.SetTTL(key, 3600)
 		redis.SetRedisValue(key, string(redisBytes))
 	}
 	return topics[0], nil

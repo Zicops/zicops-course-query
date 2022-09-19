@@ -81,6 +81,7 @@ func GetOptionsForQuestions(ctx context.Context, questionIds []*string) ([]*mode
 		currentMap.Options = allSections
 		redisBytes, err := json.Marshal(currentMap)
 		if err == nil {
+			redis.SetTTL(key, 3600)
 			redis.SetRedisValue(key, string(redisBytes))
 		}
 		responseMap = append(responseMap, currentMap)

@@ -154,12 +154,12 @@ func AllCatMain(ctx context.Context) ([]*model.CatMain, error) {
 
 	}
 	redisValue, err := json.Marshal(resultOutput)
-	if err != nil {
-		log.Errorf("Failed to marshal value for redis: %v", err.Error())
-	}
-	err = redis.SetRedisValue(key, string(redisValue))
-	if err != nil {
-		log.Errorf("Failed to set value in redis: %v", err.Error())
+	if err == nil {
+		redis.SetTTL(key, 3600)
+		err = redis.SetRedisValue(key, string(redisValue))
+		if err != nil {
+			log.Errorf("Failed to set value in redis: %v", err.Error())
+		}
 	}
 	return resultOutput, nil
 }
@@ -231,12 +231,12 @@ func AllSubCatMain(ctx context.Context) ([]*model.SubCatMain, error) {
 
 	}
 	redisValue, err := json.Marshal(resultOutput)
-	if err != nil {
-		log.Errorf("Failed to marshal value for redis: %v", err.Error())
-	}
-	err = redis.SetRedisValue(key, string(redisValue))
-	if err != nil {
-		log.Errorf("Failed to set value in redis: %v", err.Error())
+	if err == nil {
+		redis.SetTTL(key, 3600)
+		err = redis.SetRedisValue(key, string(redisValue))
+		if err != nil {
+			log.Errorf("Failed to set value in redis: %v", err.Error())
+		}
 	}
 	return resultOutput, nil
 }
@@ -308,12 +308,12 @@ func AllSubCatByCatID(ctx context.Context, catID *string) ([]*model.SubCatMain, 
 
 	}
 	redisValue, err := json.Marshal(resultOutput)
-	if err != nil {
-		log.Errorf("Failed to marshal value for redis: %v", err.Error())
-	}
-	err = redis.SetRedisValue(key, string(redisValue))
-	if err != nil {
-		log.Errorf("Failed to set value in redis: %v", err.Error())
+	if err == nil {
+		redis.SetTTL(key, 3600)
+		err = redis.SetRedisValue(key, string(redisValue))
+		if err != nil {
+			log.Errorf("Failed to set value in redis: %v", err.Error())
+		}
 	}
 	return resultOutput, nil
 }
