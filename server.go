@@ -40,9 +40,9 @@ func main() {
 	_, err1 := cassandra.GetCassSession("coursez")
 	_, err2 := cassandra.GetCassSession("qbankz")
 	if err1 != nil && err2 != nil {
-		//log.Fatalf("Error connecting to cassandra: %v and %v ", err1, err2)
+		log.Fatalf("Error connecting to cassandra: %v and %v ", err1, err2)
 	} else {
-		//log.Infof("Cassandra connection successful")
+		log.Infof("Cassandra connection successful")
 	}
 	_, err = redis.Initialize()
 	if err != nil {
