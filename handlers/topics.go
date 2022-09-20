@@ -17,31 +17,33 @@ import (
 
 func GetTopicsCourseByID(ctx context.Context, courseID *string) ([]*model.Topic, error) {
 	topicsOut := make([]*model.Topic, 0)
-
+	currentTopics := make([]coursez.Topic, 0)
 	key := "GetTopicsCourseByID" + *courseID
 	result, err := redis.GetRedisValue(key)
 	if err == nil {
-		err = json.Unmarshal([]byte(result), &topicsOut)
-		if err == nil {
-			return topicsOut, nil
+		err = json.Unmarshal([]byte(result), &currentTopics)
+		if err != nil {
+			log.Errorf("Failed to unmarshal topics: %v", err.Error())
 		}
 	}
-	session, err := cassandra.GetCassSession("coursez")
-	if err != nil {
-		return nil, err
-	}
-	CassSession := session
+	if len(currentTopics) <= 0 {
+		session, err := cassandra.GetCassSession("coursez")
+		if err != nil {
+			return nil, err
+		}
+		CassSession := session
 
-	qryStr := fmt.Sprintf(`SELECT * from coursez.topic where courseid='%s' ALLOW FILTERING`, *courseID)
-	getTopics := func() (topics []coursez.Topic, err error) {
-		q := CassSession.Query(qryStr, nil)
-		defer q.Release()
-		iter := q.Iter()
-		return topics, iter.Select(&topics)
-	}
-	currentTopics, err := getTopics()
-	if err != nil {
-		return nil, err
+		qryStr := fmt.Sprintf(`SELECT * from coursez.topic where courseid='%s' ALLOW FILTERING`, *courseID)
+		getTopics := func() (topics []coursez.Topic, err error) {
+			q := CassSession.Query(qryStr, nil)
+			defer q.Release()
+			iter := q.Iter()
+			return topics, iter.Select(&topics)
+		}
+		currentTopics, err = getTopics()
+		if err != nil {
+			return nil, err
+		}
 	}
 	storageC := bucket.NewStorageHandler()
 	gproject := googleprojectlib.GetGoogleProjectID()
@@ -76,7 +78,7 @@ func GetTopicsCourseByID(ctx context.Context, courseID *string) ([]*model.Topic,
 
 		topicsOut = append(topicsOut, currentModule)
 	}
-	redisBytes, err := json.Marshal(topicsOut)
+	redisBytes, err := json.Marshal(currentTopics)
 	if err == nil {
 		redis.SetTTL(key, 3600)
 		redis.SetRedisValue(key, string(redisBytes))
@@ -86,30 +88,33 @@ func GetTopicsCourseByID(ctx context.Context, courseID *string) ([]*model.Topic,
 
 func GetTopicByID(ctx context.Context, topicID *string) (*model.Topic, error) {
 	topics := make([]*model.Topic, 0)
+	currentTopics := make([]coursez.Topic, 0)
 	key := "GetTopicByID" + *topicID
 	result, err := redis.GetRedisValue(key)
 	if err == nil {
-		err = json.Unmarshal([]byte(result), &topics)
-		if err == nil {
-			return topics[0], nil
+		err = json.Unmarshal([]byte(result), &currentTopics)
+		if err != nil {
+			log.Errorf("Failed to unmarshal topics: %v", err.Error())
 		}
 	}
-	session, err := cassandra.GetCassSession("coursez")
-	if err != nil {
-		return nil, err
-	}
-	CassSession := session
+	if len(currentTopics) <= 0 {
+		session, err := cassandra.GetCassSession("coursez")
+		if err != nil {
+			return nil, err
+		}
+		CassSession := session
 
-	qryStr := fmt.Sprintf(`SELECT * from coursez.topic where id='%s' ALLOW FILTERING`, *topicID)
-	getTopics := func() (topics []coursez.Topic, err error) {
-		q := CassSession.Query(qryStr, nil)
-		defer q.Release()
-		iter := q.Iter()
-		return topics, iter.Select(&topics)
-	}
-	currentTopics, err := getTopics()
-	if err != nil {
-		return nil, err
+		qryStr := fmt.Sprintf(`SELECT * from coursez.topic where id='%s' ALLOW FILTERING`, *topicID)
+		getTopics := func() (topics []coursez.Topic, err error) {
+			q := CassSession.Query(qryStr, nil)
+			defer q.Release()
+			iter := q.Iter()
+			return topics, iter.Select(&topics)
+		}
+		currentTopics, err = getTopics()
+		if err != nil {
+			return nil, err
+		}
 	}
 	storageC := bucket.NewStorageHandler()
 	gproject := googleprojectlib.GetGoogleProjectID()
@@ -143,7 +148,7 @@ func GetTopicByID(ctx context.Context, topicID *string) (*model.Topic, error) {
 		}
 		topics = append(topics, currentTop)
 	}
-	redisBytes, err := json.Marshal(topics)
+	redisBytes, err := json.Marshal(currentTopics)
 	if err == nil {
 		redis.SetTTL(key, 3600)
 		redis.SetRedisValue(key, string(redisBytes))

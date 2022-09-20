@@ -26,30 +26,32 @@ func GetQuestionBankQuestions(ctx context.Context, questionBankID *string, filte
 	}
 	key := "GetQuestionBankQuestions" + *questionBankID + fmt.Sprintf("%v", filters)
 	result, err := redis.GetRedisValue(key)
+	banks := make([]qbankz.QuestionMain, 0)
 	if err == nil {
-		var tempMap []*model.QuestionBankQuestion
-		err = json.Unmarshal([]byte(result), &tempMap)
-		if err == nil {
-			return tempMap, nil
+		err = json.Unmarshal([]byte(result), &banks)
+		if err != nil {
+			log.Errorf("Failed to unmarshal redis value: %v", err.Error())
 		}
 	}
-	whereClause := getWhereClause(filters, *questionBankID)
-	session, err := cassandra.GetCassSession("qbankz")
-	if err != nil {
-		return nil, err
-	}
-	CassSession := session
+	if len(banks) <= 0 {
+		whereClause := getWhereClause(filters, *questionBankID)
+		session, err := cassandra.GetCassSession("qbankz")
+		if err != nil {
+			return nil, err
+		}
+		CassSession := session
 
-	qryStr := fmt.Sprintf(`SELECT * from qbankz.question_main where %s  ALLOW FILTERING`, whereClause)
-	getBanks := func() (banks []qbankz.QuestionMain, err error) {
-		q := CassSession.Query(qryStr, nil)
-		defer q.Release()
-		iter := q.Iter()
-		return banks, iter.Select(&banks)
-	}
-	banks, err := getBanks()
-	if err != nil {
-		return nil, err
+		qryStr := fmt.Sprintf(`SELECT * from qbankz.question_main where %s  ALLOW FILTERING`, whereClause)
+		getBanks := func() (banks []qbankz.QuestionMain, err error) {
+			q := CassSession.Query(qryStr, nil)
+			defer q.Release()
+			iter := q.Iter()
+			return banks, iter.Select(&banks)
+		}
+		banks, err = getBanks()
+		if err != nil {
+			return nil, err
+		}
 	}
 	filteredBanks := make([]qbankz.QuestionMain, 0)
 	excludedIds := []string{}
@@ -104,7 +106,7 @@ func GetQuestionBankQuestions(ctx context.Context, questionBankID *string, filte
 		}
 		allQuestions = append(allQuestions, currentQuestion)
 	}
-	redisBytes, err := json.Marshal(allQuestions)
+	redisBytes, err := json.Marshal(banks)
 	if err == nil {
 		redis.SetTTL(key, 3600)
 		redis.SetRedisValue(key, string(redisBytes))
@@ -130,24 +132,22 @@ func GetQuestionsByID(ctx context.Context, questionIds []*string) ([]*model.Ques
 	for _, id := range questionIds {
 		key := "GetQuestionsByID" + *id
 		result, err := redis.GetRedisValue(key)
+		banks := make([]qbankz.QuestionMain, 0)
 		if err == nil {
-			var tempMap *model.QuestionBankQuestion
-			err = json.Unmarshal([]byte(result), &tempMap)
-			if err == nil {
-				allQuestions = append(allQuestions, tempMap)
-				continue
+			json.Unmarshal([]byte(result), &banks)
+		}
+		if len(banks) <= 0 {
+			qryStr := fmt.Sprintf(`SELECT * from qbankz.question_main where id = '%s' ALLOW FILTERING`, *id)
+			getBanks := func() (banks []qbankz.QuestionMain, err error) {
+				q := CassSession.Query(qryStr, nil)
+				defer q.Release()
+				iter := q.Iter()
+				return banks, iter.Select(&banks)
 			}
-		}
-		qryStr := fmt.Sprintf(`SELECT * from qbankz.question_main where id = '%s' ALLOW FILTERING`, *id)
-		getBanks := func() (banks []qbankz.QuestionMain, err error) {
-			q := CassSession.Query(qryStr, nil)
-			defer q.Release()
-			iter := q.Iter()
-			return banks, iter.Select(&banks)
-		}
-		banks, err := getBanks()
-		if err != nil {
-			return nil, err
+			banks, err = getBanks()
+			if err != nil {
+				return nil, err
+			}
 		}
 		for _, bank := range banks {
 			copiedQuestion := bank
@@ -175,11 +175,11 @@ func GetQuestionsByID(ctx context.Context, questionIds []*string) ([]*model.Ques
 				UpdatedAt:      &updatedAt,
 			}
 			allQuestions = append(allQuestions, currentQuestion)
-			redisBytes, err := json.Marshal(currentQuestion)
-			if err == nil {
-				redis.SetTTL(key, 3600)
-				redis.SetRedisValue(key, string(redisBytes))
-			}
+		}
+		redisBytes, err := json.Marshal(banks)
+		if err == nil {
+			redis.SetTTL(key, 3600)
+			redis.SetRedisValue(key, string(redisBytes))
 		}
 	}
 	return allQuestions, nil

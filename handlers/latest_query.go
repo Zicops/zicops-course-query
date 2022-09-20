@@ -32,14 +32,12 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 	if err != nil {
 		log.Errorf("Error in getting redis value: %v", err)
 	}
+	dbCourses := make([]coursez.Course, 0)
 	if result != "" {
 		log.Infof("Redis value found for key: %v", key)
-		var paginatedCourse model.PaginatedCourse
-		err = json.Unmarshal([]byte(result), &paginatedCourse)
+		err = json.Unmarshal([]byte(result), &dbCourses)
 		if err != nil {
 			log.Errorf("Error in unmarshalling redis value: %v", err)
-		} else {
-			return &paginatedCourse, nil
 		}
 	}
 	if pageSize == nil {
@@ -54,26 +52,27 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 	} else {
 		statusNew = *status
 	}
-	session, err := cassandra.GetCassSession("coursez")
-	if err != nil {
-		return nil, err
-	}
-	CassSession := session
+	if len(dbCourses) <= 0 {
+		session, err := cassandra.GetCassSession("coursez")
+		if err != nil {
+			return nil, err
+		}
+		CassSession := session
 
-	qryStr := fmt.Sprintf(`SELECT * from coursez.course where status='%s' and updated_at <= %d  ALLOW FILTERING`, statusNew, *publishTime)
-	getCourses := func(page []byte) (courses []coursez.Course, nextPage []byte, err error) {
-		q := CassSession.Query(qryStr, nil)
-		defer q.Release()
-		q.PageState(page)
-		q.PageSize(pageSizeInt)
+		qryStr := fmt.Sprintf(`SELECT * from coursez.course where status='%s' and updated_at <= %d  ALLOW FILTERING`, statusNew, *publishTime)
+		getCourses := func(page []byte) (courses []coursez.Course, nextPage []byte, err error) {
+			q := CassSession.Query(qryStr, nil)
+			defer q.Release()
+			q.PageState(page)
+			q.PageSize(pageSizeInt)
 
-		iter := q.Iter()
-		return courses, iter.PageState(), iter.Select(&courses)
-	}
-	courses, newPage, err := getCourses(newPage)
-	log.Println(len(courses))
-	if err != nil {
-		return nil, err
+			iter := q.Iter()
+			return courses, iter.PageState(), iter.Select(&courses)
+		}
+		dbCourses, newPage, err = getCourses(newPage)
+		if err != nil {
+			return nil, err
+		}
 	}
 	if len(newPage) != 0 {
 		newCursor, err = global.CryptSession.EncryptAsString(newPage, nil)
@@ -92,7 +91,7 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 		return nil, err
 	}
 	allCourses := make([]*model.Course, 0)
-	for _, copiedCourse := range courses {
+	for _, copiedCourse := range dbCourses {
 		course := copiedCourse
 		createdAt := strconv.FormatInt(course.CreatedAt, 10)
 		updatedAt := strconv.FormatInt(course.UpdatedAt, 10)
@@ -205,7 +204,7 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 	outputResponse.PageCursor = &newCursor
 	outputResponse.PageSize = &pageSizeInt
 	outputResponse.Direction = direction
-	redisBytes, err := json.Marshal(outputResponse)
+	redisBytes, err := json.Marshal(dbCourses)
 	if err == nil {
 		redis.SetTTL(key, 3600)
 		redis.SetRedisValue(key, string(redisBytes))

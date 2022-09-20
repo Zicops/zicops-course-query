@@ -66,24 +66,26 @@ func GetCourseByID(ctx context.Context, courseID *string) (*model.Course, error)
 			log.Error("Error in unmarshalling redis value for key: ", key)
 		}
 	}
-	session, err := cassandra.GetCassSession("coursez")
-	if err != nil {
-		return nil, err
-	}
-	CassSession := session
+	if course.ID == "" {
+		session, err := cassandra.GetCassSession("coursez")
+		if err != nil {
+			return nil, err
+		}
+		CassSession := session
 
-	qryStr := fmt.Sprintf(`SELECT * from coursez.course where id='%s'`, *courseID)
-	getCourse := func() (courses []coursez.Course, err error) {
-		q := CassSession.Query(qryStr, nil)
-		defer q.Release()
-		iter := q.Iter()
-		return courses, iter.Select(&courses)
+		qryStr := fmt.Sprintf(`SELECT * from coursez.course where id='%s'`, *courseID)
+		getCourse := func() (courses []coursez.Course, err error) {
+			q := CassSession.Query(qryStr, nil)
+			defer q.Release()
+			iter := q.Iter()
+			return courses, iter.Select(&courses)
+		}
+		courses, err := getCourse()
+		if err != nil {
+			return nil, err
+		}
+		course = &courses[0]
 	}
-	courses, err := getCourse()
-	if err != nil {
-		return nil, err
-	}
-	course = &courses[0]
 	createdAt := strconv.FormatInt(course.CreatedAt, 10)
 	updatedAt := strconv.FormatInt(course.UpdatedAt, 10)
 	language := make([]*string, 0)
@@ -211,7 +213,7 @@ func GetCourseByID(ctx context.Context, courseID *string) (*model.Course, error)
 	if course.PreviewVideoBucket != "" {
 		currentCourse.PreviewVideo = &previewUrl
 	}
-	redisBytes, err := json.Marshal(currentCourse)
+	redisBytes, err := json.Marshal(course)
 	if err != nil {
 		log.Errorf("Failed to marshal course: %v", err.Error())
 	} else {

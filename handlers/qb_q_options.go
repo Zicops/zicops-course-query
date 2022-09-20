@@ -33,26 +33,27 @@ func GetOptionsForQuestions(ctx context.Context, questionIds []*string) ([]*mode
 	for _, questionId := range questionIds {
 		key := "GetOptionsForQuestions" + *questionId
 		result, err := redis.GetRedisValue(key)
+		banks := make([]qbankz.OptionsMain, 0)
 		if err == nil {
-			var tempMap model.MapQuestionWithOption
-			err = json.Unmarshal([]byte(result), &tempMap)
-			if err == nil {
-				responseMap = append(responseMap, &tempMap)
-				continue
+			err = json.Unmarshal([]byte(result), &banks)
+			if err != nil {
+				log.Errorf("Error in unmarshalling redis value: %v", err)
 			}
 		}
 		currentMap := &model.MapQuestionWithOption{}
 		currentMap.QuestionID = questionId
-		qryStr := fmt.Sprintf(`SELECT * from qbankz.options_main where qm_id='%s'  ALLOW FILTERING`, *questionId)
-		getBanks := func() (banks []qbankz.OptionsMain, err error) {
-			q := CassSession.Query(qryStr, nil)
-			defer q.Release()
-			iter := q.Iter()
-			return banks, iter.Select(&banks)
-		}
-		banks, err := getBanks()
-		if err != nil {
-			return nil, err
+		if len(banks) <= 0 {
+			qryStr := fmt.Sprintf(`SELECT * from qbankz.options_main where qm_id='%s'  ALLOW FILTERING`, *questionId)
+			getBanks := func() (banks []qbankz.OptionsMain, err error) {
+				q := CassSession.Query(qryStr, nil)
+				defer q.Release()
+				iter := q.Iter()
+				return banks, iter.Select(&banks)
+			}
+			banks, err = getBanks()
+			if err != nil {
+				return nil, err
+			}
 		}
 		allSections := make([]*model.QuestionOption, 0)
 		for _, bank := range banks {
@@ -79,7 +80,7 @@ func GetOptionsForQuestions(ctx context.Context, questionIds []*string) ([]*mode
 			allSections = append(allSections, currentQuestion)
 		}
 		currentMap.Options = allSections
-		redisBytes, err := json.Marshal(currentMap)
+		redisBytes, err := json.Marshal(banks)
 		if err == nil {
 			redis.SetTTL(key, 3600)
 			redis.SetRedisValue(key, string(redisBytes))

@@ -18,30 +18,33 @@ import (
 
 func GetTopicContent(ctx context.Context, topicID *string) ([]*model.TopicContent, error) {
 	topicsOut := make([]*model.TopicContent, 0)
+	currentContent := make([]coursez.TopicContent, 0)
 	key := "GetTopicContent" + *topicID
 	result, err := redis.GetRedisValue(key)
 	if err == nil {
-		err = json.Unmarshal([]byte(result), &topicsOut)
-		if err == nil {
-			return topicsOut, nil
+		err = json.Unmarshal([]byte(result), &currentContent)
+		if err != nil {
+			log.Errorf("Error in unmarshalling redis value for key %s", key)
 		}
 	}
-	session, err := cassandra.GetCassSession("coursez")
-	if err != nil {
-		return nil, err
-	}
-	CassSession := session
+	if len(currentContent) <= 0 {
+		session, err := cassandra.GetCassSession("coursez")
+		if err != nil {
+			return nil, err
+		}
+		CassSession := session
 
-	qryStr := fmt.Sprintf(`SELECT * from coursez.topic_content where topicid='%s' ALLOW FILTERING`, *topicID)
-	getTopicContent := func() (content []coursez.TopicContent, err error) {
-		q := CassSession.Query(qryStr, nil)
-		defer q.Release()
-		iter := q.Iter()
-		return content, iter.Select(&content)
-	}
-	currentContent, err := getTopicContent()
-	if err != nil {
-		return nil, err
+		qryStr := fmt.Sprintf(`SELECT * from coursez.topic_content where topicid='%s' ALLOW FILTERING`, *topicID)
+		getTopicContent := func() (content []coursez.TopicContent, err error) {
+			q := CassSession.Query(qryStr, nil)
+			defer q.Release()
+			iter := q.Iter()
+			return content, iter.Select(&content)
+		}
+		currentContent, err = getTopicContent()
+		if err != nil {
+			return nil, err
+		}
 	}
 	storageC := bucket.NewStorageHandler()
 	gproject := googleprojectlib.GetGoogleProjectID()
@@ -87,7 +90,7 @@ func GetTopicContent(ctx context.Context, topicID *string) ([]*model.TopicConten
 
 		topicsOut = append(topicsOut, currentModule)
 	}
-	redisBytes, err := json.Marshal(topicsOut)
+	redisBytes, err := json.Marshal(currentContent)
 	if err == nil {
 		redis.SetTTL(key, 3600)
 		redis.SetRedisValue(key, string(redisBytes))
@@ -148,31 +151,34 @@ func GetTopicExams(ctx context.Context, topicID *string) ([]*model.TopicExam, er
 
 func GetTopicContentByCourse(ctx context.Context, courseID *string) ([]*model.TopicContent, error) {
 	topicsOut := make([]*model.TopicContent, 0)
+	currentContent := make([]coursez.TopicContent, 0)
 	key := "GetTopicContentByCourse" + *courseID
 	result, err := redis.GetRedisValue(key)
 	if err == nil {
-		err = json.Unmarshal([]byte(result), &topicsOut)
-		if err == nil {
-			return topicsOut, nil
+		err = json.Unmarshal([]byte(result), &currentContent)
+		if err != nil {
+			log.Errorf("Error in unmarshalling redis value for key %s", key)
 		}
 	}
 
-	session, err := cassandra.GetCassSession("coursez")
-	if err != nil {
-		return nil, err
-	}
-	CassSession := session
+	if len(currentContent) <= 0 {
+		session, err := cassandra.GetCassSession("coursez")
+		if err != nil {
+			return nil, err
+		}
+		CassSession := session
 
-	qryStr := fmt.Sprintf(`SELECT * from coursez.topic_content where courseid='%s' ALLOW FILTERING`, *courseID)
-	getTopicContent := func() (content []coursez.TopicContent, err error) {
-		q := CassSession.Query(qryStr, nil)
-		defer q.Release()
-		iter := q.Iter()
-		return content, iter.Select(&content)
-	}
-	currentContent, err := getTopicContent()
-	if err != nil {
-		return nil, err
+		qryStr := fmt.Sprintf(`SELECT * from coursez.topic_content where courseid='%s' ALLOW FILTERING`, *courseID)
+		getTopicContent := func() (content []coursez.TopicContent, err error) {
+			q := CassSession.Query(qryStr, nil)
+			defer q.Release()
+			iter := q.Iter()
+			return content, iter.Select(&content)
+		}
+		currentContent, err = getTopicContent()
+		if err != nil {
+			return nil, err
+		}
 	}
 	storageC := bucket.NewStorageHandler()
 	gproject := googleprojectlib.GetGoogleProjectID()
@@ -219,7 +225,7 @@ func GetTopicContentByCourse(ctx context.Context, courseID *string) ([]*model.To
 
 		topicsOut = append(topicsOut, currentModule)
 	}
-	redisBytes, err := json.Marshal(topicsOut)
+	redisBytes, err := json.Marshal(currentContent)
 	if err == nil {
 		redis.SetTTL(key, 3600)
 		redis.SetRedisValue(key, string(redisBytes))

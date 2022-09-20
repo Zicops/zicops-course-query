@@ -91,38 +91,38 @@ func GetSubCategoriesForSub(ctx context.Context, cat *string) ([]*string, error)
 func AllCatMain(ctx context.Context) ([]*model.CatMain, error) {
 	log.Info("AllCatMain")
 	key := "AllCatMain"
-	resultOutput := make([]*model.CatMain, 0)
+	cats := make([]coursez.CatMain, 0)
 	result, err := redis.GetRedisValue(key)
 	if err != nil {
 		log.Errorf("Failed to get value from redis: %v", err.Error())
 	}
 	if result != "" {
 		log.Info("Got value from redis")
-		err = json.Unmarshal([]byte(result), &resultOutput)
+		err = json.Unmarshal([]byte(result), &cats)
 		if err != nil {
 			log.Errorf("Failed to unmarshal value from redis: %v", err.Error())
 		}
 	}
-	if len(resultOutput) > 0 {
-		return resultOutput, nil
-	}
-	session, err := cassandra.GetCassSession("coursez")
-	if err != nil {
-		return nil, err
-	}
-	CassSession := session
+	if len(cats) <= 0 {
+		session, err := cassandra.GetCassSession("coursez")
+		if err != nil {
+			return nil, err
+		}
+		CassSession := session
 
-	qryStr := `SELECT * from coursez.cat_main `
-	getCats := func() (banks []coursez.CatMain, err error) {
-		q := CassSession.Query(qryStr, nil)
-		defer q.Release()
-		iter := q.Iter()
-		return banks, iter.Select(&banks)
+		qryStr := `SELECT * from coursez.cat_main `
+		getCats := func() (banks []coursez.CatMain, err error) {
+			q := CassSession.Query(qryStr, nil)
+			defer q.Release()
+			iter := q.Iter()
+			return banks, iter.Select(&banks)
+		}
+		cats, err = getCats()
+		if err != nil {
+			return nil, err
+		}
 	}
-	cats, err := getCats()
-	if err != nil {
-		return nil, err
-	}
+	resultOutput := make([]*model.CatMain, 0)
 	for _, cat := range cats {
 		copiedCat := cat
 		createdAt := strconv.FormatInt(copiedCat.CreatedAt, 10)
@@ -153,7 +153,7 @@ func AllCatMain(ctx context.Context) ([]*model.CatMain, error) {
 		resultOutput = append(resultOutput, &currentCat)
 
 	}
-	redisValue, err := json.Marshal(resultOutput)
+	redisValue, err := json.Marshal(cats)
 	if err == nil {
 		redis.SetTTL(key, 3600)
 		err = redis.SetRedisValue(key, string(redisValue))
@@ -167,38 +167,38 @@ func AllCatMain(ctx context.Context) ([]*model.CatMain, error) {
 func AllSubCatMain(ctx context.Context) ([]*model.SubCatMain, error) {
 	log.Info("AllSubCatMain")
 	key := "AllSubCatMain"
-	resultOutput := make([]*model.SubCatMain, 0)
+	cats := make([]coursez.SubCatMain, 0)
 	result, err := redis.GetRedisValue(key)
 	if err != nil {
 		log.Errorf("Failed to get value from redis: %v", err.Error())
 	}
 	if result != "" {
 		log.Info("Got value from redis")
-		err = json.Unmarshal([]byte(result), &resultOutput)
+		err = json.Unmarshal([]byte(result), &cats)
 		if err != nil {
 			log.Errorf("Failed to unmarshal value from redis: %v", err.Error())
 		}
 	}
-	if len(resultOutput) > 0 {
-		return resultOutput, nil
-	}
-	session, err := cassandra.GetCassSession("coursez")
-	if err != nil {
-		return nil, err
-	}
-	CassSession := session
+	if len(cats) <= 0 {
+		session, err := cassandra.GetCassSession("coursez")
+		if err != nil {
+			return nil, err
+		}
+		CassSession := session
 
-	qryStr := `SELECT * from coursez.sub_cat_main `
-	getCats := func() (banks []coursez.SubCatMain, err error) {
-		q := CassSession.Query(qryStr, nil)
-		defer q.Release()
-		iter := q.Iter()
-		return banks, iter.Select(&banks)
+		qryStr := `SELECT * from coursez.sub_cat_main `
+		getCats := func() (banks []coursez.SubCatMain, err error) {
+			q := CassSession.Query(qryStr, nil)
+			defer q.Release()
+			iter := q.Iter()
+			return banks, iter.Select(&banks)
+		}
+		cats, err = getCats()
+		if err != nil {
+			return nil, err
+		}
 	}
-	cats, err := getCats()
-	if err != nil {
-		return nil, err
-	}
+	resultOutput := make([]*model.SubCatMain, 0)
 	for _, cat := range cats {
 		copiedCat := cat
 		createdAt := strconv.FormatInt(copiedCat.CreatedAt, 10)
@@ -230,7 +230,7 @@ func AllSubCatMain(ctx context.Context) ([]*model.SubCatMain, error) {
 		resultOutput = append(resultOutput, &currentCat)
 
 	}
-	redisValue, err := json.Marshal(resultOutput)
+	redisValue, err := json.Marshal(cats)
 	if err == nil {
 		redis.SetTTL(key, 3600)
 		err = redis.SetRedisValue(key, string(redisValue))
@@ -245,36 +245,36 @@ func AllSubCatByCatID(ctx context.Context, catID *string) ([]*model.SubCatMain, 
 	log.Info("AllSubCatByCatID")
 	key := "AllSubCatByCatID" + *catID
 	resultOutput := make([]*model.SubCatMain, 0)
+	cats := make([]coursez.SubCatMain, 0)
 	result, err := redis.GetRedisValue(key)
 	if err != nil {
 		log.Errorf("Failed to get value from redis: %v", err.Error())
 	}
 	if result != "" {
 		log.Info("Got value from redis")
-		err = json.Unmarshal([]byte(result), &resultOutput)
+		err = json.Unmarshal([]byte(result), &cats)
 		if err != nil {
 			log.Errorf("Failed to unmarshal value from redis: %v", err.Error())
 		}
 	}
-	if len(resultOutput) > 0 {
-		return resultOutput, nil
-	}
-	session, err := cassandra.GetCassSession("coursez")
-	if err != nil {
-		return nil, err
-	}
-	CassSession := session
+	if len(cats) <= 0 {
+		session, err := cassandra.GetCassSession("coursez")
+		if err != nil {
+			return nil, err
+		}
+		CassSession := session
 
-	qryStr := fmt.Sprintf(`SELECT * from coursez.sub_cat_main WHERE parent_id = '%s' ALLOW FILTERING`, *catID)
-	getCats := func() (banks []coursez.SubCatMain, err error) {
-		q := CassSession.Query(qryStr, nil)
-		defer q.Release()
-		iter := q.Iter()
-		return banks, iter.Select(&banks)
-	}
-	cats, err := getCats()
-	if err != nil {
-		return nil, err
+		qryStr := fmt.Sprintf(`SELECT * from coursez.sub_cat_main WHERE parent_id = '%s' ALLOW FILTERING`, *catID)
+		getCats := func() (banks []coursez.SubCatMain, err error) {
+			q := CassSession.Query(qryStr, nil)
+			defer q.Release()
+			iter := q.Iter()
+			return banks, iter.Select(&banks)
+		}
+		cats, err = getCats()
+		if err != nil {
+			return nil, err
+		}
 	}
 	for _, cat := range cats {
 		copiedCat := cat
@@ -307,7 +307,7 @@ func AllSubCatByCatID(ctx context.Context, catID *string) ([]*model.SubCatMain, 
 		resultOutput = append(resultOutput, &currentCat)
 
 	}
-	redisValue, err := json.Marshal(resultOutput)
+	redisValue, err := json.Marshal(cats)
 	if err == nil {
 		redis.SetTTL(key, 3600)
 		err = redis.SetRedisValue(key, string(redisValue))

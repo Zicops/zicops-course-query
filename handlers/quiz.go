@@ -17,30 +17,33 @@ import (
 
 func GetTopicQuizes(ctx context.Context, topicID *string) ([]*model.Quiz, error) {
 	topicQuizes := make([]*model.Quiz, 0)
+	currentQuizes := make([]coursez.Quiz, 0)
 	key := "GetTopicQuizes" + *topicID
 	result, err := redis.GetRedisValue(key)
 	if err == nil {
-		err = json.Unmarshal([]byte(result), &topicQuizes)
+		err = json.Unmarshal([]byte(result), &currentQuizes)
 		if err == nil {
-			return topicQuizes, nil
+			log.Errorf("GetTopicQuizes from redis")
 		}
 	}
-	session, err := cassandra.GetCassSession("coursez")
-	if err != nil {
-		return nil, err
-	}
-	CassSession := session
+	if len(currentQuizes) <= 0 {
+		session, err := cassandra.GetCassSession("coursez")
+		if err != nil {
+			return nil, err
+		}
+		CassSession := session
 
-	qryStr := fmt.Sprintf(`SELECT * from coursez.quiz where topicid='%s' ALLOW FILTERING`, *topicID)
-	getTopicQuiz := func() (quizes []coursez.Quiz, err error) {
-		q := CassSession.Query(qryStr, nil)
-		defer q.Release()
-		iter := q.Iter()
-		return quizes, iter.Select(&quizes)
-	}
-	currentQuizes, err := getTopicQuiz()
-	if err != nil {
-		return nil, err
+		qryStr := fmt.Sprintf(`SELECT * from coursez.quiz where topicid='%s' ALLOW FILTERING`, *topicID)
+		getTopicQuiz := func() (quizes []coursez.Quiz, err error) {
+			q := CassSession.Query(qryStr, nil)
+			defer q.Release()
+			iter := q.Iter()
+			return quizes, iter.Select(&quizes)
+		}
+		currentQuizes, err = getTopicQuiz()
+		if err != nil {
+			return nil, err
+		}
 	}
 	for _, topQuiz := range currentQuizes {
 		mod := topQuiz
@@ -65,7 +68,7 @@ func GetTopicQuizes(ctx context.Context, topicID *string) ([]*model.Quiz, error)
 
 		topicQuizes = append(topicQuizes, currentQ)
 	}
-	redisBytes, err := json.Marshal(topicQuizes)
+	redisBytes, err := json.Marshal(currentQuizes)
 	if err == nil {
 		redis.SetTTL(key, 3600)
 		redis.SetRedisValue(key, string(redisBytes))
@@ -75,31 +78,34 @@ func GetTopicQuizes(ctx context.Context, topicID *string) ([]*model.Quiz, error)
 
 func GetQuizFiles(ctx context.Context, quizID *string) ([]*model.QuizFile, error) {
 	quizFiles := make([]*model.QuizFile, 0)
+	currentFiles := make([]coursez.QuizFile, 0)
 	key := "GetQuizFiles" + *quizID
 	result, err := redis.GetRedisValue(key)
 	if err == nil {
-		err = json.Unmarshal([]byte(result), &quizFiles)
-		if err == nil {
-			return quizFiles, nil
+		err = json.Unmarshal([]byte(result), &currentFiles)
+		if err != nil {
+			log.Errorf("GetQuizFiles from redis")
 		}
 	}
 
-	session, err := cassandra.GetCassSession("coursez")
-	if err != nil {
-		return nil, err
-	}
-	CassSession := session
+	if len(currentFiles) <= 0 {
+		session, err := cassandra.GetCassSession("coursez")
+		if err != nil {
+			return nil, err
+		}
+		CassSession := session
 
-	qryStr := fmt.Sprintf(`SELECT * from coursez.quiz_file where quizid='%s' ALLOW FILTERING`, *quizID)
-	getQuizFiles := func() (files []coursez.QuizFile, err error) {
-		q := CassSession.Query(qryStr, nil)
-		defer q.Release()
-		iter := q.Iter()
-		return files, iter.Select(&files)
-	}
-	currentFiles, err := getQuizFiles()
-	if err != nil {
-		return nil, err
+		qryStr := fmt.Sprintf(`SELECT * from coursez.quiz_file where quizid='%s' ALLOW FILTERING`, *quizID)
+		getQuizFiles := func() (files []coursez.QuizFile, err error) {
+			q := CassSession.Query(qryStr, nil)
+			defer q.Release()
+			iter := q.Iter()
+			return files, iter.Select(&files)
+		}
+		currentFiles, err = getQuizFiles()
+		if err != nil {
+			return nil, err
+		}
 	}
 	storageC := bucket.NewStorageHandler()
 	gproject := googleprojectlib.GetGoogleProjectID()
@@ -123,7 +129,7 @@ func GetQuizFiles(ctx context.Context, quizID *string) ([]*model.QuizFile, error
 
 		quizFiles = append(quizFiles, currentFile)
 	}
-	redisBytes, err := json.Marshal(quizFiles)
+	redisBytes, err := json.Marshal(currentFiles)
 	if err == nil {
 		redis.SetTTL(key, 3600)
 		redis.SetRedisValue(key, string(redisBytes))
