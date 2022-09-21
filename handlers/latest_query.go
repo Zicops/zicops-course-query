@@ -12,6 +12,7 @@ import (
 	"github.com/zicops/zicops-cass-pool/redis"
 	"github.com/zicops/zicops-course-query/global"
 	"github.com/zicops/zicops-course-query/graph/model"
+	"github.com/zicops/zicops-course-query/helpers"
 	"github.com/zicops/zicops-course-query/lib/db/bucket"
 	"github.com/zicops/zicops-course-query/lib/googleprojectlib"
 )
@@ -28,6 +29,10 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 		newPage = page
 	}
 	key := "LatestCourses" + string(newPage)
+	_, err := helpers.GetClaimsFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
 	result, err := redis.GetRedisValue(key)
 	if err != nil {
 		log.Errorf("Error in getting redis value: %v", err)

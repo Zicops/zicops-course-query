@@ -12,6 +12,7 @@ import (
 	"github.com/zicops/zicops-cass-pool/redis"
 	"github.com/zicops/zicops-course-query/global"
 	"github.com/zicops/zicops-course-query/graph/model"
+	"github.com/zicops/zicops-course-query/helpers"
 	"github.com/zicops/zicops-course-query/lib/db/bucket"
 	"github.com/zicops/zicops-course-query/lib/googleprojectlib"
 )
@@ -25,6 +26,10 @@ func GetQuestionBankQuestions(ctx context.Context, questionBankID *string, filte
 		return nil, err
 	}
 	key := "GetQuestionBankQuestions" + *questionBankID + fmt.Sprintf("%v", filters)
+	_, err = helpers.GetClaimsFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
 	result, err := redis.GetRedisValue(key)
 	banks := make([]qbankz.QuestionMain, 0)
 	if err == nil {
@@ -127,7 +132,10 @@ func GetQuestionsByID(ctx context.Context, questionIds []*string) ([]*model.Ques
 		return nil, err
 	}
 	CassSession := session
-
+	_, err = helpers.GetClaimsFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
 	allQuestions := make([]*model.QuestionBankQuestion, 0)
 	for _, id := range questionIds {
 		key := "GetQuestionsByID" + *id

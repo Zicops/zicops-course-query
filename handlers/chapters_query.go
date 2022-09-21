@@ -11,10 +11,15 @@ import (
 	"github.com/zicops/zicops-cass-pool/cassandra"
 	"github.com/zicops/zicops-cass-pool/redis"
 	"github.com/zicops/zicops-course-query/graph/model"
+	"github.com/zicops/zicops-course-query/helpers"
 )
 
 func GetChaptersCourseByID(ctx context.Context, courseID *string) ([]*model.Chapter, error) {
 	chapters := make([]*model.Chapter, 0)
+	_, err := helpers.GetClaimsFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
 	key := "GetChaptersCourseByID" + *courseID
 	result, err := redis.GetRedisValue(key)
 	if err != nil {
@@ -78,6 +83,10 @@ func GetChaptersCourseByID(ctx context.Context, courseID *string) ([]*model.Chap
 func GetChapterByID(ctx context.Context, chapterID *string) (*model.Chapter, error) {
 	chapters := make([]*model.Chapter, 0)
 	key := "GetChapterByID" + *chapterID
+	_, err := helpers.GetClaimsFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
 	result, err := redis.GetRedisValue(key)
 	if err != nil {
 		log.Errorf("GetChapterByID: %v", err)

@@ -11,6 +11,7 @@ import (
 	"github.com/zicops/zicops-cass-pool/cassandra"
 	"github.com/zicops/zicops-cass-pool/redis"
 	"github.com/zicops/zicops-course-query/graph/model"
+	"github.com/zicops/zicops-course-query/helpers"
 	"github.com/zicops/zicops-course-query/lib/db/bucket"
 	"github.com/zicops/zicops-course-query/lib/googleprojectlib"
 )
@@ -91,6 +92,10 @@ func GetSubCategoriesForSub(ctx context.Context, cat *string) ([]*string, error)
 func AllCatMain(ctx context.Context) ([]*model.CatMain, error) {
 	log.Info("AllCatMain")
 	key := "AllCatMain"
+	_, err := helpers.GetClaimsFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
 	cats := make([]coursez.CatMain, 0)
 	result, err := redis.GetRedisValue(key)
 	if err != nil {
@@ -167,6 +172,10 @@ func AllCatMain(ctx context.Context) ([]*model.CatMain, error) {
 func AllSubCatMain(ctx context.Context) ([]*model.SubCatMain, error) {
 	log.Info("AllSubCatMain")
 	key := "AllSubCatMain"
+	_, err := helpers.GetClaimsFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
 	cats := make([]coursez.SubCatMain, 0)
 	result, err := redis.GetRedisValue(key)
 	if err != nil {
@@ -244,6 +253,10 @@ func AllSubCatMain(ctx context.Context) ([]*model.SubCatMain, error) {
 func AllSubCatByCatID(ctx context.Context, catID *string) ([]*model.SubCatMain, error) {
 	log.Info("AllSubCatByCatID")
 	key := "AllSubCatByCatID" + *catID
+	_, err := helpers.GetClaimsFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
 	resultOutput := make([]*model.SubCatMain, 0)
 	cats := make([]coursez.SubCatMain, 0)
 	result, err := redis.GetRedisValue(key)

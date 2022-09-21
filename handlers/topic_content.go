@@ -12,6 +12,7 @@ import (
 	"github.com/zicops/zicops-cass-pool/cassandra"
 	"github.com/zicops/zicops-cass-pool/redis"
 	"github.com/zicops/zicops-course-query/graph/model"
+	"github.com/zicops/zicops-course-query/helpers"
 	"github.com/zicops/zicops-course-query/lib/db/bucket"
 	"github.com/zicops/zicops-course-query/lib/googleprojectlib"
 )
@@ -20,6 +21,10 @@ func GetTopicContent(ctx context.Context, topicID *string) ([]*model.TopicConten
 	topicsOut := make([]*model.TopicContent, 0)
 	currentContent := make([]coursez.TopicContent, 0)
 	key := "GetTopicContent" + *topicID
+	_, err := helpers.GetClaimsFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
 	result, err := redis.GetRedisValue(key)
 	if err == nil {
 		err = json.Unmarshal([]byte(result), &currentContent)
@@ -101,6 +106,10 @@ func GetTopicContent(ctx context.Context, topicID *string) ([]*model.TopicConten
 func GetTopicExams(ctx context.Context, topicID *string) ([]*model.TopicExam, error) {
 	topicsOut := make([]*model.TopicExam, 0)
 	key := "GetTopicExams" + *topicID
+	_, err := helpers.GetClaimsFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
 	result, err := redis.GetRedisValue(key)
 	if err == nil {
 		err = json.Unmarshal([]byte(result), &topicsOut)
@@ -153,6 +162,10 @@ func GetTopicContentByCourse(ctx context.Context, courseID *string) ([]*model.To
 	topicsOut := make([]*model.TopicContent, 0)
 	currentContent := make([]coursez.TopicContent, 0)
 	key := "GetTopicContentByCourse" + *courseID
+	_, err := helpers.GetClaimsFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
 	result, err := redis.GetRedisValue(key)
 	if err == nil {
 		err = json.Unmarshal([]byte(result), &currentContent)
@@ -236,6 +249,10 @@ func GetTopicContentByCourse(ctx context.Context, courseID *string) ([]*model.To
 func GetTopicExamsByCourse(ctx context.Context, courseID *string) ([]*model.TopicExam, error) {
 	topicsOut := make([]*model.TopicExam, 0)
 	key := "GetTopicExamsByCourse" + *courseID
+	_, err := helpers.GetClaimsFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
 	result, err := redis.GetRedisValue(key)
 	if err == nil {
 		err = json.Unmarshal([]byte(result), &topicsOut)

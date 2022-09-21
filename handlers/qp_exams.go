@@ -10,10 +10,15 @@ import (
 	"github.com/zicops/zicops-cass-pool/cassandra"
 	"github.com/zicops/zicops-cass-pool/redis"
 	"github.com/zicops/zicops-course-query/graph/model"
+	"github.com/zicops/zicops-course-query/helpers"
 )
 
 func GetExamsByQPId(ctx context.Context, questionPaperID *string) ([]*model.Exam, error) {
 	key := "GetExamsByQPId" + *questionPaperID
+	_, err := helpers.GetClaimsFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
 	result, err := redis.GetRedisValue(key)
 	if err == nil {
 		output := make([]*model.Exam, 0)
@@ -74,6 +79,10 @@ func GetExamsByQPId(ctx context.Context, questionPaperID *string) ([]*model.Exam
 
 func GetExamSchedule(ctx context.Context, examID *string) ([]*model.ExamSchedule, error) {
 	key := "GetExamSchedule" + *examID
+	_, err := helpers.GetClaimsFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
 	result, err := redis.GetRedisValue(key)
 	if err == nil {
 		output := make([]*model.ExamSchedule, 0)
@@ -132,6 +141,10 @@ func GetExamSchedule(ctx context.Context, examID *string) ([]*model.ExamSchedule
 
 func GetExamInstruction(ctx context.Context, examID *string) ([]*model.ExamInstruction, error) {
 	key := "GetExamInstruction" + *examID
+	_, err := helpers.GetClaimsFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
 	result, err := redis.GetRedisValue(key)
 	if err == nil {
 		output := make([]*model.ExamInstruction, 0)
@@ -188,6 +201,10 @@ func GetExamInstruction(ctx context.Context, examID *string) ([]*model.ExamInstr
 
 func GetExamCohort(ctx context.Context, examID *string) ([]*model.ExamCohort, error) {
 	key := "GetExamCohort" + *examID
+	_, err := helpers.GetClaimsFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
 	result, err := redis.GetRedisValue(key)
 	if err == nil {
 		output := make([]*model.ExamCohort, 0)
@@ -241,6 +258,10 @@ func GetExamCohort(ctx context.Context, examID *string) ([]*model.ExamCohort, er
 
 func GetExamConfiguration(ctx context.Context, examID *string) ([]*model.ExamConfiguration, error) {
 	key := "GetExamConfiguration" + *examID
+	_, err := helpers.GetClaimsFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
 	result, err := redis.GetRedisValue(key)
 	if err == nil {
 		output := make([]*model.ExamConfiguration, 0)
@@ -296,6 +317,10 @@ func GetExamConfiguration(ctx context.Context, examID *string) ([]*model.ExamCon
 
 func GetQPMeta(ctx context.Context, questionPapersIds []*string) ([]*model.QuestionPaper, error) {
 	responseMap := make([]*model.QuestionPaper, 0)
+	_, err := helpers.GetClaimsFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
 	session, err := cassandra.GetCassSession("qbankz")
 	if err != nil {
 		return nil, err

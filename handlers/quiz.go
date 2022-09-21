@@ -11,6 +11,7 @@ import (
 	"github.com/zicops/zicops-cass-pool/cassandra"
 	"github.com/zicops/zicops-cass-pool/redis"
 	"github.com/zicops/zicops-course-query/graph/model"
+	"github.com/zicops/zicops-course-query/helpers"
 	"github.com/zicops/zicops-course-query/lib/db/bucket"
 	"github.com/zicops/zicops-course-query/lib/googleprojectlib"
 )
@@ -19,6 +20,10 @@ func GetTopicQuizes(ctx context.Context, topicID *string) ([]*model.Quiz, error)
 	topicQuizes := make([]*model.Quiz, 0)
 	currentQuizes := make([]coursez.Quiz, 0)
 	key := "GetTopicQuizes" + *topicID
+	_, err := helpers.GetClaimsFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
 	result, err := redis.GetRedisValue(key)
 	if err == nil {
 		err = json.Unmarshal([]byte(result), &currentQuizes)
@@ -80,6 +85,10 @@ func GetQuizFiles(ctx context.Context, quizID *string) ([]*model.QuizFile, error
 	quizFiles := make([]*model.QuizFile, 0)
 	currentFiles := make([]coursez.QuizFile, 0)
 	key := "GetQuizFiles" + *quizID
+	_, err := helpers.GetClaimsFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
 	result, err := redis.GetRedisValue(key)
 	if err == nil {
 		err = json.Unmarshal([]byte(result), &currentFiles)
@@ -140,6 +149,10 @@ func GetQuizFiles(ctx context.Context, quizID *string) ([]*model.QuizFile, error
 func GetMCQQuiz(ctx context.Context, quizID *string) ([]*model.QuizMcq, error) {
 	quizMcqs := make([]*model.QuizMcq, 0)
 	key := "GetMCQQuiz" + *quizID
+	_, err := helpers.GetClaimsFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
 	result, err := redis.GetRedisValue(key)
 	if err == nil {
 		err = json.Unmarshal([]byte(result), &quizMcqs)
@@ -192,6 +205,10 @@ func GetMCQQuiz(ctx context.Context, quizID *string) ([]*model.QuizMcq, error) {
 func GetQuizDes(ctx context.Context, quizID *string) ([]*model.QuizDescriptive, error) {
 	quizDes := make([]*model.QuizDescriptive, 0)
 	key := "GetQuizDes" + *quizID
+	_, err := helpers.GetClaimsFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
 	result, err := redis.GetRedisValue(key)
 	if err == nil {
 		err = json.Unmarshal([]byte(result), &quizDes)

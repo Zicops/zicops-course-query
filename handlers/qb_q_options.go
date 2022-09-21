@@ -11,6 +11,7 @@ import (
 	"github.com/zicops/zicops-cass-pool/cassandra"
 	"github.com/zicops/zicops-cass-pool/redis"
 	"github.com/zicops/zicops-course-query/graph/model"
+	"github.com/zicops/zicops-course-query/helpers"
 	"github.com/zicops/zicops-course-query/lib/db/bucket"
 	"github.com/zicops/zicops-course-query/lib/googleprojectlib"
 )
@@ -21,6 +22,10 @@ func GetOptionsForQuestions(ctx context.Context, questionIds []*string) ([]*mode
 	err := storageC.InitializeStorageClient(ctx, gproject)
 	if err != nil {
 		log.Errorf("Failed to get options: %v", err.Error())
+		return nil, err
+	}
+	_, err = helpers.GetClaimsFromContext(ctx)
+	if err != nil {
 		return nil, err
 	}
 	session, err := cassandra.GetCassSession("qbankz")

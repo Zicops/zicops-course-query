@@ -11,6 +11,7 @@ import (
 	"github.com/zicops/zicops-cass-pool/cassandra"
 	"github.com/zicops/zicops-cass-pool/redis"
 	"github.com/zicops/zicops-course-query/graph/model"
+	"github.com/zicops/zicops-course-query/helpers"
 	"github.com/zicops/zicops-course-query/lib/db/bucket"
 	"github.com/zicops/zicops-course-query/lib/googleprojectlib"
 )
@@ -19,6 +20,10 @@ func GetTopicsCourseByID(ctx context.Context, courseID *string) ([]*model.Topic,
 	topicsOut := make([]*model.Topic, 0)
 	currentTopics := make([]coursez.Topic, 0)
 	key := "GetTopicsCourseByID" + *courseID
+	_, err := helpers.GetClaimsFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
 	result, err := redis.GetRedisValue(key)
 	if err == nil {
 		err = json.Unmarshal([]byte(result), &currentTopics)
@@ -90,6 +95,10 @@ func GetTopicByID(ctx context.Context, topicID *string) (*model.Topic, error) {
 	topics := make([]*model.Topic, 0)
 	currentTopics := make([]coursez.Topic, 0)
 	key := "GetTopicByID" + *topicID
+	_, err := helpers.GetClaimsFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
 	result, err := redis.GetRedisValue(key)
 	if err == nil {
 		err = json.Unmarshal([]byte(result), &currentTopics)

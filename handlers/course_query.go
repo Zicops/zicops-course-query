@@ -11,6 +11,7 @@ import (
 	"github.com/zicops/zicops-cass-pool/cassandra"
 	"github.com/zicops/zicops-cass-pool/redis"
 	"github.com/zicops/zicops-course-query/graph/model"
+	"github.com/zicops/zicops-course-query/helpers"
 	"github.com/zicops/zicops-course-query/lib/db/bucket"
 	"github.com/zicops/zicops-course-query/lib/googleprojectlib"
 )
@@ -56,6 +57,10 @@ func GetCourseByID(ctx context.Context, courseID *string) (*model.Course, error)
 		SubCategories:      []coursez.SubCat{},
 	}
 	key := "GetCourseByID" + *courseID
+	_, err := helpers.GetClaimsFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
 	result, err := redis.GetRedisValue(key)
 	if err != nil {
 		log.Error("Error in getting redis value for key: ", key)

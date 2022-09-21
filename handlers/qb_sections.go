@@ -10,6 +10,7 @@ import (
 	"github.com/zicops/zicops-cass-pool/cassandra"
 	"github.com/zicops/zicops-cass-pool/redis"
 	"github.com/zicops/zicops-course-query/graph/model"
+	"github.com/zicops/zicops-course-query/helpers"
 )
 
 func GetQuestionBankSections(ctx context.Context, questionPaperID *string) ([]*model.QuestionPaperSection, error) {
@@ -22,7 +23,10 @@ func GetQuestionBankSections(ctx context.Context, questionPaperID *string) ([]*m
 			return allSections, nil
 		}
 	}
-
+	_, err = helpers.GetClaimsFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
 	qryStr := fmt.Sprintf(`SELECT * from qbankz.section_main where qp_id = '%s'  ALLOW FILTERING`, *questionPaperID)
 	session, err := cassandra.GetCassSession("qbankz")
 	if err != nil {
@@ -70,6 +74,10 @@ func GetQuestionBankSections(ctx context.Context, questionPaperID *string) ([]*m
 
 func GetQPBankMappingByQPId(ctx context.Context, questionPaperID *string) ([]*model.SectionQBMapping, error) {
 	key := "GetQPBankMappingByQPId" + *questionPaperID
+	_, err := helpers.GetClaimsFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
 	result, err := redis.GetRedisValue(key)
 	if err == nil {
 		allSectionsMap := make([]*model.SectionQBMapping, 0)
@@ -127,6 +135,10 @@ func GetQPBankMappingByQPId(ctx context.Context, questionPaperID *string) ([]*mo
 
 func GetQPBankMappingBySectionID(ctx context.Context, sectionID *string) ([]*model.SectionQBMapping, error) {
 	key := "GetQPBankMappingBySectionID" + *sectionID
+	_, err := helpers.GetClaimsFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
 	result, err := redis.GetRedisValue(key)
 	if err == nil {
 		allSectionsMap := make([]*model.SectionQBMapping, 0)
@@ -185,6 +197,10 @@ func GetQPBankMappingBySectionID(ctx context.Context, sectionID *string) ([]*mod
 
 func GetSectionFixedQuestions(ctx context.Context, sectionID *string) ([]*model.SectionFixedQuestions, error) {
 	key := "GetSectionFixedQuestions" + *sectionID
+	_, err := helpers.GetClaimsFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
 	result, err := redis.GetRedisValue(key)
 	if err == nil {
 		allSectionsMap := make([]*model.SectionFixedQuestions, 0)

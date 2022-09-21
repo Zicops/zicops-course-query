@@ -10,11 +10,16 @@ import (
 	"github.com/zicops/zicops-cass-pool/cassandra"
 	"github.com/zicops/zicops-cass-pool/redis"
 	"github.com/zicops/zicops-course-query/graph/model"
+	"github.com/zicops/zicops-course-query/helpers"
 )
 
 func GetModulesCourseByID(ctx context.Context, courseID *string) ([]*model.Module, error) {
 	modules := make([]*model.Module, 0)
 	key := "GetModulesCourseByID" + *courseID
+	_, err := helpers.GetClaimsFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
 	result, err := redis.GetRedisValue(key)
 	if err == nil {
 		err = json.Unmarshal([]byte(result), &modules)
@@ -71,6 +76,10 @@ func GetModulesCourseByID(ctx context.Context, courseID *string) ([]*model.Modul
 func GetModuleByID(ctx context.Context, moduleID *string) (*model.Module, error) {
 	modules := make([]*model.Module, 0)
 	key := "GetModuleByID" + *moduleID
+	_, err := helpers.GetClaimsFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
 	result, err := redis.GetRedisValue(key)
 	if err == nil {
 		err = json.Unmarshal([]byte(result), &modules)
