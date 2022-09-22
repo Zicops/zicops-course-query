@@ -22,9 +22,11 @@ func ReadCredentialsFile(ctx context.Context, filename string, scopes []string) 
 }
 
 func GetClaimsFromContext(ctx context.Context) (map[string]interface{}, error) {
-	customClaims := ctx.Value("zclaims").(map[string]interface{})
-	if customClaims == nil {
-		return make(map[string]interface{}), fmt.Errorf("custom claims not found. Unauthorized user")
+	customClaimsVal := ctx.Value("zclaims")
+	// customClaims is of type map[string]interface{}
+	customClaims, ok := customClaimsVal.(map[string]interface{})
+	if !ok {
+		return nil, fmt.Errorf("error getting claims from context")
 	}
 	return customClaims, nil
 }
