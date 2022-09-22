@@ -2,9 +2,9 @@ name: ZICOPS CQ-CICD
 
 on:
   push:
-    branches: [ master ]
+    branches: [ dev ]
   pull_request:
-    branches: [ master ]
+    branches: [ dev ]
 env:
   PROJECT_ID: ${{ secrets.GKE_PROJECT }}
   GKE_CLUSTER: zicops-one    # TODO: update to cluster name
