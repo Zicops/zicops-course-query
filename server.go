@@ -11,8 +11,8 @@ import (
 	"os"
 
 	log "github.com/sirupsen/logrus"
-	"github.com/zicops/zicops-cass-pool/cassandra"
-	"github.com/zicops/zicops-cass-pool/redis"
+	//"github.com/zicops/zicops-cass-pool/cassandra"
+	//"github.com/zicops/zicops-cass-pool/redis"
 	"github.com/zicops/zicops-course-query/controller"
 	"github.com/zicops/zicops-course-query/global"
 	cry "github.com/zicops/zicops-course-query/lib/crypto"
@@ -37,19 +37,19 @@ func main() {
 		port = 8091
 	}
 	// test cassandra connection
-	_, err1 := cassandra.GetCassSession("coursez")
-	_, err2 := cassandra.GetCassSession("qbankz")
-	if err1 != nil && err2 != nil {
-		log.Fatalf("Error connecting to cassandra: %v and %v ", err1, err2)
-	} else {
-		log.Infof("Cassandra connection successful")
-	}
-	_, err = redis.Initialize()
-	if err != nil {
-		log.Fatalf("Error connecting to redis: %v", err)
-	} else {
-		log.Infof("Redis connection successful")
-	}
+	//_, err1 := cassandra.GetCassSession("coursez")
+	//_, err2 := cassandra.GetCassSession("qbankz")
+	//if err1 != nil && err2 != nil {
+	//	log.Fatalf("Error connecting to cassandra: %v and %v ", err1, err2)
+	//} else {
+	//	log.Infof("Cassandra connection successful")
+	//}
+	//_, err = redis.Initialize()
+	//if err != nil {
+	//	log.Fatalf("Error connecting to redis: %v", err)
+	//} else {
+	//	log.Infof("Redis connection successful")
+	//}
 	bootUPErrors := make(chan error, 1)
 	go monitorSystem(cancel, bootUPErrors)
 	controller.CCBackendController(ctx, port, bootUPErrors)
