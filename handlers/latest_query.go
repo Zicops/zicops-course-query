@@ -187,6 +187,7 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 			ID:                 &course.ID,
 			Name:               &course.Name,
 			LspID:              &course.LspID,
+			Publisher:          &course.Publisher,
 			Description:        &course.Description,
 			Summary:            &course.Summary,
 			Instructor:         &course.Instructor,
