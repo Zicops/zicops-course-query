@@ -17,6 +17,7 @@ type sub_categories {
 type Course{
     id: ID
     name: String
+    lspId: String
     description: String
     summary: String
     instructor: String

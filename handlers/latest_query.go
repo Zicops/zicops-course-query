@@ -164,6 +164,7 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 		currentCourse := model.Course{
 			ID:                 &course.ID,
 			Name:               &course.Name,
+			LspID:              &course.LspID,
 			Description:        &course.Description,
 			Summary:            &course.Summary,
 			Instructor:         &course.Instructor,

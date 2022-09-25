@@ -55,6 +55,7 @@ func GetCourseByID(ctx context.Context, courseID *string) (*model.Course, error)
 		Category:           "",
 		SubCategory:        "",
 		SubCategories:      []coursez.SubCat{},
+		LspID:              "",
 	}
 	key := "GetCourseByID" + *courseID
 	_, err := helpers.GetClaimsFromContext(ctx)
@@ -179,6 +180,7 @@ func GetCourseByID(ctx context.Context, courseID *string) (*model.Course, error)
 	currentCourse := model.Course{
 		ID:                 &course.ID,
 		Name:               &course.Name,
+		LspID:              &course.LspID,
 		Description:        &course.Description,
 		Summary:            &course.Summary,
 		Instructor:         &course.Instructor,
