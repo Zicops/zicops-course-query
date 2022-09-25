@@ -11,6 +11,8 @@ import (
 	"os"
 
 	log "github.com/sirupsen/logrus"
+	//"github.com/zicops/zicops-cass-pool/cassandra"
+	//"github.com/zicops/zicops-cass-pool/redis"
 	"github.com/zicops/zicops-cass-pool/cassandra"
 	"github.com/zicops/zicops-cass-pool/redis"
 	"github.com/zicops/zicops-course-query/controller"
@@ -36,7 +38,7 @@ func main() {
 	if err != nil {
 		port = 8091
 	}
-	// test cassandra connection
+	//test cassandra connection
 	_, err1 := cassandra.GetCassSession("coursez")
 	_, err2 := cassandra.GetCassSession("qbankz")
 	if err1 != nil && err2 != nil {
