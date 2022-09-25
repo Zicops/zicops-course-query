@@ -66,8 +66,8 @@ func (r *queryResolver) AllSubCatsByCat(ctx context.Context, category *string) (
 	return resp, nil
 }
 
-func (r *queryResolver) LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, direction *string, pageSize *int, status *model.Status) (*model.PaginatedCourse, error) {
-	resp, err := handlers.LatestCourses(ctx, publishTime, pageCursor, direction, pageSize, status)
+func (r *queryResolver) LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, direction *string, pageSize *int, status *model.Status, filters *model.CoursesFilters) (*model.PaginatedCourse, error) {
+	resp, err := handlers.LatestCourses(ctx, publishTime, pageCursor, direction, pageSize, status, filters)
 	if err != nil {
 		log.Errorf("error getting latest courses: %v", err)
 		return nil, err

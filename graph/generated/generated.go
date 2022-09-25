@@ -83,6 +83,7 @@ type ComplexityRoot struct {
 		IsActive           func(childComplexity int) int
 		IsDisplay          func(childComplexity int) int
 		Language           func(childComplexity int) int
+		LspID              func(childComplexity int) int
 		MustFor            func(childComplexity int) int
 		Name               func(childComplexity int) int
 		Outcomes           func(childComplexity int) int
@@ -282,7 +283,7 @@ type ComplexityRoot struct {
 		GetTopicQuizes              func(childComplexity int, topicID *string) int
 		GetTopicResources           func(childComplexity int, topicID *string) int
 		GetTopics                   func(childComplexity int, courseID *string) int
-		LatestCourses               func(childComplexity int, publishTime *int, pageCursor *string, direction *string, pageSize *int, status *model.Status) int
+		LatestCourses               func(childComplexity int, publishTime *int, pageCursor *string, direction *string, pageSize *int, status *model.Status, filters *model.CoursesFilters) int
 	}
 
 	QuestionBank struct {
@@ -518,7 +519,7 @@ type QueryResolver interface {
 	AllCategories(ctx context.Context) ([]*string, error)
 	AllSubCategories(ctx context.Context) ([]*string, error)
 	AllSubCatsByCat(ctx context.Context, category *string) ([]*string, error)
-	LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, direction *string, pageSize *int, status *model.Status) (*model.PaginatedCourse, error)
+	LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, direction *string, pageSize *int, status *model.Status, filters *model.CoursesFilters) (*model.PaginatedCourse, error)
 	GetCourse(ctx context.Context, courseID *string) (*model.Course, error)
 	GetCourseModules(ctx context.Context, courseID *string) ([]*model.Module, error)
 	GetModuleByID(ctx context.Context, moduleID *string) (*model.Module, error)
@@ -816,6 +817,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Course.Language(childComplexity), true
+
+	case "Course.lspId":
+		if e.complexity.Course.LspID == nil {
+			break
+		}
+
+		return e.complexity.Course.LspID(childComplexity), true
 
 	case "Course.mustFor":
 		if e.complexity.Course.MustFor == nil {
@@ -2137,7 +2145,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.LatestCourses(childComplexity, args["publish_time"].(*int), args["pageCursor"].(*string), args["Direction"].(*string), args["pageSize"].(*int), args["status"].(*model.Status)), true
+		return e.complexity.Query.LatestCourses(childComplexity, args["publish_time"].(*int), args["pageCursor"].(*string), args["Direction"].(*string), args["pageSize"].(*int), args["status"].(*model.Status), args["filters"].(*model.CoursesFilters)), true
 
 	case "QuestionBank.category":
 		if e.complexity.QuestionBank.Category == nil {
@@ -3405,6 +3413,7 @@ type sub_categories {
 type Course{
     id: ID
     name: String
+    lspId: String
     description: String
     summary: String
     instructor: String
@@ -3826,6 +3835,14 @@ type SubCatMain {
     IsActive : Boolean
 }
 
+input CoursesFilters {
+    LspId: String
+    Category: String
+    SubCategory: String
+    Language: String
+    Duration: Int
+}
+
 type Query{
   allCatMain: [CatMain]
   allSubCatMain: [SubCatMain]
@@ -3833,7 +3850,7 @@ type Query{
   allCategories: [String]
   allSubCategories: [String]
   allSubCatsByCat(category: String): [String]
-  latestCourses(publish_time: Int, pageCursor: String, Direction: String, pageSize:Int, status:Status): PaginatedCourse
+  latestCourses(publish_time: Int, pageCursor: String, Direction: String, pageSize:Int, status:Status, filters:CoursesFilters): PaginatedCourse
   getCourse(course_id: String): Course
   getCourseModules(course_id: String): [Module]
   getModuleById(module_id: String): Module
@@ -4602,6 +4619,15 @@ func (ec *executionContext) field_Query_latestCourses_args(ctx context.Context, 
 		}
 	}
 	args["status"] = arg4
+	var arg5 *model.CoursesFilters
+	if tmp, ok := rawArgs["filters"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filters"))
+		arg5, err = ec.unmarshalOCoursesFilters2ᚖgithubᚗcomᚋzicopsᚋzicopsᚑcourseᚑqueryᚋgraphᚋmodelᚐCoursesFilters(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["filters"] = arg5
 	return args, nil
 }
 
@@ -5270,6 +5296,38 @@ func (ec *executionContext) _Course_name(ctx context.Context, field graphql.Coll
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Course_lspId(ctx context.Context, field graphql.CollectedField, obj *model.Course) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Course",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.LspID, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -9770,7 +9828,7 @@ func (ec *executionContext) _Query_latestCourses(ctx context.Context, field grap
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().LatestCourses(rctx, args["publish_time"].(*int), args["pageCursor"].(*string), args["Direction"].(*string), args["pageSize"].(*int), args["status"].(*model.Status))
+		return ec.resolvers.Query().LatestCourses(rctx, args["publish_time"].(*int), args["pageCursor"].(*string), args["Direction"].(*string), args["pageSize"].(*int), args["status"].(*model.Status), args["filters"].(*model.CoursesFilters))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -17917,6 +17975,61 @@ func (ec *executionContext) _sub_categories_rank(ctx context.Context, field grap
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputCoursesFilters(ctx context.Context, obj interface{}) (model.CoursesFilters, error) {
+	var it model.CoursesFilters
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	for k, v := range asMap {
+		switch k {
+		case "LspId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("LspId"))
+			it.LspID, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "Category":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Category"))
+			it.Category, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "SubCategory":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("SubCategory"))
+			it.SubCategory, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "Language":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Language"))
+			it.Language, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "Duration":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Duration"))
+			it.Duration, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputQBFilters(ctx context.Context, obj interface{}) (model.QBFilters, error) {
 	var it model.QBFilters
 	asMap := map[string]interface{}{}
@@ -18160,6 +18273,13 @@ func (ec *executionContext) _Course(ctx context.Context, sel ast.SelectionSet, o
 		case "name":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Course_name(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+		case "lspId":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Course_lspId(ctx, field, obj)
 			}
 
 			out.Values[i] = innerFunc(ctx)
@@ -22759,6 +22879,14 @@ func (ec *executionContext) marshalOCourseCohort2ᚖgithubᚗcomᚋzicopsᚋzico
 		return graphql.Null
 	}
 	return ec._CourseCohort(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOCoursesFilters2ᚖgithubᚗcomᚋzicopsᚋzicopsᚑcourseᚑqueryᚋgraphᚋmodelᚐCoursesFilters(ctx context.Context, v interface{}) (*model.CoursesFilters, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputCoursesFilters(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalOExam2ᚕᚖgithubᚗcomᚋzicopsᚋzicopsᚑcourseᚑqueryᚋgraphᚋmodelᚐExam(ctx context.Context, sel ast.SelectionSet, v []*model.Exam) graphql.Marshaler {

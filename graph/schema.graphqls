@@ -17,6 +17,7 @@ type sub_categories {
 type Course{
     id: ID
     name: String
+    lspId: String
     description: String
     summary: String
     instructor: String
@@ -438,6 +439,14 @@ type SubCatMain {
     IsActive : Boolean
 }
 
+input CoursesFilters {
+    LspId: String
+    Category: String
+    SubCategory: String
+    Language: String
+    Duration: Int
+}
+
 type Query{
   allCatMain: [CatMain]
   allSubCatMain: [SubCatMain]
@@ -445,7 +454,7 @@ type Query{
   allCategories: [String]
   allSubCategories: [String]
   allSubCatsByCat(category: String): [String]
-  latestCourses(publish_time: Int, pageCursor: String, Direction: String, pageSize:Int, status:Status): PaginatedCourse
+  latestCourses(publish_time: Int, pageCursor: String, Direction: String, pageSize:Int, status:Status, filters:CoursesFilters): PaginatedCourse
   getCourse(course_id: String): Course
   getCourseModules(course_id: String): [Module]
   getModuleById(module_id: String): Module

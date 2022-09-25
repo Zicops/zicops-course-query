@@ -17,7 +17,7 @@ import (
 	"github.com/zicops/zicops-course-query/lib/googleprojectlib"
 )
 
-func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, direction *string, pageSize *int, status *model.Status) (*model.PaginatedCourse, error) {
+func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, direction *string, pageSize *int, status *model.Status, filters *model.CoursesFilters) (*model.PaginatedCourse, error) {
 	var newPage []byte
 	//var pageDirection string
 	var pageSizeInt int
@@ -28,7 +28,12 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 		}
 		newPage = page
 	}
-	key := "LatestCourses" + string(newPage)
+	// stringify filters
+	var filtersStr string
+	if filters != nil {
+		filtersStr = fmt.Sprintf("%v", *filters)
+	}
+	key := "LatestCourses" + string(newPage) + filtersStr
 	_, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -63,8 +68,25 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 			return nil, err
 		}
 		CassSession := session
-
-		qryStr := fmt.Sprintf(`SELECT * from coursez.course where status='%s' and updated_at <= %d  ALLOW FILTERING`, statusNew, *publishTime)
+		whereClause := fmt.Sprintf(`where status='%s' and updated_at <= %d`, statusNew, *publishTime)
+		if filters != nil {
+			if filters.Category != nil {
+				whereClause = whereClause + fmt.Sprintf(` and category='%s'`, *filters.Category)
+			}
+			if filters.SubCategory != nil {
+				whereClause = whereClause + fmt.Sprintf(` and sub_category='%s'`, *filters.SubCategory)
+			}
+			if filters.Language != nil {
+				whereClause = whereClause + fmt.Sprintf(` and language='%s'`, *filters.Language)
+			}
+			if filters.LspID != nil {
+				whereClause = whereClause + fmt.Sprintf(` and lsp_id='%s'`, *filters.LspID)
+			}
+			if filters.Duration != nil {
+				whereClause = whereClause + fmt.Sprintf(` and duration<=%d`, *filters.Duration)
+			}
+		}
+		qryStr := fmt.Sprintf(`SELECT * from coursez.course %s ALLOW FILTERING`, whereClause)
 		getCourses := func(page []byte) (courses []coursez.Course, nextPage []byte, err error) {
 			q := CassSession.Query(qryStr, nil)
 			defer q.Release()
@@ -164,6 +186,7 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 		currentCourse := model.Course{
 			ID:                 &course.ID,
 			Name:               &course.Name,
+			LspID:              &course.LspID,
 			Description:        &course.Description,
 			Summary:            &course.Summary,
 			Instructor:         &course.Instructor,

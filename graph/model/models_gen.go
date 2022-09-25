@@ -35,6 +35,7 @@ type Chapter struct {
 type Course struct {
 	ID                 *string          `json:"id"`
 	Name               *string          `json:"name"`
+	LspID              *string          `json:"lspId"`
 	Description        *string          `json:"description"`
 	Summary            *string          `json:"summary"`
 	Instructor         *string          `json:"instructor"`
@@ -85,6 +86,14 @@ type CourseCohort struct {
 	UpdatedBy          *string `json:"UpdatedBy"`
 	IsActive           *bool   `json:"IsActive"`
 	ExpectedCompletion *int    `json:"ExpectedCompletion"`
+}
+
+type CoursesFilters struct {
+	LspID       *string `json:"LspId"`
+	Category    *string `json:"Category"`
+	SubCategory *string `json:"SubCategory"`
+	Language    *string `json:"Language"`
+	Duration    *int    `json:"Duration"`
 }
 
 type Exam struct {
