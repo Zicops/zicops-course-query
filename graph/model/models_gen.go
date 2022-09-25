@@ -88,6 +88,14 @@ type CourseCohort struct {
 	ExpectedCompletion *int    `json:"ExpectedCompletion"`
 }
 
+type CoursesFilters struct {
+	LspID       *string `json:"LspId"`
+	Category    *string `json:"Category"`
+	SubCategory *string `json:"SubCategory"`
+	Language    *string `json:"Language"`
+	Duration    *int    `json:"Duration"`
+}
+
 type Exam struct {
 	ID           *string `json:"id"`
 	Name         *string `json:"Name"`
