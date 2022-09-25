@@ -1,2 +1,4 @@
 zicops-cc.json
 google-cloud-sdk
+#.github actions workflows
+.github
