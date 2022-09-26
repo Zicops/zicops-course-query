@@ -32,6 +32,8 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 	var filtersStr string
 	if filters != nil {
 		filtersStr = fmt.Sprintf("%v", *filters)
+	} else {
+		filtersStr = "nil"
 	}
 	key := "LatestCourses" + string(newPage) + filtersStr
 	_, err := helpers.GetClaimsFromContext(ctx)
