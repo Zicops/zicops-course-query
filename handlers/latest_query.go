@@ -32,6 +32,8 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 	var filtersStr string
 	if filters != nil {
 		filtersStr = fmt.Sprintf("%v", *filters)
+	} else {
+		filtersStr = "nil"
 	}
 	key := "LatestCourses" + string(newPage) + filtersStr
 	_, err := helpers.GetClaimsFromContext(ctx)
@@ -77,7 +79,7 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 				whereClause = whereClause + fmt.Sprintf(` and sub_category='%s'`, *filters.SubCategory)
 			}
 			if filters.Language != nil {
-				whereClause = whereClause + fmt.Sprintf(` and language='%s'`, *filters.Language)
+				whereClause = whereClause + fmt.Sprintf(` and language CONTAINS '%s'`, *filters.Language)
 			}
 			if filters.LspID != nil {
 				whereClause = whereClause + fmt.Sprintf(` and lsp_id='%s'`, *filters.LspID)
@@ -187,6 +189,7 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 			ID:                 &course.ID,
 			Name:               &course.Name,
 			LspID:              &course.LspID,
+			Publisher:          &course.Publisher,
 			Description:        &course.Description,
 			Summary:            &course.Summary,
 			Instructor:         &course.Instructor,
