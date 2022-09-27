@@ -3849,7 +3849,8 @@ input CoursesFilters {
     Category: String
     SubCategory: String
     Language: String
-    Duration: Int
+    DurationMin: Int
+    DurationMax: Int
 }
 
 type Query{
@@ -18057,11 +18058,19 @@ func (ec *executionContext) unmarshalInputCoursesFilters(ctx context.Context, ob
 			if err != nil {
 				return it, err
 			}
-		case "Duration":
+		case "DurationMin":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Duration"))
-			it.Duration, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("DurationMin"))
+			it.DurationMin, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "DurationMax":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("DurationMax"))
+			it.DurationMax, err = ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}

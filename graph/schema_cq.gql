@@ -445,7 +445,8 @@ input CoursesFilters {
     Category: String
     SubCategory: String
     Language: String
-    Duration: Int
+    DurationMin: Int
+    DurationMax: Int
 }
 
 type Query{
