@@ -183,7 +183,7 @@ func AllCatMain(ctx context.Context, lspIds []*string) ([]*model.CatMain, error)
 
 func AllSubCatMain(ctx context.Context, lspIds []*string) ([]*model.SubCatMain, error) {
 	log.Info("AllSubCatMain")
-	key := "AllSubCatMain"
+	key := "AllSubCatMain" + fmt.Sprintf("%v", lspIds)
 	_, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		return nil, err
