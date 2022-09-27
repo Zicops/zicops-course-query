@@ -12,8 +12,8 @@ import (
 	"github.com/zicops/zicops-course-query/handlers"
 )
 
-func (r *queryResolver) AllCatMain(ctx context.Context) ([]*model.CatMain, error) {
-	resp, err := handlers.AllCatMain(ctx)
+func (r *queryResolver) AllCatMain(ctx context.Context, lspIds []*string) ([]*model.CatMain, error) {
+	resp, err := handlers.AllCatMain(ctx, lspIds)
 	if err != nil {
 		log.Errorf("error getting categories: %v", err)
 		return nil, err
@@ -21,8 +21,8 @@ func (r *queryResolver) AllCatMain(ctx context.Context) ([]*model.CatMain, error
 	return resp, nil
 }
 
-func (r *queryResolver) AllSubCatMain(ctx context.Context) ([]*model.SubCatMain, error) {
-	resp, err := handlers.AllSubCatMain(ctx)
+func (r *queryResolver) AllSubCatMain(ctx context.Context, lspIds []*string) ([]*model.SubCatMain, error) {
+	resp, err := handlers.AllSubCatMain(ctx, lspIds)
 	if err != nil {
 		log.Errorf("error getting sub categories: %v", err)
 		return nil, err

@@ -451,8 +451,8 @@ input CoursesFilters {
 }
 
 type Query{
-  allCatMain: [CatMain]
-  allSubCatMain: [SubCatMain]
+  allCatMain(lsp_ids: [String]): [CatMain]
+  allSubCatMain(lsp_ids: [String]): [SubCatMain]
   allSubCatByCatId(catId: String): [SubCatMain]
   allCategories: [String]
   allSubCategories: [String]
