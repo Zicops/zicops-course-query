@@ -84,8 +84,14 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 			if filters.LspID != nil {
 				whereClause = whereClause + fmt.Sprintf(` and lsp_id='%s'`, *filters.LspID)
 			}
-			if filters.Duration != nil {
-				whereClause = whereClause + fmt.Sprintf(` and duration<=%d`, *filters.Duration)
+			if filters.DurationMax != nil {
+				whereClause = whereClause + fmt.Sprintf(` and duration<=%d`, *filters.DurationMax)
+			}
+			if filters.DurationMin != nil {
+				whereClause = whereClause + fmt.Sprintf(` and duration>=%d`, *filters.DurationMin)
+			}
+			if filters.Type != nil {
+				whereClause = whereClause + fmt.Sprintf(` and type='%s'`, *filters.Type)
 			}
 		}
 		qryStr := fmt.Sprintf(`SELECT * from coursez.course %s ALLOW FILTERING`, whereClause)

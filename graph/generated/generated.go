@@ -242,10 +242,10 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		AllCatMain                  func(childComplexity int) int
+		AllCatMain                  func(childComplexity int, lspIds []*string) int
 		AllCategories               func(childComplexity int) int
 		AllSubCatByCatID            func(childComplexity int, catID *string) int
-		AllSubCatMain               func(childComplexity int) int
+		AllSubCatMain               func(childComplexity int, lspIds []*string) int
 		AllSubCategories            func(childComplexity int) int
 		AllSubCatsByCat             func(childComplexity int, category *string) int
 		GetChapterByID              func(childComplexity int, chapterID *string) int
@@ -514,8 +514,8 @@ type ComplexityRoot struct {
 }
 
 type QueryResolver interface {
-	AllCatMain(ctx context.Context) ([]*model.CatMain, error)
-	AllSubCatMain(ctx context.Context) ([]*model.SubCatMain, error)
+	AllCatMain(ctx context.Context, lspIds []*string) ([]*model.CatMain, error)
+	AllSubCatMain(ctx context.Context, lspIds []*string) ([]*model.SubCatMain, error)
 	AllSubCatByCatID(ctx context.Context, catID *string) ([]*model.SubCatMain, error)
 	AllCategories(ctx context.Context) ([]*string, error)
 	AllSubCategories(ctx context.Context) ([]*string, error)
@@ -1664,7 +1664,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		return e.complexity.Query.AllCatMain(childComplexity), true
+		args, err := ec.field_Query_allCatMain_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.AllCatMain(childComplexity, args["lsp_ids"].([]*string)), true
 
 	case "Query.allCategories":
 		if e.complexity.Query.AllCategories == nil {
@@ -1690,7 +1695,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		return e.complexity.Query.AllSubCatMain(childComplexity), true
+		args, err := ec.field_Query_allSubCatMain_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.AllSubCatMain(childComplexity, args["lsp_ids"].([]*string)), true
 
 	case "Query.allSubCategories":
 		if e.complexity.Query.AllSubCategories == nil {
@@ -3849,12 +3859,14 @@ input CoursesFilters {
     Category: String
     SubCategory: String
     Language: String
-    Duration: Int
+    DurationMin: Int
+    DurationMax: Int
+    Type: String
 }
 
 type Query{
-  allCatMain: [CatMain]
-  allSubCatMain: [SubCatMain]
+  allCatMain(lsp_ids: [String]): [CatMain]
+  allSubCatMain(lsp_ids: [String]): [SubCatMain]
   allSubCatByCatId(catId: String): [SubCatMain]
   allCategories: [String]
   allSubCategories: [String]
@@ -3920,6 +3932,21 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 	return args, nil
 }
 
+func (ec *executionContext) field_Query_allCatMain_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 []*string
+	if tmp, ok := rawArgs["lsp_ids"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lsp_ids"))
+		arg0, err = ec.unmarshalOString2ᚕᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["lsp_ids"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Query_allSubCatByCatId_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -3932,6 +3959,21 @@ func (ec *executionContext) field_Query_allSubCatByCatId_args(ctx context.Contex
 		}
 	}
 	args["catId"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_allSubCatMain_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 []*string
+	if tmp, ok := rawArgs["lsp_ids"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lsp_ids"))
+		arg0, err = ec.unmarshalOString2ᚕᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["lsp_ids"] = arg0
 	return args, nil
 }
 
@@ -9654,9 +9696,16 @@ func (ec *executionContext) _Query_allCatMain(ctx context.Context, field graphql
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_allCatMain_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().AllCatMain(rctx)
+		return ec.resolvers.Query().AllCatMain(rctx, args["lsp_ids"].([]*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -9686,9 +9735,16 @@ func (ec *executionContext) _Query_allSubCatMain(ctx context.Context, field grap
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_allSubCatMain_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().AllSubCatMain(rctx)
+		return ec.resolvers.Query().AllSubCatMain(rctx, args["lsp_ids"].([]*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -18057,11 +18113,27 @@ func (ec *executionContext) unmarshalInputCoursesFilters(ctx context.Context, ob
 			if err != nil {
 				return it, err
 			}
-		case "Duration":
+		case "DurationMin":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Duration"))
-			it.Duration, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("DurationMin"))
+			it.DurationMin, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "DurationMax":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("DurationMax"))
+			it.DurationMax, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "Type":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Type"))
+			it.Type, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}

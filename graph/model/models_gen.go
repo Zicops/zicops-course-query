@@ -94,7 +94,9 @@ type CoursesFilters struct {
 	Category    *string `json:"Category"`
 	SubCategory *string `json:"SubCategory"`
 	Language    *string `json:"Language"`
-	Duration    *int    `json:"Duration"`
+	DurationMin *int    `json:"DurationMin"`
+	DurationMax *int    `json:"DurationMax"`
+	Type        *string `json:"Type"`
 }
 
 type Exam struct {

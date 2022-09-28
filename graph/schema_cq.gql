@@ -445,12 +445,14 @@ input CoursesFilters {
     Category: String
     SubCategory: String
     Language: String
-    Duration: Int
+    DurationMin: Int
+    DurationMax: Int
+    Type: String
 }
 
 type Query{
-  allCatMain: [CatMain]
-  allSubCatMain: [SubCatMain]
+  allCatMain(lsp_ids: [String]): [CatMain]
+  allSubCatMain(lsp_ids: [String]): [SubCatMain]
   allSubCatByCatId(catId: String): [SubCatMain]
   allCategories: [String]
   allSubCategories: [String]

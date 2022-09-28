@@ -89,9 +89,9 @@ func GetSubCategoriesForSub(ctx context.Context, cat *string) ([]*string, error)
 	return resultOutput, nil
 }
 
-func AllCatMain(ctx context.Context) ([]*model.CatMain, error) {
+func AllCatMain(ctx context.Context, lspIds []*string) ([]*model.CatMain, error) {
 	log.Info("AllCatMain")
-	key := "AllCatMain"
+	key := "AllCatMain" + fmt.Sprintf("%v", lspIds)
 	_, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -114,8 +114,20 @@ func AllCatMain(ctx context.Context) ([]*model.CatMain, error) {
 			return nil, err
 		}
 		CassSession := session
-
-		qryStr := `SELECT * from coursez.cat_main `
+		whereClause := ""
+		if len(lspIds) > 0 {
+			// cassandra contains clauses using lspIds
+			whereClause = "WHERE lsps IN ("
+			for i, lspId := range lspIds {
+				if i == 0 {
+					whereClause = whereClause + "'" + *lspId + "'"
+				} else {
+					whereClause = whereClause + ", '" + *lspId + "'"
+				}
+			}
+			whereClause = whereClause + ")"
+		}
+		qryStr := `SELECT * from coursez.cat_main ` + whereClause
 		getCats := func() (banks []coursez.CatMain, err error) {
 			q := CassSession.Query(qryStr, nil)
 			defer q.Release()
@@ -169,9 +181,9 @@ func AllCatMain(ctx context.Context) ([]*model.CatMain, error) {
 	return resultOutput, nil
 }
 
-func AllSubCatMain(ctx context.Context) ([]*model.SubCatMain, error) {
+func AllSubCatMain(ctx context.Context, lspIds []*string) ([]*model.SubCatMain, error) {
 	log.Info("AllSubCatMain")
-	key := "AllSubCatMain"
+	key := "AllSubCatMain" + fmt.Sprintf("%v", lspIds)
 	_, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -194,8 +206,20 @@ func AllSubCatMain(ctx context.Context) ([]*model.SubCatMain, error) {
 			return nil, err
 		}
 		CassSession := session
-
-		qryStr := `SELECT * from coursez.sub_cat_main `
+		whereClause := ""
+		if len(lspIds) > 0 {
+			// cassandra contains clauses using lspIds
+			whereClause = "WHERE lsps IN ("
+			for i, lspId := range lspIds {
+				if i == 0 {
+					whereClause = whereClause + "'" + *lspId + "'"
+				} else {
+					whereClause = whereClause + ", '" + *lspId + "'"
+				}
+			}
+			whereClause = whereClause + ")"
+		}
+		qryStr := `SELECT * from coursez.sub_cat_main ` + whereClause
 		getCats := func() (banks []coursez.SubCatMain, err error) {
 			q := CassSession.Query(qryStr, nil)
 			defer q.Release()
