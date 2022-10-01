@@ -93,6 +93,9 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 			if filters.Type != nil {
 				whereClause = whereClause + fmt.Sprintf(` and type='%s'`, *filters.Type)
 			}
+			if filters.SearchText != nil {
+				whereClause = whereClause + fmt.Sprintf(` and name CONTAINS '%s'`, *filters.SearchText)
+			}	
 		}
 		qryStr := fmt.Sprintf(`SELECT * from coursez.course %s ALLOW FILTERING`, whereClause)
 		getCourses := func(page []byte) (courses []coursez.Course, nextPage []byte, err error) {

@@ -448,6 +448,7 @@ input CoursesFilters {
     DurationMin: Int
     DurationMax: Int
     Type: String
+    SearchText: String
 }
 
 type Query{
