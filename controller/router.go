@@ -2,6 +2,7 @@ package controller
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -12,9 +13,12 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
+	"github.com/zicops/contracts/userz"
+	"github.com/zicops/zicops-cass-pool/redis"
 	"github.com/zicops/zicops-course-query/graph"
 	"github.com/zicops/zicops-course-query/graph/generated"
 	"github.com/zicops/zicops-course-query/lib/jwt"
+	"github.com/zicops/zicops-user-manager/handlers/queries"
 )
 
 // CCRouter ... the router for the controller
@@ -86,6 +90,35 @@ func graphqlHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctxValue := c.Value("zclaims").(map[string]interface{})
 		// set ctxValue to request context
+		// get user using email
+		emailCalled := ctxValue["email"].(string)
+		userIdUsingEmail := base64.URLEncoding.EncodeToString([]byte(emailCalled))
+		var userInput userz.User
+		// user get query
+		redisResult, err := redis.GetRedisValue(userIdUsingEmail)
+		if err != nil {
+			log.Errorf("Error getting user from redis %s", err.Error())
+		}
+		if redisResult != "" {
+			err = json.Unmarshal([]byte(redisResult), &userInput)
+			if err != nil {
+				log.Errorf("Error unmarshalling user from redis %s", err.Error())
+			}
+			ctxValue["role"] = userInput.Role
+			redis.SetTTL(userIdUsingEmail, 3600)
+		} else {
+			user, err := queries.GetUserDetails(c.Request.Context(), []*string{&userInput.ID})
+			if err != nil {
+				log.Errorf("Error getting user from user manager %s", err.Error())
+			}
+			if len(user) > 0 {
+				ctxValue["role"] = user[0].Role
+				userBytes, _ := json.Marshal(user[0])
+				redis.SetRedisValue(userIdUsingEmail, string(userBytes))
+				redis.SetTTL(userIdUsingEmail, 3600)
+			}
+
+		}
 		request := c.Request
 		requestWithValue := request.WithContext(context.WithValue(request.Context(), "zclaims", ctxValue))
 		h.ServeHTTP(c.Writer, requestWithValue)

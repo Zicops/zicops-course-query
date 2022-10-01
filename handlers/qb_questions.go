@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"strings"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/qbankz"
@@ -26,13 +27,14 @@ func GetQuestionBankQuestions(ctx context.Context, questionBankID *string, filte
 		return nil, err
 	}
 	key := "GetQuestionBankQuestions" + *questionBankID + fmt.Sprintf("%v", filters)
-	_, err = helpers.GetClaimsFromContext(ctx)
+	claims, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
+	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
 	banks := make([]qbankz.QuestionMain, 0)
-	if err == nil {
+	if err == nil && role != "admin" {
 		err = json.Unmarshal([]byte(result), &banks)
 		if err != nil {
 			log.Errorf("Failed to unmarshal redis value: %v", err.Error())
@@ -132,16 +134,17 @@ func GetQuestionsByID(ctx context.Context, questionIds []*string) ([]*model.Ques
 		return nil, err
 	}
 	CassSession := session
-	_, err = helpers.GetClaimsFromContext(ctx)
+	claims, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
+	role := strings.ToLower(claims["role"].(string))
 	allQuestions := make([]*model.QuestionBankQuestion, 0)
 	for _, id := range questionIds {
 		key := "GetQuestionsByID" + *id
 		result, err := redis.GetRedisValue(key)
 		banks := make([]qbankz.QuestionMain, 0)
-		if err == nil {
+		if err == nil && role != "admin" {
 			json.Unmarshal([]byte(result), &banks)
 		}
 		if len(banks) <= 0 {

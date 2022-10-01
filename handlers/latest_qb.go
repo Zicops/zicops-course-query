@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"strings"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/qbankz"
@@ -27,15 +28,16 @@ func LatestQuestionBanks(ctx context.Context, publishTime *int, pageCursor *stri
 		newPage = page
 	}
 	key := "LatestQuestionBanks" + string(newPage)
-	_, err := helpers.GetClaimsFromContext(ctx)
+	claims, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
+	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
 	if err != nil {
 		log.Errorf("Error getting redis value: %v", err)
 	}
-	if result != "" {
+	if result != "" && role != "admin" {
 		var outputResponse model.PaginatedQuestionBank
 		err = json.Unmarshal([]byte(result), &outputResponse)
 		if err != nil {
@@ -130,15 +132,16 @@ func LatestQuestionPapers(ctx context.Context, publishTime *int, pageCursor *str
 		newPage = page
 	}
 	key := "LatestQuestionPapers" + string(newPage)
-	_, err := helpers.GetClaimsFromContext(ctx)
+	claims, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
+	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
 	if err != nil {
 		log.Errorf("Error getting redis value: %v", err)
 	}
-	if result != "" {
+	if result != "" && role != "admin" {
 		var outputResponse model.PaginatedQuestionPapers
 		err = json.Unmarshal([]byte(result), &outputResponse)
 		if err != nil {
@@ -235,15 +238,16 @@ func GetLatestExams(ctx context.Context, publishTime *int, pageCursor *string, d
 		newPage = page
 	}
 	key := "GetLatestExams" + string(newPage)
-	_, err := helpers.GetClaimsFromContext(ctx)
+	claims, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
+	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
 	if err != nil {
 		log.Errorf("Error getting redis value: %v", err)
 	}
-	if result != "" {
+	if result != "" && role != "admin" {
 		var outputResponse model.PaginatedExams
 		err = json.Unmarshal([]byte(result), &outputResponse)
 		if err != nil {
@@ -336,13 +340,14 @@ func GetExamsMeta(ctx context.Context, examIds []*string) ([]*model.Exam, error)
 		return nil, err
 	}
 	CassSession := session
-	_, err = helpers.GetClaimsFromContext(ctx)
+	claims, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
+	role := strings.ToLower(claims["role"].(string))
 	for _, questionId := range examIds {
 		result, _ := redis.GetRedisValue("GetExamsMeta" + *questionId)
-		if result != "" {
+		if result != "" && role != "admin" {
 			var outputResponse model.Exam
 			err = json.Unmarshal([]byte(result), &outputResponse)
 			if err == nil {
@@ -403,14 +408,15 @@ func GetQBMeta(ctx context.Context, qbIds []*string) ([]*model.QuestionBank, err
 		return nil, err
 	}
 	CassSession := session
-	_, err = helpers.GetClaimsFromContext(ctx)
+	claims, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
+	role := strings.ToLower(claims["role"].(string))
 
 	for _, qbId := range qbIds {
 		result, _ := redis.GetRedisValue("GetQBMeta" + *qbId)
-		if result != "" {
+		if result != "" && role != "admin"{
 			var outputResponse model.QuestionBank
 			err = json.Unmarshal([]byte(result), &outputResponse)
 			if err == nil {

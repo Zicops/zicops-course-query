@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/zicops/contracts/qbankz"
 	"github.com/zicops/zicops-cass-pool/cassandra"
@@ -16,17 +17,19 @@ import (
 func GetQuestionBankSections(ctx context.Context, questionPaperID *string) ([]*model.QuestionPaperSection, error) {
 	allSections := make([]*model.QuestionPaperSection, 0)
 	key := "GetQuestionBankSections" + *questionPaperID
+	claims, err := helpers.GetClaimsFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
-	if err == nil {
+	if err == nil && role != "admin" {
 		err = json.Unmarshal([]byte(result), &allSections)
 		if err == nil {
 			return allSections, nil
 		}
 	}
-	_, err = helpers.GetClaimsFromContext(ctx)
-	if err != nil {
-		return nil, err
-	}
+
 	qryStr := fmt.Sprintf(`SELECT * from qbankz.section_main where qp_id = '%s'  ALLOW FILTERING`, *questionPaperID)
 	session, err := cassandra.GetCassSession("qbankz")
 	if err != nil {
@@ -74,12 +77,13 @@ func GetQuestionBankSections(ctx context.Context, questionPaperID *string) ([]*m
 
 func GetQPBankMappingByQPId(ctx context.Context, questionPaperID *string) ([]*model.SectionQBMapping, error) {
 	key := "GetQPBankMappingByQPId" + *questionPaperID
-	_, err := helpers.GetClaimsFromContext(ctx)
+	claims, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
+	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
-	if err == nil {
+	if err == nil && role != "admin" {
 		allSectionsMap := make([]*model.SectionQBMapping, 0)
 		err = json.Unmarshal([]byte(result), &allSectionsMap)
 		if err == nil {
@@ -135,12 +139,13 @@ func GetQPBankMappingByQPId(ctx context.Context, questionPaperID *string) ([]*mo
 
 func GetQPBankMappingBySectionID(ctx context.Context, sectionID *string) ([]*model.SectionQBMapping, error) {
 	key := "GetQPBankMappingBySectionID" + *sectionID
-	_, err := helpers.GetClaimsFromContext(ctx)
+	claims, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
+	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
-	if err == nil {
+	if err == nil && role != "admin" {
 		allSectionsMap := make([]*model.SectionQBMapping, 0)
 		err = json.Unmarshal([]byte(result), &allSectionsMap)
 		if err == nil {
@@ -197,12 +202,13 @@ func GetQPBankMappingBySectionID(ctx context.Context, sectionID *string) ([]*mod
 
 func GetSectionFixedQuestions(ctx context.Context, sectionID *string) ([]*model.SectionFixedQuestions, error) {
 	key := "GetSectionFixedQuestions" + *sectionID
-	_, err := helpers.GetClaimsFromContext(ctx)
+	claims, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
+	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
-	if err == nil {
+	if err == nil && role != "admin" {
 		allSectionsMap := make([]*model.SectionFixedQuestions, 0)
 		err = json.Unmarshal([]byte(result), &allSectionsMap)
 		if err == nil {

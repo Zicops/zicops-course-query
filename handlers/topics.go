@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"strings"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/coursez"
@@ -20,12 +21,13 @@ func GetTopicsCourseByID(ctx context.Context, courseID *string) ([]*model.Topic,
 	topicsOut := make([]*model.Topic, 0)
 	currentTopics := make([]coursez.Topic, 0)
 	key := "GetTopicsCourseByID" + *courseID
-	_, err := helpers.GetClaimsFromContext(ctx)
+	claims, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
+	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
-	if err == nil {
+	if err == nil && role != "admin" {
 		err = json.Unmarshal([]byte(result), &currentTopics)
 		if err != nil {
 			log.Errorf("Failed to unmarshal topics: %v", err.Error())
@@ -95,12 +97,13 @@ func GetTopicByID(ctx context.Context, topicID *string) (*model.Topic, error) {
 	topics := make([]*model.Topic, 0)
 	currentTopics := make([]coursez.Topic, 0)
 	key := "GetTopicByID" + *topicID
-	_, err := helpers.GetClaimsFromContext(ctx)
+	claims, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
+	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
-	if err == nil {
+	if err == nil && role != "admin"{
 		err = json.Unmarshal([]byte(result), &currentTopics)
 		if err != nil {
 			log.Errorf("Failed to unmarshal topics: %v", err.Error())

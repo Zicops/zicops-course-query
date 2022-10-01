@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"strings"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/qbankz"
@@ -24,10 +25,11 @@ func GetOptionsForQuestions(ctx context.Context, questionIds []*string) ([]*mode
 		log.Errorf("Failed to get options: %v", err.Error())
 		return nil, err
 	}
-	_, err = helpers.GetClaimsFromContext(ctx)
+	claims, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
+	role := strings.ToLower(claims["role"].(string))
 	session, err := cassandra.GetCassSession("qbankz")
 	if err != nil {
 		return nil, err
@@ -39,7 +41,7 @@ func GetOptionsForQuestions(ctx context.Context, questionIds []*string) ([]*mode
 		key := "GetOptionsForQuestions" + *questionId
 		result, err := redis.GetRedisValue(key)
 		banks := make([]qbankz.OptionsMain, 0)
-		if err == nil {
+		if err == nil && role != "admin" {
 			err = json.Unmarshal([]byte(result), &banks)
 			if err != nil {
 				log.Errorf("Error in unmarshalling redis value: %v", err)

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"strings"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/coursez"
@@ -36,10 +37,11 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 		filtersStr = "nil"
 	}
 	key := "LatestCourses" + string(newPage) + filtersStr
-	_, err := helpers.GetClaimsFromContext(ctx)
+	claims, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
+	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
 	if err != nil {
 		log.Errorf("Error in getting redis value: %v", err)
@@ -64,7 +66,7 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 	} else {
 		statusNew = *status
 	}
-	if len(dbCourses) <= 0 {
+	if len(dbCourses) <= 0 || role == "admin" {
 		session, err := cassandra.GetCassSession("coursez")
 		if err != nil {
 			return nil, err
@@ -95,7 +97,7 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 			}
 			if filters.SearchText != nil {
 				whereClause = whereClause + fmt.Sprintf(` and name CONTAINS '%s'`, *filters.SearchText)
-			}	
+			}
 		}
 		qryStr := fmt.Sprintf(`SELECT * from coursez.course %s ALLOW FILTERING`, whereClause)
 		getCourses := func(page []byte) (courses []coursez.Course, nextPage []byte, err error) {

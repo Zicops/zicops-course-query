@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"strings"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/coursez"
@@ -20,12 +21,13 @@ func GetTopicQuizes(ctx context.Context, topicID *string) ([]*model.Quiz, error)
 	topicQuizes := make([]*model.Quiz, 0)
 	currentQuizes := make([]coursez.Quiz, 0)
 	key := "GetTopicQuizes" + *topicID
-	_, err := helpers.GetClaimsFromContext(ctx)
+	claims, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
+	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
-	if err == nil {
+	if err == nil  && role != "admin"{
 		err = json.Unmarshal([]byte(result), &currentQuizes)
 		if err == nil {
 			log.Errorf("GetTopicQuizes from redis")
@@ -85,12 +87,13 @@ func GetQuizFiles(ctx context.Context, quizID *string) ([]*model.QuizFile, error
 	quizFiles := make([]*model.QuizFile, 0)
 	currentFiles := make([]coursez.QuizFile, 0)
 	key := "GetQuizFiles" + *quizID
-	_, err := helpers.GetClaimsFromContext(ctx)
+	claims, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
+	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
-	if err == nil {
+	if err == nil && role != "admin"{
 		err = json.Unmarshal([]byte(result), &currentFiles)
 		if err != nil {
 			log.Errorf("GetQuizFiles from redis")
@@ -149,12 +152,13 @@ func GetQuizFiles(ctx context.Context, quizID *string) ([]*model.QuizFile, error
 func GetMCQQuiz(ctx context.Context, quizID *string) ([]*model.QuizMcq, error) {
 	quizMcqs := make([]*model.QuizMcq, 0)
 	key := "GetMCQQuiz" + *quizID
-	_, err := helpers.GetClaimsFromContext(ctx)
+	claims, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
+	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
-	if err == nil {
+	if err == nil && role != "admin"{
 		err = json.Unmarshal([]byte(result), &quizMcqs)
 		if err == nil {
 			return quizMcqs, nil
@@ -205,12 +209,13 @@ func GetMCQQuiz(ctx context.Context, quizID *string) ([]*model.QuizMcq, error) {
 func GetQuizDes(ctx context.Context, quizID *string) ([]*model.QuizDescriptive, error) {
 	quizDes := make([]*model.QuizDescriptive, 0)
 	key := "GetQuizDes" + *quizID
-	_, err := helpers.GetClaimsFromContext(ctx)
+	claims, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
+	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
-	if err == nil {
+	if err == nil && role != "admin"{
 		err = json.Unmarshal([]byte(result), &quizDes)
 		if err == nil {
 			return quizDes, nil

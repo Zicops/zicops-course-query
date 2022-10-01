@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/zicops/contracts/qbankz"
 	"github.com/zicops/zicops-cass-pool/cassandra"
@@ -15,12 +16,13 @@ import (
 
 func GetExamsByQPId(ctx context.Context, questionPaperID *string) ([]*model.Exam, error) {
 	key := "GetExamsByQPId" + *questionPaperID
-	_, err := helpers.GetClaimsFromContext(ctx)
+	claims, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
+	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
-	if err == nil {
+	if err == nil && role != "admin" {
 		output := make([]*model.Exam, 0)
 		err = json.Unmarshal([]byte(result), &output)
 		if err == nil {
@@ -79,12 +81,13 @@ func GetExamsByQPId(ctx context.Context, questionPaperID *string) ([]*model.Exam
 
 func GetExamSchedule(ctx context.Context, examID *string) ([]*model.ExamSchedule, error) {
 	key := "GetExamSchedule" + *examID
-	_, err := helpers.GetClaimsFromContext(ctx)
+	claims, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
+	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
-	if err == nil {
+	if err == nil && role != "admin" {
 		output := make([]*model.ExamSchedule, 0)
 		err = json.Unmarshal([]byte(result), &output)
 		if err == nil {
@@ -141,12 +144,13 @@ func GetExamSchedule(ctx context.Context, examID *string) ([]*model.ExamSchedule
 
 func GetExamInstruction(ctx context.Context, examID *string) ([]*model.ExamInstruction, error) {
 	key := "GetExamInstruction" + *examID
-	_, err := helpers.GetClaimsFromContext(ctx)
+	claims, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
+	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
-	if err == nil {
+	if err == nil && role != "admin" {
 		output := make([]*model.ExamInstruction, 0)
 		err = json.Unmarshal([]byte(result), &output)
 		if err == nil {
@@ -201,12 +205,13 @@ func GetExamInstruction(ctx context.Context, examID *string) ([]*model.ExamInstr
 
 func GetExamCohort(ctx context.Context, examID *string) ([]*model.ExamCohort, error) {
 	key := "GetExamCohort" + *examID
-	_, err := helpers.GetClaimsFromContext(ctx)
+	claims, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
+	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
-	if err == nil {
+	if err == nil && role != "admin" {
 		output := make([]*model.ExamCohort, 0)
 		err = json.Unmarshal([]byte(result), &output)
 		if err == nil {
@@ -258,12 +263,13 @@ func GetExamCohort(ctx context.Context, examID *string) ([]*model.ExamCohort, er
 
 func GetExamConfiguration(ctx context.Context, examID *string) ([]*model.ExamConfiguration, error) {
 	key := "GetExamConfiguration" + *examID
-	_, err := helpers.GetClaimsFromContext(ctx)
+	claims, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
+	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
-	if err == nil {
+	if err == nil && role != "admin" {
 		output := make([]*model.ExamConfiguration, 0)
 		err = json.Unmarshal([]byte(result), &output)
 		if err == nil {
@@ -317,10 +323,11 @@ func GetExamConfiguration(ctx context.Context, examID *string) ([]*model.ExamCon
 
 func GetQPMeta(ctx context.Context, questionPapersIds []*string) ([]*model.QuestionPaper, error) {
 	responseMap := make([]*model.QuestionPaper, 0)
-	_, err := helpers.GetClaimsFromContext(ctx)
+	claims, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
+	role := strings.ToLower(claims["role"].(string))
 	session, err := cassandra.GetCassSession("qbankz")
 	if err != nil {
 		return nil, err
@@ -330,7 +337,7 @@ func GetQPMeta(ctx context.Context, questionPapersIds []*string) ([]*model.Quest
 	for _, questionId := range questionPapersIds {
 		key := "GetQPMeta" + *questionId
 		result, err := redis.GetRedisValue(key)
-		if err == nil {
+		if err == nil && role != "admin" {
 			output := &model.QuestionPaper{}
 			err = json.Unmarshal([]byte(result), output)
 			if err == nil {

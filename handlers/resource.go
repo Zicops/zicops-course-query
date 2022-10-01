@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"strings"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/coursez"
@@ -20,12 +21,13 @@ func GetTopicResources(ctx context.Context, topicID *string) ([]*model.TopicReso
 	topicsRes := make([]*model.TopicResource, 0)
 	currentResources := make([]coursez.Resource, 0)
 	key := "GetTopicResources" + *topicID
-	_, err := helpers.GetClaimsFromContext(ctx)
+	claims, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
+	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
-	if err == nil {
+	if err == nil && role != "admin" {
 		err = json.Unmarshal([]byte(result), &currentResources)
 		if err != nil {
 			log.Errorf("Failed to unmarshal redis value: %v", err.Error())
@@ -92,12 +94,13 @@ func GetCourseResources(ctx context.Context, courseID *string) ([]*model.TopicRe
 	topicsRes := make([]*model.TopicResource, 0)
 	currentResources := make([]coursez.Resource, 0)
 	key := "GetCourseResources" + *courseID
-	_, err := helpers.GetClaimsFromContext(ctx)
+	claims, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
+	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
-	if err == nil {
+	if err == nil && role != "admin" {
 		err = json.Unmarshal([]byte(result), &currentResources)
 		if err != nil {
 			log.Errorf("Failed to unmarshal redis value: %v", err.Error())

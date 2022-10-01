@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"strings"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/coursez"
@@ -59,10 +60,11 @@ func GetCourseByID(ctx context.Context, courseID *string) (*model.Course, error)
 		Publisher:          "",
 	}
 	key := "GetCourseByID" + *courseID
-	_, err := helpers.GetClaimsFromContext(ctx)
+	claims, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
+	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
 	if err != nil {
 		log.Error("Error in getting redis value for key: ", key)
@@ -73,7 +75,7 @@ func GetCourseByID(ctx context.Context, courseID *string) (*model.Course, error)
 			log.Error("Error in unmarshalling redis value for key: ", key)
 		}
 	}
-	if course.ID == "" {
+	if course.ID == "" || role == "admin" {
 		session, err := cassandra.GetCassSession("coursez")
 		if err != nil {
 			return nil, err
