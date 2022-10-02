@@ -21,7 +21,7 @@ import (
 func GetQuestionBankQuestions(ctx context.Context, questionBankID *string, filters *model.QBFilters) ([]*model.QuestionBankQuestion, error) {
 	storageC := bucket.NewStorageHandler()
 	gproject := googleprojectlib.GetGoogleProjectID()
-	err := storageC.InitializeStorageClient(ctx, gproject)
+	err := storageC.InitializeStorageClient(ctx, gproject, "d8685567-cdae-4ee0-a80e-c187848a760e")
 	if err != nil {
 		log.Errorf("Failed to get questions: %v", err.Error())
 		return nil, err
@@ -124,7 +124,7 @@ func GetQuestionBankQuestions(ctx context.Context, questionBankID *string, filte
 func GetQuestionsByID(ctx context.Context, questionIds []*string) ([]*model.QuestionBankQuestion, error) {
 	storageC := bucket.NewStorageHandler()
 	gproject := googleprojectlib.GetGoogleProjectID()
-	err := storageC.InitializeStorageClient(ctx, gproject)
+	err := storageC.InitializeStorageClient(ctx, gproject, "d8685567-cdae-4ee0-a80e-c187848a760e")
 	if err != nil {
 		log.Errorf("Failed to get questions: %v", err.Error())
 		return nil, err

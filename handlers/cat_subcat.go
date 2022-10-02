@@ -150,7 +150,7 @@ func AllCatMain(ctx context.Context, lspIds []*string) ([]*model.CatMain, error)
 		if copiedCat.ImageBucket != "" {
 			storageC := bucket.NewStorageHandler()
 			gproject := googleprojectlib.GetGoogleProjectID()
-			err = storageC.InitializeStorageClient(ctx, gproject)
+			err = storageC.InitializeStorageClient(ctx, gproject, "d8685567-cdae-4ee0-a80e-c187848a760e")
 			if err != nil {
 				log.Errorf("Failed to initialize storage: %v", err.Error())
 				continue
@@ -243,7 +243,7 @@ func AllSubCatMain(ctx context.Context, lspIds []*string) ([]*model.SubCatMain, 
 		if copiedCat.ImageBucket != "" {
 			storageC := bucket.NewStorageHandler()
 			gproject := googleprojectlib.GetGoogleProjectID()
-			err = storageC.InitializeStorageClient(ctx, gproject)
+			err = storageC.InitializeStorageClient(ctx, gproject, "d8685567-cdae-4ee0-a80e-c187848a760e")
 			if err != nil {
 				log.Errorf("Failed to initialize storage: %v", err.Error())
 				continue
@@ -325,7 +325,7 @@ func AllSubCatByCatID(ctx context.Context, catID *string) ([]*model.SubCatMain, 
 		if copiedCat.ImageBucket != "" {
 			storageC := bucket.NewStorageHandler()
 			gproject := googleprojectlib.GetGoogleProjectID()
-			err = storageC.InitializeStorageClient(ctx, gproject)
+			err = storageC.InitializeStorageClient(ctx, gproject, "d8685567-cdae-4ee0-a80e-c187848a760e")
 			if err != nil {
 				log.Errorf("Failed to initialize storage: %v", err.Error())
 				continue

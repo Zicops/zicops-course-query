@@ -149,7 +149,7 @@ func GetCourseByID(ctx context.Context, courseID *string) (*model.Course, error)
 
 	storageC := bucket.NewStorageHandler()
 	gproject := googleprojectlib.GetGoogleProjectID()
-	err = storageC.InitializeStorageClient(ctx, gproject)
+	err = storageC.InitializeStorageClient(ctx, gproject, "d8685567-cdae-4ee0-a80e-c187848a760e")
 	if err != nil {
 		log.Errorf("Failed to initialize storage: %v", err.Error())
 		return nil, err

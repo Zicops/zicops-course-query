@@ -125,7 +125,7 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 	var outputResponse model.PaginatedCourse
 	storageC := bucket.NewStorageHandler()
 	gproject := googleprojectlib.GetGoogleProjectID()
-	err = storageC.InitializeStorageClient(ctx, gproject)
+	err = storageC.InitializeStorageClient(ctx, gproject, "d8685567-cdae-4ee0-a80e-c187848a760e")
 	if err != nil {
 		log.Errorf("Failed to upload image to course: %v", err.Error())
 		return nil, err
