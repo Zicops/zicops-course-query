@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"strings"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/qbankz"
@@ -19,15 +20,12 @@ import (
 func GetOptionsForQuestions(ctx context.Context, questionIds []*string) ([]*model.MapQuestionWithOption, error) {
 	storageC := bucket.NewStorageHandler()
 	gproject := googleprojectlib.GetGoogleProjectID()
-	err := storageC.InitializeStorageClient(ctx, gproject)
-	if err != nil {
-		log.Errorf("Failed to get options: %v", err.Error())
-		return nil, err
-	}
-	_, err = helpers.GetClaimsFromContext(ctx)
+
+	claims, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
+	role := strings.ToLower(claims["role"].(string))
 	session, err := cassandra.GetCassSession("qbankz")
 	if err != nil {
 		return nil, err
@@ -39,7 +37,7 @@ func GetOptionsForQuestions(ctx context.Context, questionIds []*string) ([]*mode
 		key := "GetOptionsForQuestions" + *questionId
 		result, err := redis.GetRedisValue(key)
 		banks := make([]qbankz.OptionsMain, 0)
-		if err == nil {
+		if err == nil && role != "admin" {
 			err = json.Unmarshal([]byte(result), &banks)
 			if err != nil {
 				log.Errorf("Error in unmarshalling redis value: %v", err)
@@ -67,6 +65,10 @@ func GetOptionsForQuestions(ctx context.Context, questionIds []*string) ([]*mode
 			updatedAt := strconv.FormatInt(copiedQuestion.UpdatedAt, 10)
 			attUrl := ""
 			if copiedQuestion.AttachmentBucket != "" {
+				err := storageC.InitializeStorageClient(ctx, gproject, copiedQuestion.LspId)
+				if err != nil {
+					log.Errorf("Error in initializing storage client: %v", err)
+				}
 				attUrl = storageC.GetSignedURLForObject(copiedQuestion.AttachmentBucket)
 			}
 			currentQuestion := &model.QuestionOption{

@@ -21,12 +21,13 @@ func GetTopicContent(ctx context.Context, topicID *string) ([]*model.TopicConten
 	topicsOut := make([]*model.TopicContent, 0)
 	currentContent := make([]coursez.TopicContent, 0)
 	key := "GetTopicContent" + *topicID
-	_, err := helpers.GetClaimsFromContext(ctx)
+	claims, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
+	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
-	if err == nil {
+	if err == nil && role != "admin" {
 		err = json.Unmarshal([]byte(result), &currentContent)
 		if err != nil {
 			log.Errorf("Error in unmarshalling redis value for key %s", key)
@@ -53,11 +54,6 @@ func GetTopicContent(ctx context.Context, topicID *string) ([]*model.TopicConten
 	}
 	storageC := bucket.NewStorageHandler()
 	gproject := googleprojectlib.GetGoogleProjectID()
-	err = storageC.InitializeStorageClient(ctx, gproject)
-	if err != nil {
-		log.Errorf("Failed to initialize storage: %v", err.Error())
-		return nil, err
-	}
 
 	urlSub := make([]*model.SubtitleURL, 0)
 	for _, topCon := range currentContent {
@@ -65,6 +61,11 @@ func GetTopicContent(ctx context.Context, topicID *string) ([]*model.TopicConten
 		createdAt := strconv.FormatInt(mod.CreatedAt, 10)
 		updatedAt := strconv.FormatInt(mod.UpdatedAt, 10)
 		mainBucket := mod.CourseId + "/" + mod.TopicId + "/subtitles/"
+		err = storageC.InitializeStorageClient(ctx, gproject, mod.LspId)
+		if err != nil {
+			log.Errorf("Failed to initialize storage: %v", err.Error())
+			return nil, err
+		}
 		if mainBucket != "" {
 			urlSub = storageC.GetSignedURLsForObjects(mainBucket)
 		}
@@ -106,12 +107,13 @@ func GetTopicContent(ctx context.Context, topicID *string) ([]*model.TopicConten
 func GetTopicExams(ctx context.Context, topicID *string) ([]*model.TopicExam, error) {
 	topicsOut := make([]*model.TopicExam, 0)
 	key := "GetTopicExams" + *topicID
-	_, err := helpers.GetClaimsFromContext(ctx)
+	claims, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
+	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
-	if err == nil {
+	if err == nil && role != "admin" {
 		err = json.Unmarshal([]byte(result), &topicsOut)
 		if err == nil {
 			return topicsOut, nil
@@ -162,12 +164,13 @@ func GetTopicContentByCourse(ctx context.Context, courseID *string) ([]*model.To
 	topicsOut := make([]*model.TopicContent, 0)
 	currentContent := make([]coursez.TopicContent, 0)
 	key := "GetTopicContentByCourse" + *courseID
-	_, err := helpers.GetClaimsFromContext(ctx)
+	claims, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
+	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
-	if err == nil {
+	if err == nil && role != "admin" {
 		err = json.Unmarshal([]byte(result), &currentContent)
 		if err != nil {
 			log.Errorf("Error in unmarshalling redis value for key %s", key)
@@ -195,17 +198,16 @@ func GetTopicContentByCourse(ctx context.Context, courseID *string) ([]*model.To
 	}
 	storageC := bucket.NewStorageHandler()
 	gproject := googleprojectlib.GetGoogleProjectID()
-	err = storageC.InitializeStorageClient(ctx, gproject)
-	if err != nil {
-		log.Errorf("Failed to initialize storage: %v", err.Error())
-		return nil, err
-	}
 	urlSub := make([]*model.SubtitleURL, 0)
 	for _, topCon := range currentContent {
 		mod := topCon
 		createdAt := strconv.FormatInt(mod.CreatedAt, 10)
 		updatedAt := strconv.FormatInt(mod.UpdatedAt, 10)
-
+		err = storageC.InitializeStorageClient(ctx, gproject, mod.LspId)
+		if err != nil {
+			log.Errorf("Failed to initialize storage: %v", err.Error())
+			return nil, err
+		}
 		mainBucket := mod.CourseId + "/" + mod.TopicId + "/subtitles/"
 		if mainBucket != "" {
 			urlSub = storageC.GetSignedURLsForObjects(mainBucket)
@@ -249,12 +251,13 @@ func GetTopicContentByCourse(ctx context.Context, courseID *string) ([]*model.To
 func GetTopicExamsByCourse(ctx context.Context, courseID *string) ([]*model.TopicExam, error) {
 	topicsOut := make([]*model.TopicExam, 0)
 	key := "GetTopicExamsByCourse" + *courseID
-	_, err := helpers.GetClaimsFromContext(ctx)
+	claims, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
+	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
-	if err == nil {
+	if err == nil && role != "admin" {
 		err = json.Unmarshal([]byte(result), &topicsOut)
 		if err == nil {
 			return topicsOut, nil

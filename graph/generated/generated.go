@@ -3862,6 +3862,7 @@ input CoursesFilters {
     DurationMin: Int
     DurationMax: Int
     Type: String
+    SearchText: String
 }
 
 type Query{
@@ -18134,6 +18135,14 @@ func (ec *executionContext) unmarshalInputCoursesFilters(ctx context.Context, ob
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Type"))
 			it.Type, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "SearchText":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("SearchText"))
+			it.SearchText, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}

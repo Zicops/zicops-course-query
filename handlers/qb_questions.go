@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"strings"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/qbankz"
@@ -20,19 +21,16 @@ import (
 func GetQuestionBankQuestions(ctx context.Context, questionBankID *string, filters *model.QBFilters) ([]*model.QuestionBankQuestion, error) {
 	storageC := bucket.NewStorageHandler()
 	gproject := googleprojectlib.GetGoogleProjectID()
-	err := storageC.InitializeStorageClient(ctx, gproject)
-	if err != nil {
-		log.Errorf("Failed to get questions: %v", err.Error())
-		return nil, err
-	}
+
 	key := "GetQuestionBankQuestions" + *questionBankID + fmt.Sprintf("%v", filters)
-	_, err = helpers.GetClaimsFromContext(ctx)
+	claims, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
+	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
 	banks := make([]qbankz.QuestionMain, 0)
-	if err == nil {
+	if err == nil && role != "admin" {
 		err = json.Unmarshal([]byte(result), &banks)
 		if err != nil {
 			log.Errorf("Failed to unmarshal redis value: %v", err.Error())
@@ -91,6 +89,10 @@ func GetQuestionBankQuestions(ctx context.Context, questionBankID *string, filte
 		bucketQ := copiedQuestion.AttachmentBucket
 		attUrl := ""
 		if bucketQ != "" {
+			err = storageC.InitializeStorageClient(ctx, gproject, copiedQuestion.LspId)
+			if err != nil {
+				log.Errorf("Failed to initialize storage client: %v", err.Error())
+			}
 			attUrl = storageC.GetSignedURLForObject(bucketQ)
 		}
 		currentQuestion := &model.QuestionBankQuestion{
@@ -122,26 +124,23 @@ func GetQuestionBankQuestions(ctx context.Context, questionBankID *string, filte
 func GetQuestionsByID(ctx context.Context, questionIds []*string) ([]*model.QuestionBankQuestion, error) {
 	storageC := bucket.NewStorageHandler()
 	gproject := googleprojectlib.GetGoogleProjectID()
-	err := storageC.InitializeStorageClient(ctx, gproject)
-	if err != nil {
-		log.Errorf("Failed to get questions: %v", err.Error())
-		return nil, err
-	}
+
 	session, err := cassandra.GetCassSession("qbankz")
 	if err != nil {
 		return nil, err
 	}
 	CassSession := session
-	_, err = helpers.GetClaimsFromContext(ctx)
+	claims, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
+	role := strings.ToLower(claims["role"].(string))
 	allQuestions := make([]*model.QuestionBankQuestion, 0)
 	for _, id := range questionIds {
 		key := "GetQuestionsByID" + *id
 		result, err := redis.GetRedisValue(key)
 		banks := make([]qbankz.QuestionMain, 0)
-		if err == nil {
+		if err == nil && role != "admin" {
 			json.Unmarshal([]byte(result), &banks)
 		}
 		if len(banks) <= 0 {
@@ -164,6 +163,11 @@ func GetQuestionsByID(ctx context.Context, questionIds []*string) ([]*model.Ques
 			bucketQ := copiedQuestion.AttachmentBucket
 			attUrl := ""
 			if bucketQ != "" {
+				err := storageC.InitializeStorageClient(ctx, gproject, copiedQuestion.LspId)
+				if err != nil {
+					log.Errorf("Failed to get questions: %v", err.Error())
+					return nil, err
+				}
 				attUrl = storageC.GetSignedURLForObject(bucketQ)
 			}
 			currentQuestion := &model.QuestionBankQuestion{

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"strings"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/coursez"
@@ -16,15 +17,16 @@ import (
 
 func GetCohortCourseMaps(ctx context.Context, cohortID *string) ([]*model.CourseCohort, error) {
 	key := "GetCohortCourseMaps" + *cohortID
-	_, err := helpers.GetClaimsFromContext(ctx)
+	claims, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
+	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
 	if err != nil {
 		log.Errorf("GetCohortCourseMaps: %v", err)
 	}
-	if result != "" {
+	if result != "" && role != "admin" {
 		var resultOutput []*model.CourseCohort
 		err = json.Unmarshal([]byte(result), &resultOutput)
 		if err != nil {

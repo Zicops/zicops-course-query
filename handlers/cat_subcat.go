@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"strings"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/coursez"
@@ -92,10 +93,11 @@ func GetSubCategoriesForSub(ctx context.Context, cat *string) ([]*string, error)
 func AllCatMain(ctx context.Context, lspIds []*string) ([]*model.CatMain, error) {
 	log.Info("AllCatMain")
 	key := "AllCatMain" + fmt.Sprintf("%v", lspIds)
-	_, err := helpers.GetClaimsFromContext(ctx)
+	claims, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
+	role := strings.ToLower(claims["role"].(string))
 	cats := make([]coursez.CatMain, 0)
 	result, err := redis.GetRedisValue(key)
 	if err != nil {
@@ -108,7 +110,7 @@ func AllCatMain(ctx context.Context, lspIds []*string) ([]*model.CatMain, error)
 			log.Errorf("Failed to unmarshal value from redis: %v", err.Error())
 		}
 	}
-	if len(cats) <= 0 {
+	if len(cats) <= 0 || role == "admin" {
 		session, err := cassandra.GetCassSession("coursez")
 		if err != nil {
 			return nil, err
@@ -140,19 +142,19 @@ func AllCatMain(ctx context.Context, lspIds []*string) ([]*model.CatMain, error)
 		}
 	}
 	resultOutput := make([]*model.CatMain, 0)
+	storageC := bucket.NewStorageHandler()
+	gproject := googleprojectlib.GetGoogleProjectID()
+	err = storageC.InitializeStorageClient(ctx, gproject, "coursez-catimages")
+	if err != nil {
+		log.Errorf("Failed to initialize storage: %v", err.Error())
+		return nil, err
+	}
 	for _, cat := range cats {
 		copiedCat := cat
 		createdAt := strconv.FormatInt(copiedCat.CreatedAt, 10)
 		updatedAt := strconv.FormatInt(copiedCat.UpdatedAt, 10)
 		imageUrl := copiedCat.ImageURL
 		if copiedCat.ImageBucket != "" {
-			storageC := bucket.NewStorageHandler()
-			gproject := googleprojectlib.GetGoogleProjectID()
-			err = storageC.InitializeStorageClient(ctx, gproject)
-			if err != nil {
-				log.Errorf("Failed to initialize storage: %v", err.Error())
-				continue
-			}
 			imageUrl = storageC.GetSignedURLForObject(copiedCat.ImageBucket)
 		}
 		currentCat := model.CatMain{
@@ -184,10 +186,11 @@ func AllCatMain(ctx context.Context, lspIds []*string) ([]*model.CatMain, error)
 func AllSubCatMain(ctx context.Context, lspIds []*string) ([]*model.SubCatMain, error) {
 	log.Info("AllSubCatMain")
 	key := "AllSubCatMain" + fmt.Sprintf("%v", lspIds)
-	_, err := helpers.GetClaimsFromContext(ctx)
+	claims, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
+	role := strings.ToLower(claims["role"].(string))
 	cats := make([]coursez.SubCatMain, 0)
 	result, err := redis.GetRedisValue(key)
 	if err != nil {
@@ -200,7 +203,7 @@ func AllSubCatMain(ctx context.Context, lspIds []*string) ([]*model.SubCatMain, 
 			log.Errorf("Failed to unmarshal value from redis: %v", err.Error())
 		}
 	}
-	if len(cats) <= 0 {
+	if len(cats) <= 0 || role == "admin" {
 		session, err := cassandra.GetCassSession("coursez")
 		if err != nil {
 			return nil, err
@@ -232,19 +235,19 @@ func AllSubCatMain(ctx context.Context, lspIds []*string) ([]*model.SubCatMain, 
 		}
 	}
 	resultOutput := make([]*model.SubCatMain, 0)
+	storageC := bucket.NewStorageHandler()
+	gproject := googleprojectlib.GetGoogleProjectID()
+	err = storageC.InitializeStorageClient(ctx, gproject, "coursez-catimages")
+	if err != nil {
+		log.Errorf("Failed to initialize storage: %v", err.Error())
+		return nil, err
+	}
 	for _, cat := range cats {
 		copiedCat := cat
 		createdAt := strconv.FormatInt(copiedCat.CreatedAt, 10)
 		updatedAt := strconv.FormatInt(copiedCat.UpdatedAt, 10)
 		imageUrl := copiedCat.ImageURL
 		if copiedCat.ImageBucket != "" {
-			storageC := bucket.NewStorageHandler()
-			gproject := googleprojectlib.GetGoogleProjectID()
-			err = storageC.InitializeStorageClient(ctx, gproject)
-			if err != nil {
-				log.Errorf("Failed to initialize storage: %v", err.Error())
-				continue
-			}
 			imageUrl = storageC.GetSignedURLForObject(copiedCat.ImageBucket)
 		}
 		currentCat := model.SubCatMain{
@@ -277,10 +280,11 @@ func AllSubCatMain(ctx context.Context, lspIds []*string) ([]*model.SubCatMain, 
 func AllSubCatByCatID(ctx context.Context, catID *string) ([]*model.SubCatMain, error) {
 	log.Info("AllSubCatByCatID")
 	key := "AllSubCatByCatID" + *catID
-	_, err := helpers.GetClaimsFromContext(ctx)
+	claims, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
+	role := strings.ToLower(claims["role"].(string))
 	resultOutput := make([]*model.SubCatMain, 0)
 	cats := make([]coursez.SubCatMain, 0)
 	result, err := redis.GetRedisValue(key)
@@ -294,7 +298,7 @@ func AllSubCatByCatID(ctx context.Context, catID *string) ([]*model.SubCatMain, 
 			log.Errorf("Failed to unmarshal value from redis: %v", err.Error())
 		}
 	}
-	if len(cats) <= 0 {
+	if len(cats) <= 0 || role == "admin" {
 		session, err := cassandra.GetCassSession("coursez")
 		if err != nil {
 			return nil, err
@@ -313,19 +317,19 @@ func AllSubCatByCatID(ctx context.Context, catID *string) ([]*model.SubCatMain, 
 			return nil, err
 		}
 	}
+	storageC := bucket.NewStorageHandler()
+	gproject := googleprojectlib.GetGoogleProjectID()
+	err = storageC.InitializeStorageClient(ctx, gproject, "coursez-catimages")
+	if err != nil {
+		log.Errorf("Failed to initialize storage: %v", err.Error())
+		return nil, err
+	}
 	for _, cat := range cats {
 		copiedCat := cat
 		createdAt := strconv.FormatInt(copiedCat.CreatedAt, 10)
 		updatedAt := strconv.FormatInt(copiedCat.UpdatedAt, 10)
 		imageUrl := copiedCat.ImageURL
 		if copiedCat.ImageBucket != "" {
-			storageC := bucket.NewStorageHandler()
-			gproject := googleprojectlib.GetGoogleProjectID()
-			err = storageC.InitializeStorageClient(ctx, gproject)
-			if err != nil {
-				log.Errorf("Failed to initialize storage: %v", err.Error())
-				continue
-			}
 			imageUrl = storageC.GetSignedURLForObject(copiedCat.ImageBucket)
 		}
 		currentCat := model.SubCatMain{

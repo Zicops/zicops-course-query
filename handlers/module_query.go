@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/zicops/contracts/coursez"
 	"github.com/zicops/zicops-cass-pool/cassandra"
@@ -16,12 +17,13 @@ import (
 func GetModulesCourseByID(ctx context.Context, courseID *string) ([]*model.Module, error) {
 	modules := make([]*model.Module, 0)
 	key := "GetModulesCourseByID" + *courseID
-	_, err := helpers.GetClaimsFromContext(ctx)
+	claims, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
+	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
-	if err == nil {
+	if err == nil && role != "admin" {
 		err = json.Unmarshal([]byte(result), &modules)
 		if err == nil {
 			return modules, nil
@@ -76,12 +78,13 @@ func GetModulesCourseByID(ctx context.Context, courseID *string) ([]*model.Modul
 func GetModuleByID(ctx context.Context, moduleID *string) (*model.Module, error) {
 	modules := make([]*model.Module, 0)
 	key := "GetModuleByID" + *moduleID
-	_, err := helpers.GetClaimsFromContext(ctx)
+	claims, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
+	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
-	if err == nil {
+	if err == nil && role != "admin"{
 		err = json.Unmarshal([]byte(result), &modules)
 		if err == nil {
 			return modules[0], nil

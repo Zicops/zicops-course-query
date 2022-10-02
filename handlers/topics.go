@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"strings"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/coursez"
@@ -20,12 +21,13 @@ func GetTopicsCourseByID(ctx context.Context, courseID *string) ([]*model.Topic,
 	topicsOut := make([]*model.Topic, 0)
 	currentTopics := make([]coursez.Topic, 0)
 	key := "GetTopicsCourseByID" + *courseID
-	_, err := helpers.GetClaimsFromContext(ctx)
+	claims, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
+	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
-	if err == nil {
+	if err == nil && role != "admin" {
 		err = json.Unmarshal([]byte(result), &currentTopics)
 		if err != nil {
 			log.Errorf("Failed to unmarshal topics: %v", err.Error())
@@ -52,17 +54,17 @@ func GetTopicsCourseByID(ctx context.Context, courseID *string) ([]*model.Topic,
 	}
 	storageC := bucket.NewStorageHandler()
 	gproject := googleprojectlib.GetGoogleProjectID()
-	err = storageC.InitializeStorageClient(ctx, gproject)
-	if err != nil {
-		log.Errorf("Failed to initialize storage: %v", err.Error())
-		return nil, err
-	}
 	for _, topCopied := range currentTopics {
 		mod := topCopied
 		createdAt := strconv.FormatInt(mod.CreatedAt, 10)
 		updatedAt := strconv.FormatInt(mod.UpdatedAt, 10)
 		url := ""
 		if mod.ImageBucket != "" {
+			err = storageC.InitializeStorageClient(ctx, gproject, mod.LspID)
+			if err != nil {
+				log.Errorf("Failed to initialize storage: %v", err.Error())
+				return nil, err
+			}
 			url = storageC.GetSignedURLForObject(mod.ImageBucket)
 		}
 		currentModule := &model.Topic{
@@ -95,12 +97,13 @@ func GetTopicByID(ctx context.Context, topicID *string) (*model.Topic, error) {
 	topics := make([]*model.Topic, 0)
 	currentTopics := make([]coursez.Topic, 0)
 	key := "GetTopicByID" + *topicID
-	_, err := helpers.GetClaimsFromContext(ctx)
+	claims, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
+	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
-	if err == nil {
+	if err == nil && role != "admin"{
 		err = json.Unmarshal([]byte(result), &currentTopics)
 		if err != nil {
 			log.Errorf("Failed to unmarshal topics: %v", err.Error())
@@ -127,17 +130,17 @@ func GetTopicByID(ctx context.Context, topicID *string) (*model.Topic, error) {
 	}
 	storageC := bucket.NewStorageHandler()
 	gproject := googleprojectlib.GetGoogleProjectID()
-	err = storageC.InitializeStorageClient(ctx, gproject)
-	if err != nil {
-		log.Errorf("Failed to initialize storage: %v", err.Error())
-		return nil, err
-	}
 	for _, copiedTop := range currentTopics {
 		top := copiedTop
 		createdAt := strconv.FormatInt(top.CreatedAt, 10)
 		updatedAt := strconv.FormatInt(top.UpdatedAt, 10)
 		url := ""
 		if top.ImageBucket != "" {
+			err = storageC.InitializeStorageClient(ctx, gproject, top.LspID)
+			if err != nil {
+				log.Errorf("Failed to initialize storage: %v", err.Error())
+				return nil, err
+			}
 			url = storageC.GetSignedURLForObject(top.ImageBucket)
 		}
 		currentTop := &model.Topic{

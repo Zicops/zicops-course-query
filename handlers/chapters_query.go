@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"strings"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/coursez"
@@ -16,12 +17,14 @@ import (
 
 func GetChaptersCourseByID(ctx context.Context, courseID *string) ([]*model.Chapter, error) {
 	chapters := make([]*model.Chapter, 0)
-	_, err := helpers.GetClaimsFromContext(ctx)
+	claims, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
+	role := strings.ToLower(claims["role"].(string))
 	key := "GetChaptersCourseByID" + *courseID
 	result, err := redis.GetRedisValue(key)
+
 	if err != nil {
 		log.Errorf("GetChaptersCourseByID: %v", err)
 	}
@@ -31,7 +34,7 @@ func GetChaptersCourseByID(ctx context.Context, courseID *string) ([]*model.Chap
 			log.Errorf("GetChaptersCourseByID: %v", err)
 		}
 	}
-	if len(chapters) > 0 {
+	if len(chapters) > 0 && role != "admin" {
 		return chapters, nil
 	}
 	session, err := cassandra.GetCassSession("coursez")
@@ -83,10 +86,11 @@ func GetChaptersCourseByID(ctx context.Context, courseID *string) ([]*model.Chap
 func GetChapterByID(ctx context.Context, chapterID *string) (*model.Chapter, error) {
 	chapters := make([]*model.Chapter, 0)
 	key := "GetChapterByID" + *chapterID
-	_, err := helpers.GetClaimsFromContext(ctx)
+	claims, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
+	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
 	if err != nil {
 		log.Errorf("GetChapterByID: %v", err)
@@ -97,7 +101,7 @@ func GetChapterByID(ctx context.Context, chapterID *string) (*model.Chapter, err
 			log.Errorf("GetChapterByID: %v", err)
 		}
 	}
-	if len(chapters) > 0 {
+	if len(chapters) > 0 && role != "admin" {
 		return chapters[0], nil
 	}
 	session, err := cassandra.GetCassSession("coursez")

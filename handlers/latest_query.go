@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"strings"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/coursez"
@@ -36,10 +37,11 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 		filtersStr = "nil"
 	}
 	key := "LatestCourses" + string(newPage) + filtersStr
-	_, err := helpers.GetClaimsFromContext(ctx)
+	claims, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
+	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
 	if err != nil {
 		log.Errorf("Error in getting redis value: %v", err)
@@ -64,7 +66,7 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 	} else {
 		statusNew = *status
 	}
-	if len(dbCourses) <= 0 {
+	if len(dbCourses) <= 0 || role == "admin" {
 		session, err := cassandra.GetCassSession("coursez")
 		if err != nil {
 			return nil, err
@@ -93,6 +95,9 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 			if filters.Type != nil {
 				whereClause = whereClause + fmt.Sprintf(` and type='%s'`, *filters.Type)
 			}
+			if filters.SearchText != nil {
+				whereClause = whereClause + fmt.Sprintf(` and name CONTAINS '%s'`, *filters.SearchText)
+			}
 		}
 		qryStr := fmt.Sprintf(`SELECT * from coursez.course %s ALLOW FILTERING`, whereClause)
 		getCourses := func(page []byte) (courses []coursez.Course, nextPage []byte, err error) {
@@ -119,15 +124,14 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 	}
 	var outputResponse model.PaginatedCourse
 	storageC := bucket.NewStorageHandler()
-	gproject := googleprojectlib.GetGoogleProjectID()
-	err = storageC.InitializeStorageClient(ctx, gproject)
-	if err != nil {
-		log.Errorf("Failed to upload image to course: %v", err.Error())
-		return nil, err
-	}
 	allCourses := make([]*model.Course, 0)
 	for _, copiedCourse := range dbCourses {
 		course := copiedCourse
+		gproject := googleprojectlib.GetGoogleProjectID()
+		err = storageC.InitializeStorageClient(ctx, gproject, course.LspID)
+		if err != nil {
+			log.Errorf("Failed to initialize bucket to course: %v", err.Error())
+		}
 		createdAt := strconv.FormatInt(course.CreatedAt, 10)
 		updatedAt := strconv.FormatInt(course.UpdatedAt, 10)
 		language := make([]*string, 0)
