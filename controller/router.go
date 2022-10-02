@@ -99,6 +99,12 @@ func graphqlHandler() gin.HandlerFunc {
 		if err != nil {
 			log.Errorf("Error getting user from redis %s", err.Error())
 		}
+		lspIdInt := ctxValue["tenant"]
+		lspID := "d8685567-cdae-4ee0-a80e-c187848a760e"
+		if lspIdInt != nil && lspIdInt.(string) != "" {
+			lspID = lspIdInt.(string)
+		}
+		ctxValue["lsp_id"] = lspID
 		if redisResult != "" {
 			err = json.Unmarshal([]byte(redisResult), &userInput)
 			if err != nil {
