@@ -111,7 +111,7 @@ func graphqlHandler() gin.HandlerFunc {
 			}
 		} else {
 			ctxValue["role"] = "learner"
-			log.Errorf("User not found in redis")
+			log.Errorf("User not found in redis: %s", userIdUsingEmail)
 		}
 		request := c.Request
 		requestWithValue := request.WithContext(context.WithValue(request.Context(), "zclaims", ctxValue))
