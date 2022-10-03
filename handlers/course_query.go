@@ -82,7 +82,7 @@ func GetCourseByID(ctx context.Context, courseID *string) (*model.Course, error)
 		}
 		CassSession := session
 
-		qryStr := fmt.Sprintf(`SELECT * from coursez.course where id='%s'`, *courseID)
+		qryStr := fmt.Sprintf(`SELECT * from coursez.course where id='%s' ALLOW FILTERING`, *courseID)
 		getCourse := func() (courses []coursez.Course, err error) {
 			q := CassSession.Query(qryStr, nil)
 			defer q.Release()
