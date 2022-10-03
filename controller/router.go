@@ -112,7 +112,7 @@ func graphqlHandler() gin.HandlerFunc {
 				redis.SetTTL(userIdUsingEmail, 3600)
 			}
 		} else {
-			session, err := cassandra.GetCassSession("usez")
+			session, err := cassandra.GetCassSession("userz")
 			if err != nil {
 				log.Errorf("Error getting cassandra session %s", err.Error())
 			}
