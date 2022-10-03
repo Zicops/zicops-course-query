@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -14,6 +15,7 @@ import (
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/userz"
+	"github.com/zicops/zicops-cass-pool/cassandra"
 	"github.com/zicops/zicops-cass-pool/redis"
 	"github.com/zicops/zicops-course-query/graph"
 	"github.com/zicops/zicops-course-query/graph/generated"
@@ -110,8 +112,29 @@ func graphqlHandler() gin.HandlerFunc {
 				redis.SetTTL(userIdUsingEmail, 3600)
 			}
 		} else {
-			ctxValue["role"] = "learner"
-			log.Errorf("User not found in redis: %s", userIdUsingEmail)
+			session, err := cassandra.GetCassSession("coursez")
+			if err != nil {
+				log.Errorf("Error getting cassandra session %s", err.Error())
+			}
+			CassUserSession := session
+			qryStr := fmt.Sprintf(`SELECT * from userz.users where id='%s'  ALLOW FILTERING`, userIdUsingEmail)
+			getUsers := func() (users []userz.User, err error) {
+				q := CassUserSession.Query(qryStr, nil)
+				defer q.Release()
+				iter := q.Iter()
+				return users, iter.Select(&users)
+			}
+			users, err := getUsers()
+			if err != nil {
+				log.Errorf("Error getting users %s", err.Error())
+			}
+			if len(users) > 0 {
+				ctxValue["role"] = users[0].Role
+				userInput = users[0]
+				userInputBytes, _ := json.Marshal(userInput)
+				redis.SetRedisValue(userIdUsingEmail, string(userInputBytes))
+				redis.SetTTL(userIdUsingEmail, 3600)
+			}
 		}
 		request := c.Request
 		requestWithValue := request.WithContext(context.WithValue(request.Context(), "zclaims", ctxValue))
