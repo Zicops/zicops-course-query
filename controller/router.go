@@ -18,7 +18,6 @@ import (
 	"github.com/zicops/zicops-course-query/graph"
 	"github.com/zicops/zicops-course-query/graph/generated"
 	"github.com/zicops/zicops-course-query/lib/jwt"
-	"github.com/zicops/zicops-user-manager/handlers/queries"
 )
 
 // CCRouter ... the router for the controller
@@ -111,17 +110,8 @@ func graphqlHandler() gin.HandlerFunc {
 				redis.SetTTL(userIdUsingEmail, 3600)
 			}
 		} else {
-			user, err := queries.GetUserDetails(c.Request.Context(), []*string{&userInput.ID})
-			if err != nil {
-				log.Errorf("Error getting user from user manager %s", err.Error())
-			}
-			if len(user) > 0 {
-				ctxValue["role"] = user[0].Role
-				userBytes, _ := json.Marshal(user[0])
-				redis.SetRedisValue(userIdUsingEmail, string(userBytes))
-				redis.SetTTL(userIdUsingEmail, 3600)
-			}
-
+			ctxValue["role"] = "learner"
+			log.Errorf("User not found in redis")
 		}
 		request := c.Request
 		requestWithValue := request.WithContext(context.WithValue(request.Context(), "zclaims", ctxValue))
