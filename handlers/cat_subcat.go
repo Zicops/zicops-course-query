@@ -212,7 +212,7 @@ func AllSubCatMain(ctx context.Context, lspIds []*string) ([]*model.SubCatMain, 
 		whereClause := ""
 		if len(lspIds) > 0 {
 			// cassandra contains clauses using lspIds
-			whereClause = "WHERE lsps IN ("
+			whereClause = "WHERE lsps CONTAINS ("
 			for i, lspId := range lspIds {
 				if i == 0 {
 					whereClause = whereClause + "'" + *lspId + "'"
