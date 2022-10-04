@@ -128,7 +128,7 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 	for _, copiedCourse := range dbCourses {
 		course := copiedCourse
 		gproject := googleprojectlib.GetGoogleProjectID()
-		err = storageC.InitializeStorageClient(ctx, gproject, course.LspID)
+		err = storageC.InitializeStorageClient(ctx, gproject, course.LspId)
 		if err != nil {
 			log.Errorf("Failed to initialize bucket to course: %v", err.Error())
 		}
@@ -179,8 +179,7 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 		for _, subCat := range course.SubCategories {
 			subCopied := subCat
 			var subCR model.SubCategories
-			subCR.Name = &subCopied.Name
-			subCR.Rank = &subCopied.Rank
+			subCR.Name = &subCopied
 			subCatsRes = append(subCatsRes, &subCR)
 		}
 		tileUrl := ""
@@ -198,7 +197,7 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 		currentCourse := model.Course{
 			ID:                 &course.ID,
 			Name:               &course.Name,
-			LspID:              &course.LspID,
+			LspID:              &course.LspId,
 			Publisher:          &course.Publisher,
 			Description:        &course.Description,
 			Summary:            &course.Summary,

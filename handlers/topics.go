@@ -60,7 +60,7 @@ func GetTopicsCourseByID(ctx context.Context, courseID *string) ([]*model.Topic,
 		updatedAt := strconv.FormatInt(mod.UpdatedAt, 10)
 		url := ""
 		if mod.ImageBucket != "" {
-			err = storageC.InitializeStorageClient(ctx, gproject, mod.LspID)
+			err = storageC.InitializeStorageClient(ctx, gproject, mod.LspId)
 			if err != nil {
 				log.Errorf("Failed to initialize storage: %v", err.Error())
 				return nil, err
@@ -136,7 +136,7 @@ func GetTopicByID(ctx context.Context, topicID *string) (*model.Topic, error) {
 		updatedAt := strconv.FormatInt(top.UpdatedAt, 10)
 		url := ""
 		if top.ImageBucket != "" {
-			err = storageC.InitializeStorageClient(ctx, gproject, top.LspID)
+			err = storageC.InitializeStorageClient(ctx, gproject, top.LspId)
 			if err != nil {
 				log.Errorf("Failed to initialize storage: %v", err.Error())
 				return nil, err

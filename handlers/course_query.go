@@ -55,8 +55,8 @@ func GetCourseByID(ctx context.Context, courseID *string) (*model.Course, error)
 		ExpectedCompletion: "",
 		Category:           "",
 		SubCategory:        "",
-		SubCategories:      []coursez.SubCat{},
-		LspID:              "",
+		SubCategories:      []string{},
+		LspId:              "",
 		Publisher:          "",
 	}
 	key := "GetCourseByID" + *courseID
@@ -142,14 +142,13 @@ func GetCourseByID(ctx context.Context, courseID *string) (*model.Course, error)
 	for _, subCat := range course.SubCategories {
 		subCopied := subCat
 		var subCR model.SubCategories
-		subCR.Name = &subCopied.Name
-		subCR.Rank = &subCopied.Rank
+		subCR.Name = &subCopied
 		subCatsRes = append(subCatsRes, &subCR)
 	}
 
 	storageC := bucket.NewStorageHandler()
 	gproject := googleprojectlib.GetGoogleProjectID()
-	err = storageC.InitializeStorageClient(ctx, gproject, course.LspID)
+	err = storageC.InitializeStorageClient(ctx, gproject, course.LspId)
 	if err != nil {
 		log.Errorf("Failed to initialize storage: %v", err.Error())
 		return nil, err
@@ -183,7 +182,7 @@ func GetCourseByID(ctx context.Context, courseID *string) (*model.Course, error)
 	currentCourse := model.Course{
 		ID:                 &course.ID,
 		Name:               &course.Name,
-		LspID:              &course.LspID,
+		LspID:              &course.LspId,
 		Publisher:          &course.Publisher,
 		Description:        &course.Description,
 		Summary:            &course.Summary,

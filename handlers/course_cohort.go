@@ -63,7 +63,7 @@ func GetCohortCourseMaps(ctx context.Context, cohortID *string) ([]*model.Course
 			CourseType:         &input.CourseType,
 			CohortID:           &input.CohortID,
 			CourseStatus:       &input.CourseStatus,
-			LspID:              &input.LspID,
+			LspID:              &input.LspId,
 			IsMandatory:        &input.IsMandatory,
 			AddedBy:            &input.AddedBy,
 			IsActive:           &input.IsActive,
