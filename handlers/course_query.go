@@ -55,7 +55,7 @@ func GetCourseByID(ctx context.Context, courseID *string) (*model.Course, error)
 		ExpectedCompletion: "",
 		Category:           "",
 		SubCategory:        "",
-		SubCategories:      []string{},
+		SubCategories:      []coursez.SubCat{},
 		LspId:              "",
 		Publisher:          "",
 	}
@@ -142,7 +142,8 @@ func GetCourseByID(ctx context.Context, courseID *string) (*model.Course, error)
 	for _, subCat := range course.SubCategories {
 		subCopied := subCat
 		var subCR model.SubCategories
-		subCR.Name = &subCopied
+		subCR.Name = &subCopied.Name
+		subCR.Rank = &subCopied.Rank
 		subCatsRes = append(subCatsRes, &subCR)
 	}
 

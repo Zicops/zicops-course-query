@@ -179,7 +179,8 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 		for _, subCat := range course.SubCategories {
 			subCopied := subCat
 			var subCR model.SubCategories
-			subCR.Name = &subCopied
+			subCR.Name = &subCopied.Name
+			subCR.Rank = &subCopied.Rank
 			subCatsRes = append(subCatsRes, &subCR)
 		}
 		tileUrl := ""
