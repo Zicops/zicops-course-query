@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -14,11 +15,11 @@ import (
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/userz"
+	"github.com/zicops/zicops-cass-pool/cassandra"
 	"github.com/zicops/zicops-cass-pool/redis"
 	"github.com/zicops/zicops-course-query/graph"
 	"github.com/zicops/zicops-course-query/graph/generated"
 	"github.com/zicops/zicops-course-query/lib/jwt"
-	"github.com/zicops/zicops-user-manager/handlers/queries"
 )
 
 // CCRouter ... the router for the controller
@@ -95,10 +96,7 @@ func graphqlHandler() gin.HandlerFunc {
 		userIdUsingEmail := base64.URLEncoding.EncodeToString([]byte(emailCalled))
 		var userInput userz.User
 		// user get query
-		redisResult, err := redis.GetRedisValue(userIdUsingEmail)
-		if err != nil {
-			log.Errorf("Error getting user from redis %s", err.Error())
-		}
+		redisResult, _ := redis.GetRedisValue(userIdUsingEmail)
 		lspIdInt := ctxValue["tenant"]
 		lspID := "d8685567-cdae-4ee0-a80e-c187848a760e"
 		if lspIdInt != nil && lspIdInt.(string) != "" {
@@ -106,24 +104,37 @@ func graphqlHandler() gin.HandlerFunc {
 		}
 		ctxValue["lsp_id"] = lspID
 		if redisResult != "" {
-			err = json.Unmarshal([]byte(redisResult), &userInput)
+			err := json.Unmarshal([]byte(redisResult), &userInput)
 			if err != nil {
 				log.Errorf("Error unmarshalling user from redis %s", err.Error())
-			}
-			ctxValue["role"] = userInput.Role
-			redis.SetTTL(userIdUsingEmail, 3600)
-		} else {
-			user, err := queries.GetUserDetails(c.Request.Context(), []*string{&userInput.ID})
-			if err != nil {
-				log.Errorf("Error getting user from user manager %s", err.Error())
-			}
-			if len(user) > 0 {
-				ctxValue["role"] = user[0].Role
-				userBytes, _ := json.Marshal(user[0])
-				redis.SetRedisValue(userIdUsingEmail, string(userBytes))
+			} else {
+				ctxValue["role"] = userInput.Role
 				redis.SetTTL(userIdUsingEmail, 3600)
 			}
-
+		} else {
+			session, err := cassandra.GetCassSession("userz")
+			if err != nil {
+				log.Errorf("Error getting cassandra session %s", err.Error())
+			}
+			CassUserSession := session
+			qryStr := fmt.Sprintf(`SELECT * from userz.users where id='%s'  ALLOW FILTERING`, userIdUsingEmail)
+			getUsers := func() (users []userz.User, err error) {
+				q := CassUserSession.Query(qryStr, nil)
+				defer q.Release()
+				iter := q.Iter()
+				return users, iter.Select(&users)
+			}
+			users, err := getUsers()
+			if err != nil {
+				log.Errorf("Error getting users %s", err.Error())
+			}
+			if len(users) > 0 {
+				ctxValue["role"] = users[0].Role
+				userInput = users[0]
+				userInputBytes, _ := json.Marshal(userInput)
+				redis.SetRedisValue(userIdUsingEmail, string(userInputBytes))
+				redis.SetTTL(userIdUsingEmail, 3600)
+			}
 		}
 		request := c.Request
 		requestWithValue := request.WithContext(context.WithValue(request.Context(), "zclaims", ctxValue))

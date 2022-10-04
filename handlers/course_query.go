@@ -56,7 +56,7 @@ func GetCourseByID(ctx context.Context, courseID *string) (*model.Course, error)
 		Category:           "",
 		SubCategory:        "",
 		SubCategories:      []coursez.SubCat{},
-		LspID:              "",
+		LspId:              "",
 		Publisher:          "",
 	}
 	key := "GetCourseByID" + *courseID
@@ -82,7 +82,7 @@ func GetCourseByID(ctx context.Context, courseID *string) (*model.Course, error)
 		}
 		CassSession := session
 
-		qryStr := fmt.Sprintf(`SELECT * from coursez.course where id='%s'`, *courseID)
+		qryStr := fmt.Sprintf(`SELECT * from coursez.course where id='%s' ALLOW FILTERING`, *courseID)
 		getCourse := func() (courses []coursez.Course, err error) {
 			q := CassSession.Query(qryStr, nil)
 			defer q.Release()
@@ -149,7 +149,7 @@ func GetCourseByID(ctx context.Context, courseID *string) (*model.Course, error)
 
 	storageC := bucket.NewStorageHandler()
 	gproject := googleprojectlib.GetGoogleProjectID()
-	err = storageC.InitializeStorageClient(ctx, gproject, course.LspID)
+	err = storageC.InitializeStorageClient(ctx, gproject, course.LspId)
 	if err != nil {
 		log.Errorf("Failed to initialize storage: %v", err.Error())
 		return nil, err
@@ -183,7 +183,7 @@ func GetCourseByID(ctx context.Context, courseID *string) (*model.Course, error)
 	currentCourse := model.Course{
 		ID:                 &course.ID,
 		Name:               &course.Name,
-		LspID:              &course.LspID,
+		LspID:              &course.LspId,
 		Publisher:          &course.Publisher,
 		Description:        &course.Description,
 		Summary:            &course.Summary,
