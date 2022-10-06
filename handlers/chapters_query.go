@@ -36,6 +36,8 @@ func GetChaptersCourseByID(ctx context.Context, courseID *string) ([]*model.Chap
 	}
 	if len(chapters) > 0 && role != "admin" {
 		return chapters, nil
+	} else {
+		chapters = make([]*model.Chapter, 0)
 	}
 	session, err := cassandra.GetCassSession("coursez")
 	if err != nil {
@@ -103,7 +105,10 @@ func GetChapterByID(ctx context.Context, chapterID *string) (*model.Chapter, err
 	}
 	if len(chapters) > 0 && role != "admin" {
 		return chapters[0], nil
+	}else {
+		chapters = make([]*model.Chapter, 0)
 	}
+	
 	session, err := cassandra.GetCassSession("coursez")
 	if err != nil {
 		return nil, err
