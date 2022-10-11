@@ -296,6 +296,11 @@ func GetLatestExams(ctx context.Context, publishTime *int, pageCursor *string, d
 		copiedExam := exam
 		createdAt := strconv.FormatInt(copiedExam.CreatedAt, 10)
 		updatedAt := strconv.FormatInt(copiedExam.UpdatedAt, 10)
+		questionIDs := make([]*string, 0)
+		for _, questionID := range copiedExam.QuestionIDs {
+			copiedQId := questionID
+			questionIDs = append(questionIDs, &copiedQId)
+		}
 		currentExam := &model.Exam{
 			ID:           &copiedExam.ID,
 			Name:         &copiedExam.Name,
@@ -313,6 +318,7 @@ func GetLatestExams(ctx context.Context, publishTime *int, pageCursor *string, d
 			Status:       &copiedExam.Status,
 			Category:     &copiedExam.Category,
 			SubCategory:  &copiedExam.SubCategory,
+			QuestionIds:  questionIDs,
 		}
 		allExams = append(allExams, currentExam)
 	}
@@ -371,6 +377,11 @@ func GetExamsMeta(ctx context.Context, examIds []*string) ([]*model.Exam, error)
 			copiedExam := bank
 			createdAt := strconv.FormatInt(copiedExam.CreatedAt, 10)
 			updatedAt := strconv.FormatInt(copiedExam.UpdatedAt, 10)
+			questionIDs := make([]*string, 0)
+			for _, questionID := range copiedExam.QuestionIDs {
+				copiedQId := questionID
+				questionIDs = append(questionIDs, &copiedQId)
+			}
 			currentExam := &model.Exam{
 				ID:           &copiedExam.ID,
 				Name:         &copiedExam.Name,
@@ -388,6 +399,7 @@ func GetExamsMeta(ctx context.Context, examIds []*string) ([]*model.Exam, error)
 				Status:       &copiedExam.Status,
 				Category:     &copiedExam.Category,
 				SubCategory:  &copiedExam.SubCategory,
+				QuestionIds:  questionIDs,
 			}
 			responseMap = append(responseMap, currentExam)
 			redisBytes, err := json.Marshal(currentExam)
@@ -416,7 +428,7 @@ func GetQBMeta(ctx context.Context, qbIds []*string) ([]*model.QuestionBank, err
 
 	for _, qbId := range qbIds {
 		result, _ := redis.GetRedisValue("GetQBMeta" + *qbId)
-		if result != "" && role != "admin"{
+		if result != "" && role != "admin" {
 			var outputResponse model.QuestionBank
 			err = json.Unmarshal([]byte(result), &outputResponse)
 			if err == nil {
