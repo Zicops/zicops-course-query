@@ -12,8 +12,8 @@ import (
 	"github.com/zicops/zicops-course-query/handlers"
 )
 
-func (r *queryResolver) AllCatMain(ctx context.Context, lspIds []*string) ([]*model.CatMain, error) {
-	resp, err := handlers.AllCatMain(ctx, lspIds)
+func (r *queryResolver) AllCatMain(ctx context.Context, lspIds []*string, searchText *string) ([]*model.CatMain, error) {
+	resp, err := handlers.AllCatMain(ctx, lspIds, searchText)
 	if err != nil {
 		log.Errorf("error getting categories: %v", err)
 		return nil, err
@@ -21,8 +21,8 @@ func (r *queryResolver) AllCatMain(ctx context.Context, lspIds []*string) ([]*mo
 	return resp, nil
 }
 
-func (r *queryResolver) AllSubCatMain(ctx context.Context, lspIds []*string) ([]*model.SubCatMain, error) {
-	resp, err := handlers.AllSubCatMain(ctx, lspIds)
+func (r *queryResolver) AllSubCatMain(ctx context.Context, lspIds []*string, searchText *string) ([]*model.SubCatMain, error) {
+	resp, err := handlers.AllSubCatMain(ctx, lspIds, searchText)
 	if err != nil {
 		log.Errorf("error getting sub categories: %v", err)
 		return nil, err
@@ -273,8 +273,8 @@ func (r *queryResolver) GetQPMeta(ctx context.Context, questionPapersIds []*stri
 	return resp, nil
 }
 
-func (r *queryResolver) GetLatestExams(ctx context.Context, publishTime *int, pageCursor *string, direction *string, pageSize *int) (*model.PaginatedExams, error) {
-	resp, err := handlers.GetLatestExams(ctx, publishTime, pageCursor, direction, pageSize)
+func (r *queryResolver) GetLatestExams(ctx context.Context, publishTime *int, pageCursor *string, direction *string, pageSize *int, searchText *string) (*model.PaginatedExams, error) {
+	resp, err := handlers.GetLatestExams(ctx, publishTime, pageCursor, direction, pageSize, searchText)
 	if err != nil {
 		log.Errorf("error getting exams: %v", err)
 		return nil, err

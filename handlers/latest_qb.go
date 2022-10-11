@@ -226,7 +226,7 @@ func LatestQuestionPapers(ctx context.Context, publishTime *int, pageCursor *str
 	return &outputResponse, nil
 }
 
-func GetLatestExams(ctx context.Context, publishTime *int, pageCursor *string, direction *string, pageSize *int) (*model.PaginatedExams, error) {
+func GetLatestExams(ctx context.Context, publishTime *int, pageCursor *string, direction *string, pageSize *int, searchText *string) (*model.PaginatedExams, error) {
 	var newPage []byte
 	//var pageDirection string
 	var pageSizeInt int
@@ -267,8 +267,11 @@ func GetLatestExams(ctx context.Context, publishTime *int, pageCursor *string, d
 		return nil, err
 	}
 	CassSession := session
-
-	qryStr := fmt.Sprintf(`SELECT * from qbankz.exam where updated_at <= %d  ALLOW FILTERING`, *publishTime)
+	whereClause := ""
+	if searchText != nil && *searchText != "" {
+		whereClause = fmt.Sprintf(` AND name CONTAINS '%s'`, *searchText)
+	}
+	qryStr := fmt.Sprintf(`SELECT * from qbankz.exam where updated_at <= %d  %s ALLOW FILTERING`, *publishTime, whereClause)
 	getExams := func(page []byte) (exams []qbankz.Exam, nextPage []byte, err error) {
 		q := CassSession.Query(qryStr, nil)
 		defer q.Release()

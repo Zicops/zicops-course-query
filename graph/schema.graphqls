@@ -453,8 +453,8 @@ input CoursesFilters {
 }
 
 type Query{
-  allCatMain(lsp_ids: [String]): [CatMain]
-  allSubCatMain(lsp_ids: [String]): [SubCatMain]
+  allCatMain(lsp_ids: [String], searchText: String): [CatMain]
+  allSubCatMain(lsp_ids: [String], searchText: String): [SubCatMain]
   allSubCatByCatId(catId: String): [SubCatMain]
   allCategories: [String]
   allSubCategories: [String]
@@ -482,7 +482,7 @@ type Query{
   getQuestionBankQuestions(question_bank_id: String, filters: QBFilters): [QuestionBankQuestion]
   getLatestQuestionPapers(publish_time: Int, pageCursor: String, Direction: String, pageSize:Int): PaginatedQuestionPapers
   getQPMeta(question_papers_ids:[String]): [QuestionPaper]
-  getLatestExams(publish_time: Int, pageCursor: String, Direction: String, pageSize:Int): PaginatedExams
+  getLatestExams(publish_time: Int, pageCursor: String, Direction: String, pageSize:Int, searchText: String): PaginatedExams
   getQuestionPaperSections(question_paper_id: String): [QuestionPaperSection]
   getQPBankMappingByQBId(question_bank_id: String): [SectionQBMapping]
   getQPBankMappingBySectionId(section_id: String): [SectionQBMapping]
