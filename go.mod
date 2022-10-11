@@ -9,13 +9,17 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-contrib/cors v1.4.0
 	github.com/gin-gonic/gin v1.8.1
-	github.com/sirupsen/logrus v1.9.0
 	github.com/vektah/gqlparser/v2 v2.5.1
 	github.com/zicops/contracts v0.0.0-20221011165709-0147c05c3461
 	github.com/zicops/zicops-cass-pool v0.0.0-20220919192352-78030dc81568
 	golang.org/x/oauth2 v0.0.0-20221006150949-b44042a4b9c1
 	google.golang.org/api v0.98.0
 	gopkg.in/tylerb/graceful.v1 v1.2.15
+)
+
+require (
+	github.com/nlepage/go-js-promise v1.0.0 // indirect
+	github.com/sirupsen/logrus v1.9.0 // indirect
 )
 
 require (
@@ -46,6 +50,7 @@ require (
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
+	github.com/nlepage/go-wasm-http-server v1.1.0
 	github.com/pelletier/go-toml/v2 v2.0.5 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/scylladb/go-reflectx v1.0.1 // indirect

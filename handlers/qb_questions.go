@@ -7,7 +7,6 @@ import (
 	"strconv"
 	"strings"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/qbankz"
 	"github.com/zicops/zicops-cass-pool/cassandra"
 	"github.com/zicops/zicops-cass-pool/redis"
@@ -33,7 +32,7 @@ func GetQuestionBankQuestions(ctx context.Context, questionBankID *string, filte
 	if err == nil && role != "admin" {
 		err = json.Unmarshal([]byte(result), &banks)
 		if err != nil {
-			log.Errorf("Failed to unmarshal redis value: %v", err.Error())
+			fmt.Println("Failed to unmarshal redis value: %v", err.Error())
 		}
 	}
 	if len(banks) <= 0 {
@@ -91,7 +90,7 @@ func GetQuestionBankQuestions(ctx context.Context, questionBankID *string, filte
 		if bucketQ != "" {
 			err = storageC.InitializeStorageClient(ctx, gproject, copiedQuestion.LspId)
 			if err != nil {
-				log.Errorf("Failed to initialize storage client: %v", err.Error())
+				fmt.Println("Failed to initialize storage client: %v", err.Error())
 			}
 			attUrl = storageC.GetSignedURLForObject(bucketQ)
 		}
@@ -165,7 +164,7 @@ func GetQuestionsByID(ctx context.Context, questionIds []*string) ([]*model.Ques
 			if bucketQ != "" {
 				err := storageC.InitializeStorageClient(ctx, gproject, copiedQuestion.LspId)
 				if err != nil {
-					log.Errorf("Failed to get questions: %v", err.Error())
+					fmt.Println("Failed to get questions: %v", err.Error())
 					return nil, err
 				}
 				attUrl = storageC.GetSignedURLForObject(bucketQ)

@@ -7,7 +7,6 @@ import (
 	"strconv"
 	"strings"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/coursez"
 	"github.com/zicops/zicops-cass-pool/cassandra"
 	"github.com/zicops/zicops-cass-pool/redis"
@@ -24,13 +23,13 @@ func GetCohortCourseMaps(ctx context.Context, cohortID *string) ([]*model.Course
 	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
 	if err != nil {
-		log.Errorf("GetCohortCourseMaps: %v", err)
+		fmt.Println("GetCohortCourseMaps: %v", err)
 	}
 	if result != "" && role != "admin" {
 		var resultOutput []*model.CourseCohort
 		err = json.Unmarshal([]byte(result), &resultOutput)
 		if err != nil {
-			log.Errorf("GetCohortCourseMaps: %v", err)
+			fmt.Println("GetCohortCourseMaps: %v", err)
 		}
 		return resultOutput, nil
 	}
@@ -79,12 +78,12 @@ func GetCohortCourseMaps(ctx context.Context, cohortID *string) ([]*model.Course
 
 	redisBytes, err := json.Marshal(allSections)
 	if err != nil {
-		log.Errorf("GetCohortCourseMaps: %v", err)
+		fmt.Println("GetCohortCourseMaps: %v", err)
 	} else {
 		redis.SetTTL(key, 3600)
 		err = redis.SetRedisValue(key, string(redisBytes))
 		if err != nil {
-			log.Errorf("GetCohortCourseMaps: %v", err)
+			fmt.Println("GetCohortCourseMaps: %v", err)
 		}
 	}
 	return allSections, nil

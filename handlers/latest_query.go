@@ -7,7 +7,6 @@ import (
 	"strconv"
 	"strings"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/coursez"
 	"github.com/zicops/zicops-cass-pool/cassandra"
 	"github.com/zicops/zicops-cass-pool/redis"
@@ -44,14 +43,14 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
 	if err != nil {
-		log.Errorf("Error in getting redis value: %v", err)
+		fmt.Println("Error in getting redis value: %v", err)
 	}
 	dbCourses := make([]coursez.Course, 0)
 	if result != "" {
-		log.Infof("Redis value found for key: %v", key)
+		fmt.Println("Redis value found for key: %v", key)
 		err = json.Unmarshal([]byte(result), &dbCourses)
 		if err != nil {
-			log.Errorf("Error in unmarshalling redis value: %v", err)
+			fmt.Println("Error in unmarshalling redis value: %v", err)
 		}
 	}
 	if pageSize == nil {
@@ -119,7 +118,7 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 		if err != nil {
 			return nil, fmt.Errorf("error encrypting cursor: %v", err)
 		}
-		log.Infof("Courses: %v", string(newCursor))
+		fmt.Println("Courses: %v", string(newCursor))
 
 	}
 	var outputResponse model.PaginatedCourse
@@ -130,7 +129,7 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 		gproject := googleprojectlib.GetGoogleProjectID()
 		err = storageC.InitializeStorageClient(ctx, gproject, course.LspId)
 		if err != nil {
-			log.Errorf("Failed to initialize bucket to course: %v", err.Error())
+			fmt.Println("Failed to initialize bucket to course: %v", err.Error())
 		}
 		createdAt := strconv.FormatInt(course.CreatedAt, 10)
 		updatedAt := strconv.FormatInt(course.UpdatedAt, 10)

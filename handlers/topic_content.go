@@ -7,7 +7,6 @@ import (
 	"strconv"
 	"strings"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/coursez"
 	"github.com/zicops/zicops-cass-pool/cassandra"
 	"github.com/zicops/zicops-cass-pool/redis"
@@ -30,7 +29,7 @@ func GetTopicContent(ctx context.Context, topicID *string) ([]*model.TopicConten
 	if err == nil && role != "admin" {
 		err = json.Unmarshal([]byte(result), &currentContent)
 		if err != nil {
-			log.Errorf("Error in unmarshalling redis value for key %s", key)
+			fmt.Println("Error in unmarshalling redis value for key %s", key)
 		}
 	}
 	if len(currentContent) <= 0 {
@@ -63,7 +62,7 @@ func GetTopicContent(ctx context.Context, topicID *string) ([]*model.TopicConten
 		mainBucket := mod.CourseId + "/" + mod.TopicId + "/subtitles/"
 		err = storageC.InitializeStorageClient(ctx, gproject, mod.LspId)
 		if err != nil {
-			log.Errorf("Failed to initialize storage: %v", err.Error())
+			fmt.Println("Failed to initialize storage: %v", err.Error())
 			return nil, err
 		}
 		if mainBucket != "" {
@@ -173,7 +172,7 @@ func GetTopicContentByCourse(ctx context.Context, courseID *string) ([]*model.To
 	if err == nil && role != "admin" {
 		err = json.Unmarshal([]byte(result), &currentContent)
 		if err != nil {
-			log.Errorf("Error in unmarshalling redis value for key %s", key)
+			fmt.Println("Error in unmarshalling redis value for key %s", key)
 		}
 	}
 
@@ -205,7 +204,7 @@ func GetTopicContentByCourse(ctx context.Context, courseID *string) ([]*model.To
 		updatedAt := strconv.FormatInt(mod.UpdatedAt, 10)
 		err = storageC.InitializeStorageClient(ctx, gproject, mod.LspId)
 		if err != nil {
-			log.Errorf("Failed to initialize storage: %v", err.Error())
+			fmt.Println("Failed to initialize storage: %v", err.Error())
 			return nil, err
 		}
 		mainBucket := mod.CourseId + "/" + mod.TopicId + "/subtitles/"

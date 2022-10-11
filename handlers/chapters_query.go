@@ -7,7 +7,6 @@ import (
 	"strconv"
 	"strings"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/coursez"
 	"github.com/zicops/zicops-cass-pool/cassandra"
 	"github.com/zicops/zicops-cass-pool/redis"
@@ -26,12 +25,12 @@ func GetChaptersCourseByID(ctx context.Context, courseID *string) ([]*model.Chap
 	result, err := redis.GetRedisValue(key)
 
 	if err != nil {
-		log.Errorf("GetChaptersCourseByID: %v", err)
+		fmt.Println("GetChaptersCourseByID: %v", err)
 	}
 	if result != "" {
 		err = json.Unmarshal([]byte(result), &chapters)
 		if err != nil {
-			log.Errorf("GetChaptersCourseByID: %v", err)
+			fmt.Println("GetChaptersCourseByID: %v", err)
 		}
 	}
 	if len(chapters) > 0 && role != "admin" {
@@ -74,12 +73,12 @@ func GetChaptersCourseByID(ctx context.Context, courseID *string) ([]*model.Chap
 	}
 	chaptersBytes, err := json.Marshal(chapters)
 	if err != nil {
-		log.Errorf("GetChaptersCourseByID: %v", err)
+		fmt.Println("GetChaptersCourseByID: %v", err)
 	} else {
 		redis.SetTTL(key, 3600)
 		err = redis.SetRedisValue(key, string(chaptersBytes))
 		if err != nil {
-			log.Errorf("GetChaptersCourseByID: %v", err)
+			fmt.Println("GetChaptersCourseByID: %v", err)
 		}
 	}
 	return chapters, nil
@@ -95,20 +94,20 @@ func GetChapterByID(ctx context.Context, chapterID *string) (*model.Chapter, err
 	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
 	if err != nil {
-		log.Errorf("GetChapterByID: %v", err)
+		fmt.Println("GetChapterByID: %v", err)
 	}
 	if result != "" {
 		err = json.Unmarshal([]byte(result), &chapters)
 		if err != nil {
-			log.Errorf("GetChapterByID: %v", err)
+			fmt.Println("GetChapterByID: %v", err)
 		}
 	}
 	if len(chapters) > 0 && role != "admin" {
 		return chapters[0], nil
-	}else {
+	} else {
 		chapters = make([]*model.Chapter, 0)
 	}
-	
+
 	session, err := cassandra.GetCassSession("coursez")
 	if err != nil {
 		return nil, err
@@ -144,12 +143,12 @@ func GetChapterByID(ctx context.Context, chapterID *string) (*model.Chapter, err
 	}
 	chaptersBytes, err := json.Marshal(chapters)
 	if err != nil {
-		log.Errorf("GetChapterByID: %v", err)
+		fmt.Println("GetChapterByID: %v", err)
 	} else {
 		redis.SetTTL(key, 3600)
 		err = redis.SetRedisValue(key, string(chaptersBytes))
 		if err != nil {
-			log.Errorf("GetChapterByID: %v", err)
+			fmt.Println("GetChapterByID: %v", err)
 		}
 	}
 	return chapters[0], nil

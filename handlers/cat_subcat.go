@@ -7,7 +7,6 @@ import (
 	"strconv"
 	"strings"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/coursez"
 	"github.com/zicops/zicops-cass-pool/cassandra"
 	"github.com/zicops/zicops-cass-pool/redis"
@@ -18,7 +17,7 @@ import (
 )
 
 func GetCategories(ctx context.Context) ([]*string, error) {
-	log.Info("GetCategories")
+	fmt.Println("GetCategories")
 	session, err := cassandra.GetCassSession("coursez")
 	if err != nil {
 		return nil, err
@@ -42,7 +41,7 @@ func GetCategories(ctx context.Context) ([]*string, error) {
 }
 
 func GetSubCategories(ctx context.Context) ([]*string, error) {
-	log.Info("GetSubCategories")
+	fmt.Println("GetSubCategories")
 	session, err := cassandra.GetCassSession("coursez")
 	if err != nil {
 		return nil, err
@@ -66,7 +65,7 @@ func GetSubCategories(ctx context.Context) ([]*string, error) {
 }
 
 func GetSubCategoriesForSub(ctx context.Context, cat *string) ([]*string, error) {
-	log.Info("GetSubCategoriesForSub")
+	fmt.Println("GetSubCategoriesForSub")
 	session, err := cassandra.GetCassSession("coursez")
 	if err != nil {
 		return nil, err
@@ -91,7 +90,7 @@ func GetSubCategoriesForSub(ctx context.Context, cat *string) ([]*string, error)
 }
 
 func AllCatMain(ctx context.Context, lspIds []*string) ([]*model.CatMain, error) {
-	log.Info("AllCatMain")
+	fmt.Println("AllCatMain")
 	key := "AllCatMain" + fmt.Sprintf("%v", lspIds)
 	claims, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
@@ -101,13 +100,13 @@ func AllCatMain(ctx context.Context, lspIds []*string) ([]*model.CatMain, error)
 	cats := make([]coursez.CatMain, 0)
 	result, err := redis.GetRedisValue(key)
 	if err != nil {
-		log.Errorf("Failed to get value from redis: %v", err.Error())
+		fmt.Println("Failed to get value from redis: %v", err.Error())
 	}
 	if result != "" {
-		log.Info("Got value from redis")
+		fmt.Println("Got value from redis")
 		err = json.Unmarshal([]byte(result), &cats)
 		if err != nil {
-			log.Errorf("Failed to unmarshal value from redis: %v", err.Error())
+			fmt.Println("Failed to unmarshal value from redis: %v", err.Error())
 		}
 	}
 	if len(cats) <= 0 || role == "admin" {
@@ -146,7 +145,7 @@ func AllCatMain(ctx context.Context, lspIds []*string) ([]*model.CatMain, error)
 	gproject := googleprojectlib.GetGoogleProjectID()
 	err = storageC.InitializeStorageClient(ctx, gproject, "coursez-catimages")
 	if err != nil {
-		log.Errorf("Failed to initialize storage: %v", err.Error())
+		fmt.Println("Failed to initialize storage: %v", err.Error())
 		return nil, err
 	}
 	for _, cat := range cats {
@@ -177,14 +176,14 @@ func AllCatMain(ctx context.Context, lspIds []*string) ([]*model.CatMain, error)
 		redis.SetTTL(key, 3600)
 		err = redis.SetRedisValue(key, string(redisValue))
 		if err != nil {
-			log.Errorf("Failed to set value in redis: %v", err.Error())
+			fmt.Println("Failed to set value in redis: %v", err.Error())
 		}
 	}
 	return resultOutput, nil
 }
 
 func AllSubCatMain(ctx context.Context, lspIds []*string) ([]*model.SubCatMain, error) {
-	log.Info("AllSubCatMain")
+	fmt.Println("AllSubCatMain")
 	key := "AllSubCatMain" + fmt.Sprintf("%v", lspIds)
 	claims, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
@@ -194,13 +193,13 @@ func AllSubCatMain(ctx context.Context, lspIds []*string) ([]*model.SubCatMain, 
 	cats := make([]coursez.SubCatMain, 0)
 	result, err := redis.GetRedisValue(key)
 	if err != nil {
-		log.Errorf("Failed to get value from redis: %v", err.Error())
+		fmt.Println("Failed to get value from redis: %v", err.Error())
 	}
 	if result != "" {
-		log.Info("Got value from redis")
+		fmt.Println("Got value from redis")
 		err = json.Unmarshal([]byte(result), &cats)
 		if err != nil {
-			log.Errorf("Failed to unmarshal value from redis: %v", err.Error())
+			fmt.Println("Failed to unmarshal value from redis: %v", err.Error())
 		}
 	}
 	if len(cats) <= 0 || role == "admin" {
@@ -239,7 +238,7 @@ func AllSubCatMain(ctx context.Context, lspIds []*string) ([]*model.SubCatMain, 
 	gproject := googleprojectlib.GetGoogleProjectID()
 	err = storageC.InitializeStorageClient(ctx, gproject, "coursez-catimages")
 	if err != nil {
-		log.Errorf("Failed to initialize storage: %v", err.Error())
+		fmt.Println("Failed to initialize storage: %v", err.Error())
 		return nil, err
 	}
 	for _, cat := range cats {
@@ -271,14 +270,14 @@ func AllSubCatMain(ctx context.Context, lspIds []*string) ([]*model.SubCatMain, 
 		redis.SetTTL(key, 3600)
 		err = redis.SetRedisValue(key, string(redisValue))
 		if err != nil {
-			log.Errorf("Failed to set value in redis: %v", err.Error())
+			fmt.Println("Failed to set value in redis: %v", err.Error())
 		}
 	}
 	return resultOutput, nil
 }
 
 func AllSubCatByCatID(ctx context.Context, catID *string) ([]*model.SubCatMain, error) {
-	log.Info("AllSubCatByCatID")
+	fmt.Println("AllSubCatByCatID")
 	key := "AllSubCatByCatID" + *catID
 	claims, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
@@ -289,13 +288,13 @@ func AllSubCatByCatID(ctx context.Context, catID *string) ([]*model.SubCatMain, 
 	cats := make([]coursez.SubCatMain, 0)
 	result, err := redis.GetRedisValue(key)
 	if err != nil {
-		log.Errorf("Failed to get value from redis: %v", err.Error())
+		fmt.Println("Failed to get value from redis: %v", err.Error())
 	}
 	if result != "" {
-		log.Info("Got value from redis")
+		fmt.Println("Got value from redis")
 		err = json.Unmarshal([]byte(result), &cats)
 		if err != nil {
-			log.Errorf("Failed to unmarshal value from redis: %v", err.Error())
+			fmt.Println("Failed to unmarshal value from redis: %v", err.Error())
 		}
 	}
 	if len(cats) <= 0 || role == "admin" {
@@ -321,7 +320,7 @@ func AllSubCatByCatID(ctx context.Context, catID *string) ([]*model.SubCatMain, 
 	gproject := googleprojectlib.GetGoogleProjectID()
 	err = storageC.InitializeStorageClient(ctx, gproject, "coursez-catimages")
 	if err != nil {
-		log.Errorf("Failed to initialize storage: %v", err.Error())
+		fmt.Println("Failed to initialize storage: %v", err.Error())
 		return nil, err
 	}
 	for _, cat := range cats {
@@ -353,7 +352,7 @@ func AllSubCatByCatID(ctx context.Context, catID *string) ([]*model.SubCatMain, 
 		redis.SetTTL(key, 3600)
 		err = redis.SetRedisValue(key, string(redisValue))
 		if err != nil {
-			log.Errorf("Failed to set value in redis: %v", err.Error())
+			fmt.Println("Failed to set value in redis: %v", err.Error())
 		}
 	}
 	return resultOutput, nil

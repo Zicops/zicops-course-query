@@ -7,7 +7,6 @@ import (
 	"strconv"
 	"strings"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/coursez"
 	"github.com/zicops/zicops-cass-pool/cassandra"
 	"github.com/zicops/zicops-cass-pool/redis"
@@ -27,10 +26,10 @@ func GetTopicQuizes(ctx context.Context, topicID *string) ([]*model.Quiz, error)
 	}
 	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
-	if err == nil  && role != "admin"{
+	if err == nil && role != "admin" {
 		err = json.Unmarshal([]byte(result), &currentQuizes)
 		if err == nil {
-			log.Errorf("GetTopicQuizes from redis")
+			fmt.Println("GetTopicQuizes from redis")
 		}
 	}
 	if len(currentQuizes) <= 0 {
@@ -93,10 +92,10 @@ func GetQuizFiles(ctx context.Context, quizID *string) ([]*model.QuizFile, error
 	}
 	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
-	if err == nil && role != "admin"{
+	if err == nil && role != "admin" {
 		err = json.Unmarshal([]byte(result), &currentFiles)
 		if err != nil {
-			log.Errorf("GetQuizFiles from redis")
+			fmt.Println("GetQuizFiles from redis")
 		}
 	}
 
@@ -127,7 +126,7 @@ func GetQuizFiles(ctx context.Context, quizID *string) ([]*model.QuizFile, error
 		if mod.BucketPath != "" {
 			err = storageC.InitializeStorageClient(ctx, gproject, mod.LspId)
 			if err != nil {
-				log.Errorf("Failed to initialize storage: %v", err.Error())
+				fmt.Println("Failed to initialize storage: %v", err.Error())
 				return nil, err
 			}
 			url = storageC.GetSignedURLForObject(mod.BucketPath)
@@ -158,7 +157,7 @@ func GetMCQQuiz(ctx context.Context, quizID *string) ([]*model.QuizMcq, error) {
 	}
 	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
-	if err == nil && role != "admin"{
+	if err == nil && role != "admin" {
 		err = json.Unmarshal([]byte(result), &quizMcqs)
 		if err == nil {
 			return quizMcqs, nil
@@ -215,7 +214,7 @@ func GetQuizDes(ctx context.Context, quizID *string) ([]*model.QuizDescriptive, 
 	}
 	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
-	if err == nil && role != "admin"{
+	if err == nil && role != "admin" {
 		err = json.Unmarshal([]byte(result), &quizDes)
 		if err == nil {
 			return quizDes, nil

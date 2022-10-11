@@ -7,7 +7,6 @@ import (
 	"strconv"
 	"strings"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/coursez"
 	"github.com/zicops/zicops-cass-pool/cassandra"
 	"github.com/zicops/zicops-cass-pool/redis"
@@ -30,7 +29,7 @@ func GetTopicsCourseByID(ctx context.Context, courseID *string) ([]*model.Topic,
 	if err == nil && role != "admin" {
 		err = json.Unmarshal([]byte(result), &currentTopics)
 		if err != nil {
-			log.Errorf("Failed to unmarshal topics: %v", err.Error())
+			fmt.Println("Failed to unmarshal topics: %v", err.Error())
 		}
 	}
 	if len(currentTopics) <= 0 {
@@ -62,7 +61,7 @@ func GetTopicsCourseByID(ctx context.Context, courseID *string) ([]*model.Topic,
 		if mod.ImageBucket != "" {
 			err = storageC.InitializeStorageClient(ctx, gproject, mod.LspId)
 			if err != nil {
-				log.Errorf("Failed to initialize storage: %v", err.Error())
+				fmt.Println("Failed to initialize storage: %v", err.Error())
 				return nil, err
 			}
 			url = storageC.GetSignedURLForObject(mod.ImageBucket)
@@ -103,10 +102,10 @@ func GetTopicByID(ctx context.Context, topicID *string) (*model.Topic, error) {
 	}
 	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
-	if err == nil && role != "admin"{
+	if err == nil && role != "admin" {
 		err = json.Unmarshal([]byte(result), &currentTopics)
 		if err != nil {
-			log.Errorf("Failed to unmarshal topics: %v", err.Error())
+			fmt.Println("Failed to unmarshal topics: %v", err.Error())
 		}
 	}
 	if len(currentTopics) <= 0 {
@@ -138,7 +137,7 @@ func GetTopicByID(ctx context.Context, topicID *string) (*model.Topic, error) {
 		if top.ImageBucket != "" {
 			err = storageC.InitializeStorageClient(ctx, gproject, top.LspId)
 			if err != nil {
-				log.Errorf("Failed to initialize storage: %v", err.Error())
+				fmt.Println("Failed to initialize storage: %v", err.Error())
 				return nil, err
 			}
 			url = storageC.GetSignedURLForObject(top.ImageBucket)

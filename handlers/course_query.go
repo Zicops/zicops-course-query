@@ -7,7 +7,6 @@ import (
 	"strconv"
 	"strings"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/coursez"
 	"github.com/zicops/zicops-cass-pool/cassandra"
 	"github.com/zicops/zicops-cass-pool/redis"
@@ -67,12 +66,12 @@ func GetCourseByID(ctx context.Context, courseID *string) (*model.Course, error)
 	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
 	if err != nil {
-		log.Error("Error in getting redis value for key: ", key)
+		fmt.Println("Error in getting redis value for key: ", key)
 	}
 	if result != "" {
 		err = json.Unmarshal([]byte(result), &course)
 		if err != nil {
-			log.Error("Error in unmarshalling redis value for key: ", key)
+			fmt.Println("Error in unmarshalling redis value for key: ", key)
 		}
 	}
 	if course.ID == "" || role == "admin" {
@@ -151,7 +150,7 @@ func GetCourseByID(ctx context.Context, courseID *string) (*model.Course, error)
 	gproject := googleprojectlib.GetGoogleProjectID()
 	err = storageC.InitializeStorageClient(ctx, gproject, course.LspId)
 	if err != nil {
-		log.Errorf("Failed to initialize storage: %v", err.Error())
+		fmt.Println("Failed to initialize storage: %v", err.Error())
 		return nil, err
 	}
 	tileUrl := ""
@@ -226,12 +225,12 @@ func GetCourseByID(ctx context.Context, courseID *string) (*model.Course, error)
 	}
 	redisBytes, err := json.Marshal(course)
 	if err != nil {
-		log.Errorf("Failed to marshal course: %v", err.Error())
+		fmt.Println("Failed to marshal course: %v", err.Error())
 	} else {
 		redis.SetTTL(key, 3600)
 		err = redis.SetRedisValue(key, string(redisBytes))
 		if err != nil {
-			log.Errorf("Failed to set redis value: %v", err.Error())
+			fmt.Println("Failed to set redis value: %v", err.Error())
 		}
 	}
 	return &currentCourse, nil

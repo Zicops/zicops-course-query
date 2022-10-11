@@ -13,7 +13,6 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/userz"
 	"github.com/zicops/zicops-cass-pool/cassandra"
 	"github.com/zicops/zicops-cass-pool/redis"
@@ -47,7 +46,7 @@ func CCRouter() (*gin.Engine, error) {
 }
 
 func HealthCheckHandler(c *gin.Context) {
-	log.Debugf("HealthCheckHandler Method --> %s", c.Request.Method)
+	fmt.Println("HealthCheckHandler Method --> %s", c.Request.Method)
 
 	switch c.Request.Method {
 	case http.MethodGet:
@@ -66,20 +65,20 @@ func GetHealthStatus(w http.ResponseWriter) {
 	w.WriteHeader(http.StatusOK)
 
 	if _, err := w.Write(response); err != nil {
-		log.Errorf("GetHealthStatus ... unable to write JSON response: %v", err)
+		fmt.Println("GetHealthStatus ... unable to write JSON response: %v", err)
 	}
 }
 
 // ResponseError ... essentially a single point of sending some error to route back
 func ResponseError(w http.ResponseWriter, httpStatusCode int, err error) {
-	log.Errorf("Response error %s", err.Error())
+	fmt.Println("Response error %s", err.Error())
 	response, _ := json.Marshal(err)
 	w.Header().Add("Status", strconv.Itoa(httpStatusCode)+" "+err.Error())
 	w.Header().Add("content-type", "application/json")
 	w.WriteHeader(httpStatusCode)
 
 	if _, err := w.Write(response); err != nil {
-		log.Errorf("ResponseError ... unable to write JSON response: %v", err)
+		fmt.Println("ResponseError ... unable to write JSON response: %v", err)
 	}
 }
 
@@ -106,7 +105,7 @@ func graphqlHandler() gin.HandlerFunc {
 		if redisResult != "" {
 			err := json.Unmarshal([]byte(redisResult), &userInput)
 			if err != nil {
-				log.Errorf("Error unmarshalling user from redis %s", err.Error())
+				fmt.Println("Error unmarshalling user from redis %s", err.Error())
 			} else {
 				ctxValue["role"] = userInput.Role
 				redis.SetTTL(userIdUsingEmail, 3600)
@@ -114,7 +113,7 @@ func graphqlHandler() gin.HandlerFunc {
 		} else {
 			session, err := cassandra.GetCassSession("userz")
 			if err != nil {
-				log.Errorf("Error getting cassandra session %s", err.Error())
+				fmt.Println("Error getting cassandra session %s", err.Error())
 			}
 			CassUserSession := session
 			qryStr := fmt.Sprintf(`SELECT * from userz.users where id='%s'  ALLOW FILTERING`, userIdUsingEmail)
@@ -126,7 +125,7 @@ func graphqlHandler() gin.HandlerFunc {
 			}
 			users, err := getUsers()
 			if err != nil {
-				log.Errorf("Error getting users %s", err.Error())
+				fmt.Println("Error getting users %s", err.Error())
 			}
 			if len(users) > 0 {
 				ctxValue["role"] = users[0].Role

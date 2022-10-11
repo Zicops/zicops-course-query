@@ -40,7 +40,7 @@ func New(secret string) Cryptography {
 // respectively. Depending on the requiremenets, this function can be used only
 // once to create an application wide secret key then stored as an environment
 // variable or repeatedly for each encryption/decryption. You can dump the
-// generated secret with with `fmt.Printf("%x", byte)` method.
+// generated secret with with `fmt.Println("%x", byte)` method.
 func (c Cryptography) Secret(size SecretSize) ([]byte, error) {
 	key := make([]byte, size)
 

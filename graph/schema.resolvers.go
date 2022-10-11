@@ -5,8 +5,8 @@ package graph
 
 import (
 	"context"
+	"fmt"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/zicops/zicops-course-query/graph/generated"
 	"github.com/zicops/zicops-course-query/graph/model"
 	"github.com/zicops/zicops-course-query/handlers"
@@ -15,7 +15,7 @@ import (
 func (r *queryResolver) AllCatMain(ctx context.Context, lspIds []*string) ([]*model.CatMain, error) {
 	resp, err := handlers.AllCatMain(ctx, lspIds)
 	if err != nil {
-		log.Errorf("error getting categories: %v", err)
+		fmt.Println("error getting categories: %v", err)
 		return nil, err
 	}
 	return resp, nil
@@ -24,7 +24,7 @@ func (r *queryResolver) AllCatMain(ctx context.Context, lspIds []*string) ([]*mo
 func (r *queryResolver) AllSubCatMain(ctx context.Context, lspIds []*string) ([]*model.SubCatMain, error) {
 	resp, err := handlers.AllSubCatMain(ctx, lspIds)
 	if err != nil {
-		log.Errorf("error getting sub categories: %v", err)
+		fmt.Println("error getting sub categories: %v", err)
 		return nil, err
 	}
 	return resp, nil
@@ -33,7 +33,7 @@ func (r *queryResolver) AllSubCatMain(ctx context.Context, lspIds []*string) ([]
 func (r *queryResolver) AllSubCatByCatID(ctx context.Context, catID *string) ([]*model.SubCatMain, error) {
 	resp, err := handlers.AllSubCatByCatID(ctx, catID)
 	if err != nil {
-		log.Errorf("error getting sub categories: %v", err)
+		fmt.Println("error getting sub categories: %v", err)
 		return nil, err
 	}
 	return resp, nil
@@ -42,7 +42,7 @@ func (r *queryResolver) AllSubCatByCatID(ctx context.Context, catID *string) ([]
 func (r *queryResolver) AllCategories(ctx context.Context) ([]*string, error) {
 	resp, err := handlers.GetCategories(ctx)
 	if err != nil {
-		log.Errorf("error adding categories: %v", err)
+		fmt.Println("error adding categories: %v", err)
 		return nil, err
 	}
 	return resp, nil
@@ -51,7 +51,7 @@ func (r *queryResolver) AllCategories(ctx context.Context) ([]*string, error) {
 func (r *queryResolver) AllSubCategories(ctx context.Context) ([]*string, error) {
 	resp, err := handlers.GetSubCategories(ctx)
 	if err != nil {
-		log.Errorf("error adding sub categories: %v", err)
+		fmt.Println("error adding sub categories: %v", err)
 		return nil, err
 	}
 	return resp, nil
@@ -60,7 +60,7 @@ func (r *queryResolver) AllSubCategories(ctx context.Context) ([]*string, error)
 func (r *queryResolver) AllSubCatsByCat(ctx context.Context, category *string) ([]*string, error) {
 	resp, err := handlers.GetSubCategoriesForSub(ctx, category)
 	if err != nil {
-		log.Errorf("error adding sub categories: %v", err)
+		fmt.Println("error adding sub categories: %v", err)
 		return nil, err
 	}
 	return resp, nil
@@ -69,7 +69,7 @@ func (r *queryResolver) AllSubCatsByCat(ctx context.Context, category *string) (
 func (r *queryResolver) LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, direction *string, pageSize *int, status *model.Status, filters *model.CoursesFilters) (*model.PaginatedCourse, error) {
 	resp, err := handlers.LatestCourses(ctx, publishTime, pageCursor, direction, pageSize, status, filters)
 	if err != nil {
-		log.Errorf("error getting latest courses: %v", err)
+		fmt.Println("error getting latest courses: %v", err)
 		return nil, err
 	}
 	return resp, nil
@@ -78,7 +78,7 @@ func (r *queryResolver) LatestCourses(ctx context.Context, publishTime *int, pag
 func (r *queryResolver) GetCourse(ctx context.Context, courseID *string) (*model.Course, error) {
 	resp, err := handlers.GetCourseByID(ctx, courseID)
 	if err != nil {
-		log.Errorf("error getting course: %v", err)
+		fmt.Println("error getting course: %v", err)
 		return nil, err
 	}
 	return resp, nil
@@ -87,7 +87,7 @@ func (r *queryResolver) GetCourse(ctx context.Context, courseID *string) (*model
 func (r *queryResolver) GetCourseModules(ctx context.Context, courseID *string) ([]*model.Module, error) {
 	resp, err := handlers.GetModulesCourseByID(ctx, courseID)
 	if err != nil {
-		log.Errorf("error getting modules: %v", err)
+		fmt.Println("error getting modules: %v", err)
 		return nil, err
 	}
 	return resp, nil
@@ -96,7 +96,7 @@ func (r *queryResolver) GetCourseModules(ctx context.Context, courseID *string) 
 func (r *queryResolver) GetModuleByID(ctx context.Context, moduleID *string) (*model.Module, error) {
 	resp, err := handlers.GetModuleByID(ctx, moduleID)
 	if err != nil {
-		log.Errorf("error getting module by id: %v", err)
+		fmt.Println("error getting module by id: %v", err)
 		return nil, err
 	}
 	return resp, nil
@@ -105,7 +105,7 @@ func (r *queryResolver) GetModuleByID(ctx context.Context, moduleID *string) (*m
 func (r *queryResolver) GetCourseChapters(ctx context.Context, courseID *string) ([]*model.Chapter, error) {
 	resp, err := handlers.GetChaptersCourseByID(ctx, courseID)
 	if err != nil {
-		log.Errorf("error getting chapters: %v", err)
+		fmt.Println("error getting chapters: %v", err)
 		return nil, err
 	}
 	return resp, nil
@@ -114,7 +114,7 @@ func (r *queryResolver) GetCourseChapters(ctx context.Context, courseID *string)
 func (r *queryResolver) GetChapterByID(ctx context.Context, chapterID *string) (*model.Chapter, error) {
 	resp, err := handlers.GetChapterByID(ctx, chapterID)
 	if err != nil {
-		log.Errorf("error getting chapter by id: %v", err)
+		fmt.Println("error getting chapter by id: %v", err)
 		return nil, err
 	}
 	return resp, nil
@@ -123,7 +123,7 @@ func (r *queryResolver) GetChapterByID(ctx context.Context, chapterID *string) (
 func (r *queryResolver) GetTopics(ctx context.Context, courseID *string) ([]*model.Topic, error) {
 	resp, err := handlers.GetTopicsCourseByID(ctx, courseID)
 	if err != nil {
-		log.Errorf("error getting topics: %v", err)
+		fmt.Println("error getting topics: %v", err)
 		return nil, err
 	}
 	return resp, nil
@@ -132,7 +132,7 @@ func (r *queryResolver) GetTopics(ctx context.Context, courseID *string) ([]*mod
 func (r *queryResolver) GetTopicByID(ctx context.Context, topicID *string) (*model.Topic, error) {
 	resp, err := handlers.GetTopicByID(ctx, topicID)
 	if err != nil {
-		log.Errorf("error getting topic by id: %v", err)
+		fmt.Println("error getting topic by id: %v", err)
 		return nil, err
 	}
 	return resp, nil
@@ -141,7 +141,7 @@ func (r *queryResolver) GetTopicByID(ctx context.Context, topicID *string) (*mod
 func (r *queryResolver) GetTopicContent(ctx context.Context, topicID *string) ([]*model.TopicContent, error) {
 	resp, err := handlers.GetTopicContent(ctx, topicID)
 	if err != nil {
-		log.Errorf("error getting topic content: %v", err)
+		fmt.Println("error getting topic content: %v", err)
 		return nil, err
 	}
 	return resp, nil
@@ -150,7 +150,7 @@ func (r *queryResolver) GetTopicContent(ctx context.Context, topicID *string) ([
 func (r *queryResolver) GetTopicExams(ctx context.Context, topicID *string) ([]*model.TopicExam, error) {
 	resp, err := handlers.GetTopicExams(ctx, topicID)
 	if err != nil {
-		log.Errorf("error getting topic content: %v", err)
+		fmt.Println("error getting topic content: %v", err)
 		return nil, err
 	}
 	return resp, nil
@@ -159,7 +159,7 @@ func (r *queryResolver) GetTopicExams(ctx context.Context, topicID *string) ([]*
 func (r *queryResolver) GetTopicResources(ctx context.Context, topicID *string) ([]*model.TopicResource, error) {
 	resp, err := handlers.GetTopicResources(ctx, topicID)
 	if err != nil {
-		log.Errorf("error getting topic resources: %v", err)
+		fmt.Println("error getting topic resources: %v", err)
 		return nil, err
 	}
 	return resp, nil
@@ -168,7 +168,7 @@ func (r *queryResolver) GetTopicResources(ctx context.Context, topicID *string) 
 func (r *queryResolver) GetTopicQuizes(ctx context.Context, topicID *string) ([]*model.Quiz, error) {
 	resp, err := handlers.GetTopicQuizes(ctx, topicID)
 	if err != nil {
-		log.Errorf("error getting topic quizes: %v", err)
+		fmt.Println("error getting topic quizes: %v", err)
 		return nil, err
 	}
 	return resp, nil
@@ -177,7 +177,7 @@ func (r *queryResolver) GetTopicQuizes(ctx context.Context, topicID *string) ([]
 func (r *queryResolver) GetQuizFiles(ctx context.Context, quizID *string) ([]*model.QuizFile, error) {
 	resp, err := handlers.GetQuizFiles(ctx, quizID)
 	if err != nil {
-		log.Errorf("error getting quiz files: %v", err)
+		fmt.Println("error getting quiz files: %v", err)
 		return nil, err
 	}
 	return resp, nil
@@ -186,7 +186,7 @@ func (r *queryResolver) GetQuizFiles(ctx context.Context, quizID *string) ([]*mo
 func (r *queryResolver) GetMCQQuiz(ctx context.Context, quizID *string) ([]*model.QuizMcq, error) {
 	resp, err := handlers.GetMCQQuiz(ctx, quizID)
 	if err != nil {
-		log.Errorf("error getting mcq quizes: %v", err)
+		fmt.Println("error getting mcq quizes: %v", err)
 		return nil, err
 	}
 	return resp, nil
@@ -195,7 +195,7 @@ func (r *queryResolver) GetMCQQuiz(ctx context.Context, quizID *string) ([]*mode
 func (r *queryResolver) GetDescriptiveQuiz(ctx context.Context, quizID *string) ([]*model.QuizDescriptive, error) {
 	resp, err := handlers.GetQuizDes(ctx, quizID)
 	if err != nil {
-		log.Errorf("error getting descriptive quizes: %v", err)
+		fmt.Println("error getting descriptive quizes: %v", err)
 		return nil, err
 	}
 	return resp, nil
@@ -204,7 +204,7 @@ func (r *queryResolver) GetDescriptiveQuiz(ctx context.Context, quizID *string) 
 func (r *queryResolver) GetTopicContentByCourseID(ctx context.Context, courseID *string) ([]*model.TopicContent, error) {
 	resp, err := handlers.GetTopicContentByCourse(ctx, courseID)
 	if err != nil {
-		log.Errorf("error getting topic content: %v", err)
+		fmt.Println("error getting topic content: %v", err)
 		return nil, err
 	}
 	return resp, nil
@@ -213,7 +213,7 @@ func (r *queryResolver) GetTopicContentByCourseID(ctx context.Context, courseID 
 func (r *queryResolver) GetTopicExamsByCourseID(ctx context.Context, courseID *string) ([]*model.TopicExam, error) {
 	resp, err := handlers.GetTopicExamsByCourse(ctx, courseID)
 	if err != nil {
-		log.Errorf("error getting topic exams: %v", err)
+		fmt.Println("error getting topic exams: %v", err)
 		return nil, err
 	}
 	return resp, nil
@@ -222,7 +222,7 @@ func (r *queryResolver) GetTopicExamsByCourseID(ctx context.Context, courseID *s
 func (r *queryResolver) GetResourcesByCourseID(ctx context.Context, courseID *string) ([]*model.TopicResource, error) {
 	resp, err := handlers.GetCourseResources(ctx, courseID)
 	if err != nil {
-		log.Errorf("error getting topic resources by course id: %v", err)
+		fmt.Println("error getting topic resources by course id: %v", err)
 		return nil, err
 	}
 	return resp, nil
@@ -231,7 +231,7 @@ func (r *queryResolver) GetResourcesByCourseID(ctx context.Context, courseID *st
 func (r *queryResolver) GetLatestQuestionBank(ctx context.Context, publishTime *int, pageCursor *string, direction *string, pageSize *int) (*model.PaginatedQuestionBank, error) {
 	resp, err := handlers.LatestQuestionBanks(ctx, publishTime, pageCursor, direction, pageSize)
 	if err != nil {
-		log.Errorf("error getting latest question banks: %v", err)
+		fmt.Println("error getting latest question banks: %v", err)
 		return nil, err
 	}
 	return resp, nil
@@ -240,7 +240,7 @@ func (r *queryResolver) GetLatestQuestionBank(ctx context.Context, publishTime *
 func (r *queryResolver) GetQBMeta(ctx context.Context, qbIds []*string) ([]*model.QuestionBank, error) {
 	resp, err := handlers.GetQBMeta(ctx, qbIds)
 	if err != nil {
-		log.Errorf("error getting latest question banks: %v", err)
+		fmt.Println("error getting latest question banks: %v", err)
 		return nil, err
 	}
 	return resp, nil
@@ -249,7 +249,7 @@ func (r *queryResolver) GetQBMeta(ctx context.Context, qbIds []*string) ([]*mode
 func (r *queryResolver) GetQuestionBankQuestions(ctx context.Context, questionBankID *string, filters *model.QBFilters) ([]*model.QuestionBankQuestion, error) {
 	resp, err := handlers.GetQuestionBankQuestions(ctx, questionBankID, filters)
 	if err != nil {
-		log.Errorf("error getting questions: %v", err)
+		fmt.Println("error getting questions: %v", err)
 		return nil, err
 	}
 	return resp, nil
@@ -258,7 +258,7 @@ func (r *queryResolver) GetQuestionBankQuestions(ctx context.Context, questionBa
 func (r *queryResolver) GetLatestQuestionPapers(ctx context.Context, publishTime *int, pageCursor *string, direction *string, pageSize *int) (*model.PaginatedQuestionPapers, error) {
 	resp, err := handlers.LatestQuestionPapers(ctx, publishTime, pageCursor, direction, pageSize)
 	if err != nil {
-		log.Errorf("error getting question papers: %v", err)
+		fmt.Println("error getting question papers: %v", err)
 		return nil, err
 	}
 	return resp, nil
@@ -267,7 +267,7 @@ func (r *queryResolver) GetLatestQuestionPapers(ctx context.Context, publishTime
 func (r *queryResolver) GetQPMeta(ctx context.Context, questionPapersIds []*string) ([]*model.QuestionPaper, error) {
 	resp, err := handlers.GetQPMeta(ctx, questionPapersIds)
 	if err != nil {
-		log.Errorf("error getting question papers: %v", err)
+		fmt.Println("error getting question papers: %v", err)
 		return nil, err
 	}
 	return resp, nil
@@ -276,7 +276,7 @@ func (r *queryResolver) GetQPMeta(ctx context.Context, questionPapersIds []*stri
 func (r *queryResolver) GetLatestExams(ctx context.Context, publishTime *int, pageCursor *string, direction *string, pageSize *int) (*model.PaginatedExams, error) {
 	resp, err := handlers.GetLatestExams(ctx, publishTime, pageCursor, direction, pageSize)
 	if err != nil {
-		log.Errorf("error getting exams: %v", err)
+		fmt.Println("error getting exams: %v", err)
 		return nil, err
 	}
 	return resp, nil
@@ -285,7 +285,7 @@ func (r *queryResolver) GetLatestExams(ctx context.Context, publishTime *int, pa
 func (r *queryResolver) GetQuestionPaperSections(ctx context.Context, questionPaperID *string) ([]*model.QuestionPaperSection, error) {
 	resp, err := handlers.GetQuestionBankSections(ctx, questionPaperID)
 	if err != nil {
-		log.Errorf("error getting question papers sections: %v", err)
+		fmt.Println("error getting question papers sections: %v", err)
 		return nil, err
 	}
 	return resp, nil
@@ -294,7 +294,7 @@ func (r *queryResolver) GetQuestionPaperSections(ctx context.Context, questionPa
 func (r *queryResolver) GetQPBankMappingByQBId(ctx context.Context, questionBankID *string) ([]*model.SectionQBMapping, error) {
 	resp, err := handlers.GetQPBankMappingByQPId(ctx, questionBankID)
 	if err != nil {
-		log.Errorf("error getting question papers sections map: %v", err)
+		fmt.Println("error getting question papers sections map: %v", err)
 		return nil, err
 	}
 	return resp, nil
@@ -303,7 +303,7 @@ func (r *queryResolver) GetQPBankMappingByQBId(ctx context.Context, questionBank
 func (r *queryResolver) GetQPBankMappingBySectionID(ctx context.Context, sectionID *string) ([]*model.SectionQBMapping, error) {
 	resp, err := handlers.GetQPBankMappingBySectionID(ctx, sectionID)
 	if err != nil {
-		log.Errorf("error getting question papers sections map: %v", err)
+		fmt.Println("error getting question papers sections map: %v", err)
 		return nil, err
 	}
 	return resp, nil
@@ -312,7 +312,7 @@ func (r *queryResolver) GetQPBankMappingBySectionID(ctx context.Context, section
 func (r *queryResolver) GetSectionFixedQuestions(ctx context.Context, sectionID *string) ([]*model.SectionFixedQuestions, error) {
 	resp, err := handlers.GetSectionFixedQuestions(ctx, sectionID)
 	if err != nil {
-		log.Errorf("error getting question papers sections questions: %v", err)
+		fmt.Println("error getting question papers sections questions: %v", err)
 		return nil, err
 	}
 	return resp, nil
@@ -321,7 +321,7 @@ func (r *queryResolver) GetSectionFixedQuestions(ctx context.Context, sectionID 
 func (r *queryResolver) GetOptionsForQuestions(ctx context.Context, questionIds []*string) ([]*model.MapQuestionWithOption, error) {
 	resp, err := handlers.GetOptionsForQuestions(ctx, questionIds)
 	if err != nil {
-		log.Errorf("error getting question options: %v", err)
+		fmt.Println("error getting question options: %v", err)
 		return nil, err
 	}
 	return resp, nil
@@ -330,7 +330,7 @@ func (r *queryResolver) GetOptionsForQuestions(ctx context.Context, questionIds 
 func (r *queryResolver) GetExamsMeta(ctx context.Context, examIds []*string) ([]*model.Exam, error) {
 	resp, err := handlers.GetExamsMeta(ctx, examIds)
 	if err != nil {
-		log.Errorf("error getting exams: %v", err)
+		fmt.Println("error getting exams: %v", err)
 		return nil, err
 	}
 	return resp, nil
@@ -339,7 +339,7 @@ func (r *queryResolver) GetExamsMeta(ctx context.Context, examIds []*string) ([]
 func (r *queryResolver) GetExamsByQPId(ctx context.Context, questionPaperID *string) ([]*model.Exam, error) {
 	resp, err := handlers.GetExamsByQPId(ctx, questionPaperID)
 	if err != nil {
-		log.Errorf("error getting exams: %v", err)
+		fmt.Println("error getting exams: %v", err)
 		return nil, err
 	}
 	return resp, nil
@@ -348,7 +348,7 @@ func (r *queryResolver) GetExamsByQPId(ctx context.Context, questionPaperID *str
 func (r *queryResolver) GetExamSchedule(ctx context.Context, examID *string) ([]*model.ExamSchedule, error) {
 	resp, err := handlers.GetExamSchedule(ctx, examID)
 	if err != nil {
-		log.Errorf("error getting exam schedule: %v", err)
+		fmt.Println("error getting exam schedule: %v", err)
 		return nil, err
 	}
 	return resp, nil
@@ -357,7 +357,7 @@ func (r *queryResolver) GetExamSchedule(ctx context.Context, examID *string) ([]
 func (r *queryResolver) GetExamInstruction(ctx context.Context, examID *string) ([]*model.ExamInstruction, error) {
 	resp, err := handlers.GetExamInstruction(ctx, examID)
 	if err != nil {
-		log.Errorf("error getting exam instructions: %v", err)
+		fmt.Println("error getting exam instructions: %v", err)
 		return nil, err
 	}
 	return resp, nil
@@ -366,7 +366,7 @@ func (r *queryResolver) GetExamInstruction(ctx context.Context, examID *string) 
 func (r *queryResolver) GetExamCohort(ctx context.Context, examID *string) ([]*model.ExamCohort, error) {
 	resp, err := handlers.GetExamCohort(ctx, examID)
 	if err != nil {
-		log.Errorf("error getting exam cohort: %v", err)
+		fmt.Println("error getting exam cohort: %v", err)
 		return nil, err
 	}
 	return resp, nil
@@ -375,7 +375,7 @@ func (r *queryResolver) GetExamCohort(ctx context.Context, examID *string) ([]*m
 func (r *queryResolver) GetExamConfiguration(ctx context.Context, examID *string) ([]*model.ExamConfiguration, error) {
 	resp, err := handlers.GetExamConfiguration(ctx, examID)
 	if err != nil {
-		log.Errorf("error getting exam configuration: %v", err)
+		fmt.Println("error getting exam configuration: %v", err)
 		return nil, err
 	}
 	return resp, nil
@@ -384,7 +384,7 @@ func (r *queryResolver) GetExamConfiguration(ctx context.Context, examID *string
 func (r *queryResolver) GetQuestionsByID(ctx context.Context, questionIds []*string) ([]*model.QuestionBankQuestion, error) {
 	resp, err := handlers.GetQuestionsByID(ctx, questionIds)
 	if err != nil {
-		log.Errorf("error getting questions for ids: %v", err)
+		fmt.Println("error getting questions for ids: %v", err)
 		return nil, err
 	}
 	return resp, nil
@@ -393,7 +393,7 @@ func (r *queryResolver) GetQuestionsByID(ctx context.Context, questionIds []*str
 func (r *queryResolver) GetCohortCourseMaps(ctx context.Context, cohortID *string) ([]*model.CourseCohort, error) {
 	resp, err := handlers.GetCohortCourseMaps(ctx, cohortID)
 	if err != nil {
-		log.Errorf("error getting cohorts for id: %v", err)
+		fmt.Println("error getting cohorts for id: %v", err)
 		return nil, err
 	}
 	return resp, nil
@@ -413,7 +413,7 @@ type queryResolver struct{ *Resolver }
 func (r *queryResolver) GetQPBankMappingByQPId(ctx context.Context, questionPaperID *string) ([]*model.SectionQBMapping, error) {
 	resp, err := handlers.GetQPBankMappingByQPId(ctx, questionPaperID)
 	if err != nil {
-		log.Errorf("error getting question papers sections map: %v", err)
+		fmt.Println("error getting question papers sections map: %v", err)
 		return nil, err
 	}
 	return resp, nil

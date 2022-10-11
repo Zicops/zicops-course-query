@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	log "github.com/sirupsen/logrus"
+	wasmhttp "github.com/nlepage/go-wasm-http-server"
 	"github.com/zicops/zicops-course-query/global"
 	graceful "gopkg.in/tylerb/graceful.v1" // see: https://github.com/tylerb/graceful
 )
@@ -19,12 +19,12 @@ type maxPayloadHandler struct {
 // ServeHTTP uses MaxByteReader to limit the size of the input
 func (handler *maxPayloadHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	r.Body = http.MaxBytesReader(w, r.Body, handler.size)
-	handler.handler.ServeHTTP(w, r)
+	wasmhttp.Serve(handler.handler)
 }
 
 // CCBackendController ....
 func CCBackendController(ctx context.Context, port int, errorChannel chan error) {
-	log.Infof("Initializing router and endpoints.")
+	fmt.Println("Initializing router and endpoints.")
 	ccRouter, err := CCRouter()
 	if err != nil {
 		errorChannel <- err
@@ -50,22 +50,22 @@ func serverHTTPRoutes(ctx context.Context, httpAddress string, handler http.Hand
 	stopChannel := serverGrace.StopChan()
 	err := serverGrace.ListenAndServe()
 	if err != nil {
-		log.Fatalf("CCController: Failed to start server : %s", err.Error())
+		fmt.Println("CCController: Failed to start server : %s", err.Error())
 	}
-	log.Infof("Backend is serving the routes.")
+	fmt.Println("Backend is serving the routes.")
 	for {
 		// wait for the server to stop or be canceled
 		select {
 		case <-stopChannel:
-			log.Infof("CCController: Server shutdown at %s", time.Now())
+			fmt.Println("CCController: Server shutdown at %s", time.Now())
 			return
 		case <-ctx.Done():
-			log.Infof("CCController: context done is called %s", time.Now())
+			fmt.Println("CCController: context done is called %s", time.Now())
 			serverGrace.Stop(time.Second * 2)
 		}
 	}
 }
 
 func shutDownBackend() {
-	log.Infof("CCController: Shutting down server at %s", time.Now())
+	fmt.Println("CCController: Shutting down server at %s", time.Now())
 }

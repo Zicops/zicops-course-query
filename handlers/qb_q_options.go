@@ -7,7 +7,6 @@ import (
 	"strconv"
 	"strings"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/qbankz"
 	"github.com/zicops/zicops-cass-pool/cassandra"
 	"github.com/zicops/zicops-cass-pool/redis"
@@ -40,7 +39,7 @@ func GetOptionsForQuestions(ctx context.Context, questionIds []*string) ([]*mode
 		if err == nil && role != "admin" {
 			err = json.Unmarshal([]byte(result), &banks)
 			if err != nil {
-				log.Errorf("Error in unmarshalling redis value: %v", err)
+				fmt.Println("Error in unmarshalling redis value: %v", err)
 			}
 		}
 		currentMap := &model.MapQuestionWithOption{}
@@ -67,7 +66,7 @@ func GetOptionsForQuestions(ctx context.Context, questionIds []*string) ([]*mode
 			if copiedQuestion.AttachmentBucket != "" {
 				err := storageC.InitializeStorageClient(ctx, gproject, copiedQuestion.LspId)
 				if err != nil {
-					log.Errorf("Error in initializing storage client: %v", err)
+					fmt.Println("Error in initializing storage client: %v", err)
 				}
 				attUrl = storageC.GetSignedURLForObject(copiedQuestion.AttachmentBucket)
 			}

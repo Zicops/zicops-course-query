@@ -7,7 +7,6 @@ import (
 	"strconv"
 	"strings"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/qbankz"
 	"github.com/zicops/zicops-cass-pool/cassandra"
 	"github.com/zicops/zicops-cass-pool/redis"
@@ -35,13 +34,13 @@ func LatestQuestionBanks(ctx context.Context, publishTime *int, pageCursor *stri
 	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
 	if err != nil {
-		log.Errorf("Error getting redis value: %v", err)
+		fmt.Println("Error getting redis value: %v", err)
 	}
 	if result != "" && role != "admin" {
 		var outputResponse model.PaginatedQuestionBank
 		err = json.Unmarshal([]byte(result), &outputResponse)
 		if err != nil {
-			log.Errorf("Error unmarshalling redis value: %v", err)
+			fmt.Println("Error unmarshalling redis value: %v", err)
 		} else {
 			return &outputResponse, nil
 		}
@@ -78,7 +77,7 @@ func LatestQuestionBanks(ctx context.Context, publishTime *int, pageCursor *stri
 		if err != nil {
 			return nil, fmt.Errorf("error encrypting cursor: %v", err)
 		}
-		log.Infof("Courses: %v", string(newCursor))
+		fmt.Println("Courses: %v", string(newCursor))
 
 	}
 	var outputResponse model.PaginatedQuestionBank
@@ -109,12 +108,12 @@ func LatestQuestionBanks(ctx context.Context, publishTime *int, pageCursor *stri
 	outputResponse.Direction = direction
 	redisBytes, err := json.Marshal(outputResponse)
 	if err != nil {
-		log.Errorf("Error marshalling redis value: %v", err)
+		fmt.Println("Error marshalling redis value: %v", err)
 	} else {
 		redis.SetTTL(key, 3600)
 		err = redis.SetRedisValue(key, string(redisBytes))
 		if err != nil {
-			log.Errorf("Error setting redis value: %v", err)
+			fmt.Println("Error setting redis value: %v", err)
 		}
 	}
 	return &outputResponse, nil
@@ -139,13 +138,13 @@ func LatestQuestionPapers(ctx context.Context, publishTime *int, pageCursor *str
 	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
 	if err != nil {
-		log.Errorf("Error getting redis value: %v", err)
+		fmt.Println("Error getting redis value: %v", err)
 	}
 	if result != "" && role != "admin" {
 		var outputResponse model.PaginatedQuestionPapers
 		err = json.Unmarshal([]byte(result), &outputResponse)
 		if err != nil {
-			log.Errorf("Error unmarshalling redis value: %v", err)
+			fmt.Println("Error unmarshalling redis value: %v", err)
 		} else {
 			return &outputResponse, nil
 		}
@@ -182,7 +181,7 @@ func LatestQuestionPapers(ctx context.Context, publishTime *int, pageCursor *str
 		if err != nil {
 			return nil, fmt.Errorf("error encrypting cursor: %v", err)
 		}
-		log.Infof("Courses: %v", string(newCursor))
+		fmt.Println("Courses: %v", string(newCursor))
 
 	}
 	var outputResponse model.PaginatedQuestionPapers
@@ -215,12 +214,12 @@ func LatestQuestionPapers(ctx context.Context, publishTime *int, pageCursor *str
 	outputResponse.Direction = direction
 	redisBytes, err := json.Marshal(outputResponse)
 	if err != nil {
-		log.Errorf("Error marshalling redis value: %v", err)
+		fmt.Println("Error marshalling redis value: %v", err)
 	} else {
 		redis.SetTTL(key, 3600)
 		err = redis.SetRedisValue(key, string(redisBytes))
 		if err != nil {
-			log.Errorf("Error setting redis value: %v", err)
+			fmt.Println("Error setting redis value: %v", err)
 		}
 	}
 	return &outputResponse, nil
@@ -245,13 +244,13 @@ func GetLatestExams(ctx context.Context, publishTime *int, pageCursor *string, d
 	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
 	if err != nil {
-		log.Errorf("Error getting redis value: %v", err)
+		fmt.Println("Error getting redis value: %v", err)
 	}
 	if result != "" && role != "admin" {
 		var outputResponse model.PaginatedExams
 		err = json.Unmarshal([]byte(result), &outputResponse)
 		if err != nil {
-			log.Errorf("Error unmarshalling redis value: %v", err)
+			fmt.Println("Error unmarshalling redis value: %v", err)
 		} else {
 			return &outputResponse, nil
 		}
@@ -287,7 +286,7 @@ func GetLatestExams(ctx context.Context, publishTime *int, pageCursor *string, d
 		if err != nil {
 			return nil, fmt.Errorf("error encrypting cursor: %v", err)
 		}
-		log.Infof("Courses: %v", string(newCursor))
+		fmt.Println("Courses: %v", string(newCursor))
 
 	}
 	var outputResponse model.PaginatedExams
@@ -328,12 +327,12 @@ func GetLatestExams(ctx context.Context, publishTime *int, pageCursor *string, d
 	outputResponse.Direction = direction
 	redisBytes, err := json.Marshal(outputResponse)
 	if err != nil {
-		log.Errorf("Error marshalling redis value: %v", err)
+		fmt.Println("Error marshalling redis value: %v", err)
 	} else {
 		redis.SetTTL(key, 3600)
 		err = redis.SetRedisValue(key, string(redisBytes))
 		if err != nil {
-			log.Errorf("Error setting redis value: %v", err)
+			fmt.Println("Error setting redis value: %v", err)
 		}
 	}
 	return &outputResponse, nil
