@@ -1,10 +1,27 @@
-<html>  
-    <head>
-        <meta charset="utf-8"/>
-        <script src="wasm_exec.js"></script>
-        <script>
-            navigator.serviceWorker.register('sw.js')
-        </script>
-    </head>
-    <body></body>
-</html>  
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>go-wasm-http-server hello demo</title>
+    <script>
+      navigator.serviceWorker.register('sw.js')
+
+      async function hello() {
+
+        const res = await fetch('/healthz', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+        })
+
+        const { message } = await res.json()
+
+        alert(message)
+      }
+    </script>
+  </head>
+  <body>
+    <label for="name">Name: </label><input id="name" value="World">
+    <button onclick="hello()">Hello</button>
+  </body>
+</html>
