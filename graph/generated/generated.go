@@ -133,6 +133,7 @@ type ComplexityRoot struct {
 		IsActive     func(childComplexity int) int
 		Name         func(childComplexity int) int
 		QpID         func(childComplexity int) int
+		QuestionIds  func(childComplexity int) int
 		ScheduleType func(childComplexity int) int
 		Status       func(childComplexity int) int
 		SubCategory  func(childComplexity int) int
@@ -242,10 +243,10 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		AllCatMain                  func(childComplexity int, lspIds []*string) int
+		AllCatMain                  func(childComplexity int, lspIds []*string, searchText *string) int
 		AllCategories               func(childComplexity int) int
 		AllSubCatByCatID            func(childComplexity int, catID *string) int
-		AllSubCatMain               func(childComplexity int, lspIds []*string) int
+		AllSubCatMain               func(childComplexity int, lspIds []*string, searchText *string) int
 		AllSubCategories            func(childComplexity int) int
 		AllSubCatsByCat             func(childComplexity int, category *string) int
 		GetChapterByID              func(childComplexity int, chapterID *string) int
@@ -260,7 +261,7 @@ type ComplexityRoot struct {
 		GetExamSchedule             func(childComplexity int, examID *string) int
 		GetExamsByQPId              func(childComplexity int, questionPaperID *string) int
 		GetExamsMeta                func(childComplexity int, examIds []*string) int
-		GetLatestExams              func(childComplexity int, publishTime *int, pageCursor *string, direction *string, pageSize *int) int
+		GetLatestExams              func(childComplexity int, publishTime *int, pageCursor *string, direction *string, pageSize *int, searchText *string) int
 		GetLatestQuestionBank       func(childComplexity int, publishTime *int, pageCursor *string, direction *string, pageSize *int) int
 		GetLatestQuestionPapers     func(childComplexity int, publishTime *int, pageCursor *string, direction *string, pageSize *int) int
 		GetMCQQuiz                  func(childComplexity int, quizID *string) int
@@ -514,8 +515,8 @@ type ComplexityRoot struct {
 }
 
 type QueryResolver interface {
-	AllCatMain(ctx context.Context, lspIds []*string) ([]*model.CatMain, error)
-	AllSubCatMain(ctx context.Context, lspIds []*string) ([]*model.SubCatMain, error)
+	AllCatMain(ctx context.Context, lspIds []*string, searchText *string) ([]*model.CatMain, error)
+	AllSubCatMain(ctx context.Context, lspIds []*string, searchText *string) ([]*model.SubCatMain, error)
 	AllSubCatByCatID(ctx context.Context, catID *string) ([]*model.SubCatMain, error)
 	AllCategories(ctx context.Context) ([]*string, error)
 	AllSubCategories(ctx context.Context) ([]*string, error)
@@ -543,7 +544,7 @@ type QueryResolver interface {
 	GetQuestionBankQuestions(ctx context.Context, questionBankID *string, filters *model.QBFilters) ([]*model.QuestionBankQuestion, error)
 	GetLatestQuestionPapers(ctx context.Context, publishTime *int, pageCursor *string, direction *string, pageSize *int) (*model.PaginatedQuestionPapers, error)
 	GetQPMeta(ctx context.Context, questionPapersIds []*string) ([]*model.QuestionPaper, error)
-	GetLatestExams(ctx context.Context, publishTime *int, pageCursor *string, direction *string, pageSize *int) (*model.PaginatedExams, error)
+	GetLatestExams(ctx context.Context, publishTime *int, pageCursor *string, direction *string, pageSize *int, searchText *string) (*model.PaginatedExams, error)
 	GetQuestionPaperSections(ctx context.Context, questionPaperID *string) ([]*model.QuestionPaperSection, error)
 	GetQPBankMappingByQBId(ctx context.Context, questionBankID *string) ([]*model.SectionQBMapping, error)
 	GetQPBankMappingBySectionID(ctx context.Context, sectionID *string) ([]*model.SectionQBMapping, error)
@@ -1127,6 +1128,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Exam.QpID(childComplexity), true
 
+	case "Exam.QuestionIds":
+		if e.complexity.Exam.QuestionIds == nil {
+			break
+		}
+
+		return e.complexity.Exam.QuestionIds(childComplexity), true
+
 	case "Exam.ScheduleType":
 		if e.complexity.Exam.ScheduleType == nil {
 			break
@@ -1669,7 +1677,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.AllCatMain(childComplexity, args["lsp_ids"].([]*string)), true
+		return e.complexity.Query.AllCatMain(childComplexity, args["lsp_ids"].([]*string), args["searchText"].(*string)), true
 
 	case "Query.allCategories":
 		if e.complexity.Query.AllCategories == nil {
@@ -1700,7 +1708,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.AllSubCatMain(childComplexity, args["lsp_ids"].([]*string)), true
+		return e.complexity.Query.AllSubCatMain(childComplexity, args["lsp_ids"].([]*string), args["searchText"].(*string)), true
 
 	case "Query.allSubCategories":
 		if e.complexity.Query.AllSubCategories == nil {
@@ -1875,7 +1883,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.GetLatestExams(childComplexity, args["publish_time"].(*int), args["pageCursor"].(*string), args["Direction"].(*string), args["pageSize"].(*int)), true
+		return e.complexity.Query.GetLatestExams(childComplexity, args["publish_time"].(*int), args["pageCursor"].(*string), args["Direction"].(*string), args["pageSize"].(*int), args["searchText"].(*string)), true
 
 	case "Query.getLatestQuestionBank":
 		if e.complexity.Query.GetLatestQuestionBank == nil {
@@ -3721,6 +3729,7 @@ type Exam {
     Description: String
     Code : String
     QpId: String
+    QuestionIds: [String]
     CreatedAt: String
     UpdatedAt: String
     CreatedBy: String
@@ -3866,8 +3875,8 @@ input CoursesFilters {
 }
 
 type Query{
-  allCatMain(lsp_ids: [String]): [CatMain]
-  allSubCatMain(lsp_ids: [String]): [SubCatMain]
+  allCatMain(lsp_ids: [String], searchText: String): [CatMain]
+  allSubCatMain(lsp_ids: [String], searchText: String): [SubCatMain]
   allSubCatByCatId(catId: String): [SubCatMain]
   allCategories: [String]
   allSubCategories: [String]
@@ -3895,7 +3904,7 @@ type Query{
   getQuestionBankQuestions(question_bank_id: String, filters: QBFilters): [QuestionBankQuestion]
   getLatestQuestionPapers(publish_time: Int, pageCursor: String, Direction: String, pageSize:Int): PaginatedQuestionPapers
   getQPMeta(question_papers_ids:[String]): [QuestionPaper]
-  getLatestExams(publish_time: Int, pageCursor: String, Direction: String, pageSize:Int): PaginatedExams
+  getLatestExams(publish_time: Int, pageCursor: String, Direction: String, pageSize:Int, searchText: String): PaginatedExams
   getQuestionPaperSections(question_paper_id: String): [QuestionPaperSection]
   getQPBankMappingByQBId(question_bank_id: String): [SectionQBMapping]
   getQPBankMappingBySectionId(section_id: String): [SectionQBMapping]
@@ -3945,6 +3954,15 @@ func (ec *executionContext) field_Query_allCatMain_args(ctx context.Context, raw
 		}
 	}
 	args["lsp_ids"] = arg0
+	var arg1 *string
+	if tmp, ok := rawArgs["searchText"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("searchText"))
+		arg1, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["searchText"] = arg1
 	return args, nil
 }
 
@@ -3975,6 +3993,15 @@ func (ec *executionContext) field_Query_allSubCatMain_args(ctx context.Context, 
 		}
 	}
 	args["lsp_ids"] = arg0
+	var arg1 *string
+	if tmp, ok := rawArgs["searchText"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("searchText"))
+		arg1, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["searchText"] = arg1
 	return args, nil
 }
 
@@ -4212,6 +4239,15 @@ func (ec *executionContext) field_Query_getLatestExams_args(ctx context.Context,
 		}
 	}
 	args["pageSize"] = arg3
+	var arg4 *string
+	if tmp, ok := rawArgs["searchText"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("searchText"))
+		arg4, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["searchText"] = arg4
 	return args, nil
 }
 
@@ -7089,6 +7125,38 @@ func (ec *executionContext) _Exam_QpId(ctx context.Context, field graphql.Collec
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Exam_QuestionIds(ctx context.Context, field graphql.CollectedField, obj *model.Exam) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Exam",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.QuestionIds, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*string)
+	fc.Result = res
+	return ec.marshalOString2ᚕᚖstring(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Exam_CreatedAt(ctx context.Context, field graphql.CollectedField, obj *model.Exam) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -9706,7 +9774,7 @@ func (ec *executionContext) _Query_allCatMain(ctx context.Context, field graphql
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().AllCatMain(rctx, args["lsp_ids"].([]*string))
+		return ec.resolvers.Query().AllCatMain(rctx, args["lsp_ids"].([]*string), args["searchText"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -9745,7 +9813,7 @@ func (ec *executionContext) _Query_allSubCatMain(ctx context.Context, field grap
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().AllSubCatMain(rctx, args["lsp_ids"].([]*string))
+		return ec.resolvers.Query().AllSubCatMain(rctx, args["lsp_ids"].([]*string), args["searchText"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10823,7 +10891,7 @@ func (ec *executionContext) _Query_getLatestExams(ctx context.Context, field gra
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetLatestExams(rctx, args["publish_time"].(*int), args["pageCursor"].(*string), args["Direction"].(*string), args["pageSize"].(*int))
+		return ec.resolvers.Query().GetLatestExams(rctx, args["publish_time"].(*int), args["pageCursor"].(*string), args["Direction"].(*string), args["pageSize"].(*int), args["searchText"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -18815,6 +18883,13 @@ func (ec *executionContext) _Exam(ctx context.Context, sel ast.SelectionSet, obj
 		case "QpId":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Exam_QpId(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+		case "QuestionIds":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Exam_QuestionIds(ctx, field, obj)
 			}
 
 			out.Values[i] = innerFunc(ctx)

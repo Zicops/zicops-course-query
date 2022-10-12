@@ -51,6 +51,11 @@ func GetExamsByQPId(ctx context.Context, questionPaperID *string) ([]*model.Exam
 		copiedQuestion := bank
 		createdAt := strconv.FormatInt(copiedQuestion.CreatedAt, 10)
 		updatedAt := strconv.FormatInt(copiedQuestion.UpdatedAt, 10)
+		questionIDs := make([]*string, 0)
+		for _, questionID := range copiedQuestion.QuestionIDs {
+			copiedQId := questionID
+			questionIDs = append(questionIDs, &copiedQId)
+		}
 		currentQuestion := &model.Exam{
 			ID:           &copiedQuestion.ID,
 			Description:  &copiedQuestion.Description,
@@ -68,6 +73,7 @@ func GetExamsByQPId(ctx context.Context, questionPaperID *string) ([]*model.Exam
 			Status:       &copiedQuestion.Status,
 			IsActive:     &copiedQuestion.IsActive,
 			QpID:         &copiedQuestion.QPID,
+			QuestionIds:  questionIDs,
 		}
 		allSections = append(allSections, currentQuestion)
 	}
