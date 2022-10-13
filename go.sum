@@ -454,6 +454,8 @@ github.com/zicops/contracts v0.0.0-20221013150218-567e5abf25f1 h1:nJxlo61nOz8mBn
 github.com/zicops/contracts v0.0.0-20221013150218-567e5abf25f1/go.mod h1:jt0EYQwy9NemS+9GgiVeF71y+kDE1NIx7B/uQLOMGPM=
 github.com/zicops/contracts v0.0.0-20221013155037-567181afba15 h1:5kA3Cj7UI2vBi9dchHI+l7iuqZ5JDhYO2UI0Z+BHlfo=
 github.com/zicops/contracts v0.0.0-20221013155037-567181afba15/go.mod h1:jt0EYQwy9NemS+9GgiVeF71y+kDE1NIx7B/uQLOMGPM=
+github.com/zicops/contracts v0.0.0-20221013163812-d4dfdd74b126 h1:x4Q4Jgv2ASuEeE6YbrRO1lBcLH6SwYVrLbXHokiC46g=
+github.com/zicops/contracts v0.0.0-20221013163812-d4dfdd74b126/go.mod h1:jt0EYQwy9NemS+9GgiVeF71y+kDE1NIx7B/uQLOMGPM=
 github.com/zicops/zicops-cass-pool v0.0.0-20220919192352-78030dc81568 h1:7BrLOoLjBfRku9FM2YGFpKKNA9TYdZYWretY96mIyHQ=
 github.com/zicops/zicops-cass-pool v0.0.0-20220919192352-78030dc81568/go.mod h1:PmA3zXnEFGbSNErxO1LEuXrKRYr4xer1l+o/TdjFkpo=
 go.opencensus.io v0.21.0/go.mod h1:mSImk1erAIZhrmZN+AvHh14ztQfjbGwt4TtuofqLduU=

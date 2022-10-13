@@ -11,7 +11,7 @@ require (
 	github.com/gin-gonic/gin v1.8.1
 	github.com/sirupsen/logrus v1.9.0
 	github.com/vektah/gqlparser/v2 v2.5.1
-	github.com/zicops/contracts v0.0.0-20221013155037-567181afba15
+	github.com/zicops/contracts v0.0.0-20221013163812-d4dfdd74b126
 	github.com/zicops/zicops-cass-pool v0.0.0-20220919192352-78030dc81568
 	golang.org/x/oauth2 v0.0.0-20221006150949-b44042a4b9c1
 	google.golang.org/api v0.98.0
