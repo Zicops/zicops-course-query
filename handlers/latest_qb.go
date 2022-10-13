@@ -269,7 +269,7 @@ func GetLatestExams(ctx context.Context, publishTime *int, pageCursor *string, d
 	CassSession := session
 	whereClause := ""
 	if searchText != nil && *searchText != "" {
-		whereClause = fmt.Sprintf(` AND name CONTAINS '%s'`, *searchText)
+		whereClause = fmt.Sprintf(` AND name LIKE '%%%s%%'`, *searchText)
 	}
 	qryStr := fmt.Sprintf(`SELECT * from qbankz.exam where updated_at <= %d  %s ALLOW FILTERING`, *publishTime, whereClause)
 	getExams := func(page []byte) (exams []qbankz.Exam, nextPage []byte, err error) {

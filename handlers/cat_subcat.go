@@ -129,11 +129,11 @@ func AllCatMain(ctx context.Context, lspIds []*string, searchText *string) ([]*m
 			}
 			whereClause = whereClause + ")"
 			if searchText != nil && *searchText != "" {
-				whereClause = whereClause + " AND name CONTAINS '" + *searchText + "'"
+				whereClause = whereClause + " AND name LIKE '%" + *searchText + "%'"
 			}
 		} else {
 			if searchText != nil && *searchText != "" {
-				whereClause = whereClause + "WHERE name CONTAINS '" + *searchText + "'"
+				whereClause = whereClause + "WHERE name LIKE '%" + *searchText + "%'"
 			}
 		}
 
@@ -230,11 +230,11 @@ func AllSubCatMain(ctx context.Context, lspIds []*string, searchText *string) ([
 			}
 			whereClause = whereClause + ")"
 			if searchText != nil && *searchText != "" {
-				whereClause = whereClause + " AND name CONTAINS '" + *searchText + "'"
+				whereClause = whereClause + " AND name LIKE '%" + *searchText + "%'"
 			}
 		} else {
 			if searchText != nil && *searchText != "" {
-				whereClause = whereClause + "WHERE name CONTAINS '" + *searchText + "'"
+				whereClause = whereClause + "WHERE name LIKE '%" + *searchText + "%'"
 			}
 		}
 
