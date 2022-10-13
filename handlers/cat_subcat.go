@@ -129,11 +129,32 @@ func AllCatMain(ctx context.Context, lspIds []*string, searchText *string) ([]*m
 			}
 			whereClause = whereClause + ")"
 			if searchText != nil && *searchText != "" {
-				whereClause = whereClause + " AND name LIKE '%" + *searchText + "%'"
+				searchTextLower := strings.ToLower(*searchText)
+				words := strings.Split(searchTextLower, " ")
+				whereClause = whereClause + " AND  words CONTAINS ("
+				for i, word := range words {
+					if i == 0 {
+						whereClause = whereClause + "'" + word + "'"
+					} else {
+						whereClause = whereClause + ", '" + word + "'"
+					}
+				}
+				whereClause = whereClause + ")"
 			}
+
 		} else {
 			if searchText != nil && *searchText != "" {
-				whereClause = whereClause + "WHERE name LIKE '%" + *searchText + "%'"
+				searchTextLower := strings.ToLower(*searchText)
+				words := strings.Split(searchTextLower, " ")
+				whereClause = "WHERE words CONTAINS ("
+				for i, word := range words {
+					if i == 0 {
+						whereClause = whereClause + "'" + word + "'"
+					} else {
+						whereClause = whereClause + ", '" + word + "'"
+					}
+				}
+				whereClause = whereClause + ")"
 			}
 		}
 
@@ -230,11 +251,32 @@ func AllSubCatMain(ctx context.Context, lspIds []*string, searchText *string) ([
 			}
 			whereClause = whereClause + ")"
 			if searchText != nil && *searchText != "" {
-				whereClause = whereClause + " AND name LIKE '%" + *searchText + "%'"
+				searchTextLower := strings.ToLower(*searchText)
+				words := strings.Split(searchTextLower, " ")
+				whereClause = whereClause + " AND  words CONTAINS ("
+				for i, word := range words {
+					if i == 0 {
+						whereClause = whereClause + "'" + word + "'"
+					} else {
+						whereClause = whereClause + ", '" + word + "'"
+					}
+				}
+				whereClause = whereClause + ")"
 			}
+
 		} else {
 			if searchText != nil && *searchText != "" {
-				whereClause = whereClause + "WHERE name LIKE '%" + *searchText + "%'"
+				searchTextLower := strings.ToLower(*searchText)
+				words := strings.Split(searchTextLower, " ")
+				whereClause = whereClause + "WHERE words CONTAINS ("
+				for i, word := range words {
+					if i == 0 {
+						whereClause = whereClause + "'" + word + "'"
+					} else {
+						whereClause = whereClause + ", '" + word + "'"
+					}
+				}
+				whereClause = whereClause + ") "
 			}
 		}
 
