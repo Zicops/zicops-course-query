@@ -96,7 +96,19 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 				whereClause = whereClause + fmt.Sprintf(` and type='%s'`, *filters.Type)
 			}
 			if filters.SearchText != nil {
-				whereClause = whereClause + fmt.Sprintf(` and name CONTAINS '%s'`, *filters.SearchText)
+				if *filters.SearchText != "" {
+					searchTextLower := strings.ToLower(*filters.SearchText)
+					words := strings.Split(searchTextLower, " ")
+					whereClause = whereClause + " AND  words CONTAINS ("
+					for i, word := range words {
+						if i == 0 {
+							whereClause = whereClause + "'" + word + "'"
+						} else {
+							whereClause = whereClause + ", '" + word + "'"
+						}
+					}
+					whereClause = whereClause + ")"
+				}
 			}
 		}
 		qryStr := fmt.Sprintf(`SELECT * from coursez.course %s ALLOW FILTERING`, whereClause)
