@@ -119,15 +119,14 @@ func AllCatMain(ctx context.Context, lspIds []*string, searchText *string) ([]*m
 		whereClause := ""
 		if len(lspIds) > 0 {
 			// cassandra contains clauses using lspIds
-			whereClause = "WHERE lsps CONTAINS ("
+			whereClause = "WHERE "
 			for i, lspId := range lspIds {
 				if i == 0 {
-					whereClause = whereClause + "'" + *lspId + "'"
+					whereClause = whereClause + " lsps CONTAINS '" + *lspId + "'"
 				} else {
-					whereClause = whereClause + ", '" + *lspId + "'"
+					whereClause = whereClause + " AND lsps CONTAINS '" + *lspId + "'"
 				}
 			}
-			whereClause = whereClause + ")"
 			if searchText != nil && *searchText != "" {
 				searchTextLower := strings.ToLower(*searchText)
 				words := strings.Split(searchTextLower, " ")
@@ -234,15 +233,14 @@ func AllSubCatMain(ctx context.Context, lspIds []*string, searchText *string) ([
 		whereClause := ""
 		if len(lspIds) > 0 {
 			// cassandra contains clauses using lspIds
-			whereClause = "WHERE lsps CONTAINS ("
+			whereClause = "WHERE "
 			for i, lspId := range lspIds {
 				if i == 0 {
-					whereClause = whereClause + "'" + *lspId + "'"
+					whereClause = whereClause + " lsps CONTAINS '" + *lspId + "'"
 				} else {
-					whereClause = whereClause + ", '" + *lspId + "'"
+					whereClause = whereClause + " AND lsps CONTAINS '" + *lspId + "'"
 				}
 			}
-			whereClause = whereClause + ")"
 			if searchText != nil && *searchText != "" {
 				searchTextLower := strings.ToLower(*searchText)
 				words := strings.Split(searchTextLower, " ")
