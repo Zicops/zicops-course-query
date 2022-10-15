@@ -271,15 +271,9 @@ func GetLatestExams(ctx context.Context, publishTime *int, pageCursor *string, d
 	if searchText != nil && *searchText != "" {
 		searchTextLower := strings.ToLower(*searchText)
 		words := strings.Split(searchTextLower, " ")
-		whereClause = whereClause + " AND  words CONTAINS ("
-		for i, word := range words {
-			if i == 0 {
-				whereClause = whereClause + "'" + word + "'"
-			} else {
-				whereClause = whereClause + ", '" + word + "'"
-			}
+		for _, word := range words {
+			whereClause = whereClause + " AND  words CONTAINS '" + word + "'"
 		}
-		whereClause = whereClause + ")"
 	}
 	qryStr := fmt.Sprintf(`SELECT * from qbankz.exam where updated_at <= %d  %s ALLOW FILTERING`, *publishTime, whereClause)
 	getExams := func(page []byte) (exams []qbankz.Exam, nextPage []byte, err error) {
