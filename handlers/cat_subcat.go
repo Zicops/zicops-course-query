@@ -131,30 +131,23 @@ func AllCatMain(ctx context.Context, lspIds []*string, searchText *string) ([]*m
 			if searchText != nil && *searchText != "" {
 				searchTextLower := strings.ToLower(*searchText)
 				words := strings.Split(searchTextLower, " ")
-				whereClause = whereClause + " AND  words CONTAINS ("
-				for i, word := range words {
-					if i == 0 {
-						whereClause = whereClause + "'" + word + "'"
-					} else {
-						whereClause = whereClause + ", '" + word + "'"
-					}
+				for _, word := range words {
+					whereClause = whereClause + " AND  words CONTAINS '" + word + "'"
 				}
-				whereClause = whereClause + ")"
 			}
 
 		} else {
 			if searchText != nil && *searchText != "" {
 				searchTextLower := strings.ToLower(*searchText)
 				words := strings.Split(searchTextLower, " ")
-				whereClause = "WHERE words CONTAINS ("
+				whereClause = "WHERE "
 				for i, word := range words {
 					if i == 0 {
-						whereClause = whereClause + "'" + word + "'"
+						whereClause = whereClause + "words CONTAINS '" + word + "'"
 					} else {
-						whereClause = whereClause + ", '" + word + "'"
+						whereClause = whereClause + " AND  words CONTAINS '" + word + "'"
 					}
 				}
-				whereClause = whereClause + ")"
 			}
 		}
 
@@ -253,30 +246,23 @@ func AllSubCatMain(ctx context.Context, lspIds []*string, searchText *string) ([
 			if searchText != nil && *searchText != "" {
 				searchTextLower := strings.ToLower(*searchText)
 				words := strings.Split(searchTextLower, " ")
-				whereClause = whereClause + " AND  words CONTAINS ("
-				for i, word := range words {
-					if i == 0 {
-						whereClause = whereClause + "'" + word + "'"
-					} else {
-						whereClause = whereClause + ", '" + word + "'"
-					}
+				for _, word := range words {
+					whereClause = whereClause + " AND  words CONTAINS '" + word + "'"
 				}
-				whereClause = whereClause + ")"
 			}
 
 		} else {
 			if searchText != nil && *searchText != "" {
 				searchTextLower := strings.ToLower(*searchText)
 				words := strings.Split(searchTextLower, " ")
-				whereClause = whereClause + "WHERE words CONTAINS ("
+				whereClause = "WHERE "
 				for i, word := range words {
 					if i == 0 {
-						whereClause = whereClause + "'" + word + "'"
+						whereClause = whereClause + "words CONTAINS '" + word + "'"
 					} else {
-						whereClause = whereClause + ", '" + word + "'"
+						whereClause = whereClause + " AND  words CONTAINS '" + word + "'"
 					}
 				}
-				whereClause = whereClause + ") "
 			}
 		}
 
