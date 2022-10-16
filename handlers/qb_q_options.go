@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-	"time"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/qbankz"
@@ -32,8 +31,6 @@ func GetOptionsForQuestions(ctx context.Context, questionIds []*string) ([]*mode
 		return nil, err
 	}
 	CassSession := session
-	createdAt := time.Now().Unix()
-
 	responseMap := make([]*model.MapQuestionWithOption, 0)
 	for _, questionId := range questionIds {
 		key := "GetOptionsForQuestions" + *questionId
@@ -49,7 +46,7 @@ func GetOptionsForQuestions(ctx context.Context, questionIds []*string) ([]*mode
 		currentMap.QuestionID = questionId
 
 		if len(banks) <= 0 {
-			qryStr := fmt.Sprintf(`SELECT * from qbankz.options_main where qm_id='%s' AND created_at < %d AND is_active=true ALLOW FILTERING`, *questionId, createdAt)
+			qryStr := fmt.Sprintf(`SELECT * from qbankz.options_main where qm_id='%s' AND is_active=true ALLOW FILTERING`, *questionId)
 			getBanks := func() (banks []qbankz.OptionsMain, err error) {
 				q := CassSession.Query(qryStr, nil)
 				defer q.Release()

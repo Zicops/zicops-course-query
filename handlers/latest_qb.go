@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-	"time"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/qbankz"
@@ -372,8 +371,8 @@ func GetExamsMeta(ctx context.Context, examIds []*string) ([]*model.Exam, error)
 			}
 		}
 		lspId := claims["lsp_id"].(string)
-		createdAt := time.Now().Unix()
-		qryStr := fmt.Sprintf(`SELECT * from qbankz.exam where id='%s' AND is_active=true AND lsp_id='%s' AND created_at<%d ALLOW FILTERING`, *questionId, lspId, createdAt)
+
+		qryStr := fmt.Sprintf(`SELECT * from qbankz.exam where id='%s' AND is_active=true AND lsp_id='%s' AND  ALLOW FILTERING`, *questionId, lspId)
 		getPapers := func() (banks []qbankz.Exam, err error) {
 			q := CassSession.Query(qryStr, nil)
 			defer q.Release()
@@ -437,7 +436,7 @@ func GetQBMeta(ctx context.Context, qbIds []*string) ([]*model.QuestionBank, err
 	}
 	role := strings.ToLower(claims["role"].(string))
 	lspId := claims["lsp_id"].(string)
-	createdAt := time.Now().Unix()
+
 	for _, qbId := range qbIds {
 		result, _ := redis.GetRedisValue("GetQBMeta" + *qbId)
 		if result != "" && role != "admin" {
@@ -449,7 +448,7 @@ func GetQBMeta(ctx context.Context, qbIds []*string) ([]*model.QuestionBank, err
 			}
 		}
 
-		qryStr := fmt.Sprintf(`SELECT * from qbankz.question_bank_main where id='%s' AND created_at<%d AND lsp_id='%s' AND is_active=true ALLOW FILTERING`, *qbId, createdAt, lspId)
+		qryStr := fmt.Sprintf(`SELECT * from qbankz.question_bank_main where id='%s' AND  AND lsp_id='%s' AND is_active=true ALLOW FILTERING`, *qbId, lspId)
 		getBanks := func() (banks []qbankz.QuestionBankMain, err error) {
 			q := CassSession.Query(qryStr, nil)
 			defer q.Release()

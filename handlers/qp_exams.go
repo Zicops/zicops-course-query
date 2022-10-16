@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/zicops/contracts/qbankz"
 	"github.com/zicops/zicops-cass-pool/cassandra"
@@ -30,8 +29,8 @@ func GetExamsByQPId(ctx context.Context, questionPaperID *string) ([]*model.Exam
 			return output, nil
 		}
 	}
-	createdAt := time.Now().Unix()
-	qryStr := fmt.Sprintf(`SELECT * from qbankz.exam where qp_id = '%s'  AND is_active=true AND created_at < %d ALLOW FILTERING`, *questionPaperID, createdAt)
+
+	qryStr := fmt.Sprintf(`SELECT * from qbankz.exam where qp_id = '%s'  AND is_active=true  ALLOW FILTERING`, *questionPaperID)
 	session, err := cassandra.GetCassSession("qbankz")
 	if err != nil {
 		return nil, err
@@ -102,8 +101,8 @@ func GetExamSchedule(ctx context.Context, examID *string) ([]*model.ExamSchedule
 			return output, nil
 		}
 	}
-	createdAt := time.Now().Unix()
-	qryStr := fmt.Sprintf(`SELECT * from qbankz.exam_schedule where exam_id = '%s'  AND is_active=true AND created_at < %d ALLOW FILTERING`, *examID, createdAt)
+
+	qryStr := fmt.Sprintf(`SELECT * from qbankz.exam_schedule where exam_id = '%s'  AND is_active=true  ALLOW FILTERING`, *examID)
 	session, err := cassandra.GetCassSession("qbankz")
 	if err != nil {
 		return nil, err
@@ -165,8 +164,8 @@ func GetExamInstruction(ctx context.Context, examID *string) ([]*model.ExamInstr
 			return output, nil
 		}
 	}
-	createdAt := time.Now().Unix()
-	qryStr := fmt.Sprintf(`SELECT * from qbankz.exam_instructions where exam_id = '%s' AND is_active=true AND created_at < %d  ALLOW FILTERING`, *examID, createdAt)
+
+	qryStr := fmt.Sprintf(`SELECT * from qbankz.exam_instructions where exam_id = '%s' AND is_active=true   ALLOW FILTERING`, *examID)
 	session, err := cassandra.GetCassSession("qbankz")
 	if err != nil {
 		return nil, err
@@ -227,8 +226,8 @@ func GetExamCohort(ctx context.Context, examID *string) ([]*model.ExamCohort, er
 			return output, nil
 		}
 	}
-	createdAt := time.Now().Unix()
-	qryStr := fmt.Sprintf(`SELECT * from qbankz.exam_cohort where exam_id = '%s' AND is_active=true AND created_at < %d ALLOW FILTERING`, *examID, createdAt)
+
+	qryStr := fmt.Sprintf(`SELECT * from qbankz.exam_cohort where exam_id = '%s' AND is_active=true  ALLOW FILTERING`, *examID)
 	session, err := cassandra.GetCassSession("qbankz")
 	if err != nil {
 		return nil, err
@@ -285,8 +284,8 @@ func GetExamConfiguration(ctx context.Context, examID *string) ([]*model.ExamCon
 			return output, nil
 		}
 	}
-	createdAt := time.Now().Unix()
-	qryStr := fmt.Sprintf(`SELECT * from qbankz.exam_config where exam_id = '%s' AND is_active=true AND created_at < %d ALLOW FILTERING`, *examID, createdAt)
+
+	qryStr := fmt.Sprintf(`SELECT * from qbankz.exam_config where exam_id = '%s' AND is_active=true  ALLOW FILTERING`, *examID)
 	session, err := cassandra.GetCassSession("qbankz")
 	if err != nil {
 		return nil, err
@@ -357,8 +356,8 @@ func GetQPMeta(ctx context.Context, questionPapersIds []*string) ([]*model.Quest
 		}
 		currentMap := &model.QuestionPaper{}
 		currentMap.ID = questionId
-		createdAt := time.Now().Unix()
-		qryStr := fmt.Sprintf(`SELECT * from qbankz.question_paper_main where id='%s'  AND is_active=true AND created_at < %d ALLOW FILTERING`, *questionId, createdAt)
+
+		qryStr := fmt.Sprintf(`SELECT * from qbankz.question_paper_main where id='%s'  AND is_active=true  ALLOW FILTERING`, *questionId)
 		getPapers := func() (banks []qbankz.QuestionPaperMain, err error) {
 			q := CassSession.Query(qryStr, nil)
 			defer q.Release()

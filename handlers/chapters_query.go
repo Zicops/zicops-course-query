@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-	"time"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/coursez"
@@ -45,8 +44,7 @@ func GetChaptersCourseByID(ctx context.Context, courseID *string) ([]*model.Chap
 		return nil, err
 	}
 	CassSession := session
-	createdAt := time.Now().Unix()
-	qryStr := fmt.Sprintf(`SELECT * from coursez.chapter where courseid='%s' AND created_at < %d ALLOW FILTERING`, *courseID, createdAt)
+	qryStr := fmt.Sprintf(`SELECT * from coursez.chapter where courseid='%s' ALLOW FILTERING`, *courseID)
 	getChapters := func() (modules []coursez.Chapter, err error) {
 		q := CassSession.Query(qryStr, nil)
 		defer q.Release()
@@ -115,8 +113,7 @@ func GetChapterByID(ctx context.Context, chapterID *string) (*model.Chapter, err
 		return nil, err
 	}
 	CassSession := session
-	createdAt := time.Now().Unix()
-	qryStr := fmt.Sprintf(`SELECT * from coursez.chapter where id='%s' AND created_at < %d ALLOW FILTERING`, *chapterID, createdAt)
+	qryStr := fmt.Sprintf(`SELECT * from coursez.chapter where id='%s' ALLOW FILTERING`, *chapterID)
 	getChapters := func() (modules []coursez.Chapter, err error) {
 		q := CassSession.Query(qryStr, nil)
 		defer q.Release()

@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-	"time"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/coursez"
@@ -150,12 +149,6 @@ func AllCatMain(ctx context.Context, lspIds []*string, searchText *string) ([]*m
 				}
 			}
 		}
-		createdAt := time.Now().Unix()
-		if whereClause != "" {
-			whereClause = fmt.Sprintf("%s AND created_at < %d", whereClause, createdAt)
-		} else {
-			whereClause = fmt.Sprintf("WHERE created_at < %d", createdAt)
-		}
 		qryStr := `SELECT * from coursez.cat_main ` + whereClause + ` ALLOW FILTERING`
 		getCats := func() (banks []coursez.CatMain, err error) {
 			q := CassSession.Query(qryStr, nil)
@@ -269,12 +262,6 @@ func AllSubCatMain(ctx context.Context, lspIds []*string, searchText *string) ([
 				}
 			}
 		}
-		createdAt := time.Now().Unix()
-		if whereClause != "" {
-			whereClause = fmt.Sprintf("%s AND created_at < %d", whereClause, createdAt)
-		} else {
-			whereClause = fmt.Sprintf("WHERE created_at < %d", createdAt)
-		}
 		qryStr := `SELECT * from coursez.sub_cat_main ` + whereClause + ` ALLOW FILTERING`
 		getCats := func() (banks []coursez.SubCatMain, err error) {
 			q := CassSession.Query(qryStr, nil)
@@ -351,15 +338,13 @@ func AllSubCatByCatID(ctx context.Context, catID *string) ([]*model.SubCatMain, 
 			log.Errorf("Failed to unmarshal value from redis: %v", err.Error())
 		}
 	}
-	createdAt := time.Now().Unix()
 	if len(cats) <= 0 || role == "admin" {
 		session, err := cassandra.GetCassSession("coursez")
 		if err != nil {
 			return nil, err
 		}
 		CassSession := session
-
-		qryStr := fmt.Sprintf(`SELECT * from coursez.sub_cat_main WHERE parent_id = '%s' AND created_at < %d ALLOW FILTERING`, *catID, createdAt)
+		qryStr := fmt.Sprintf(`SELECT * from coursez.sub_cat_main WHERE parent_id = '%s' ALLOW FILTERING`, *catID)
 		getCats := func() (banks []coursez.SubCatMain, err error) {
 			q := CassSession.Query(qryStr, nil)
 			defer q.Release()

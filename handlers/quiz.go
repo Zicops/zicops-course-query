@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-	"time"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/coursez"
@@ -40,8 +39,8 @@ func GetTopicQuizes(ctx context.Context, topicID *string) ([]*model.Quiz, error)
 			return nil, err
 		}
 		CassSession := session
-		createdAt := time.Now().Unix()
-		qryStr := fmt.Sprintf(`SELECT * from coursez.quiz where topicid='%s' AND is_active=true AND created_at < %d ALLOW FILTERING`, *topicID, createdAt)
+
+		qryStr := fmt.Sprintf(`SELECT * from coursez.quiz where topicid='%s' AND is_active=true  ALLOW FILTERING`, *topicID)
 		getTopicQuiz := func() (quizes []coursez.Quiz, err error) {
 			q := CassSession.Query(qryStr, nil)
 			defer q.Release()

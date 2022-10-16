@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-	"time"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/coursez"
@@ -41,8 +40,7 @@ func GetCohortCourseMaps(ctx context.Context, cohortID *string) ([]*model.Course
 		return nil, err
 	}
 	CassSession := session
-	createdAt := time.Now().Unix()
-	qryStr := fmt.Sprintf(`SELECT * from coursez.course_cohort_mapping where cohortid = '%s'  AND created_at < %d ALLOW FILTERING`, *cohortID, createdAt)
+	qryStr := fmt.Sprintf(`SELECT * from coursez.course_cohort_mapping where cohortid = '%s' ALLOW FILTERING`, *cohortID)
 	getCCohorts := func() (banks []coursez.CourseCohortMapping, err error) {
 		q := CassSession.Query(qryStr, nil)
 		defer q.Release()

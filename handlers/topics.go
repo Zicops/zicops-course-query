@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-	"time"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/coursez"
@@ -45,8 +44,8 @@ func GetTopicsCourseByID(ctx context.Context, courseID *string) ([]*model.Topic,
 			return nil, err
 		}
 		CassSession := session
-		createdAt := time.Now().Unix()
-		qryStr := fmt.Sprintf(`SELECT * from coursez.topic where courseid='%s' AND is_active=true AND created_at < %d AND lsp_id='%s' ALLOW FILTERING`, *courseID, createdAt, *course.LspID)
+
+		qryStr := fmt.Sprintf(`SELECT * from coursez.topic where courseid='%s' AND is_active=true  AND lsp_id='%s' ALLOW FILTERING`, *courseID, *course.LspID)
 		getTopics := func() (topics []coursez.Topic, err error) {
 			q := CassSession.Query(qryStr, nil)
 			defer q.Release()
@@ -121,8 +120,8 @@ func GetTopicByID(ctx context.Context, topicID *string) (*model.Topic, error) {
 			return nil, err
 		}
 		CassSession := session
-		createdAt := time.Now().Unix()
-		qryStr := fmt.Sprintf(`SELECT * from coursez.topic where id='%s' AND is_active=true AND created_at < %d ALLOW FILTERING`, *topicID, createdAt)
+
+		qryStr := fmt.Sprintf(`SELECT * from coursez.topic where id='%s' AND is_active=true  ALLOW FILTERING`, *topicID)
 		getTopics := func() (topics []coursez.Topic, err error) {
 			q := CassSession.Query(qryStr, nil)
 			defer q.Release()

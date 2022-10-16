@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-	"time"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/coursez"
@@ -40,8 +39,8 @@ func GetTopicContent(ctx context.Context, topicID *string) ([]*model.TopicConten
 			return nil, err
 		}
 		CassSession := session
-		createdAt := time.Now().Unix()
-		qryStr := fmt.Sprintf(`SELECT * from coursez.topic_content where topicid='%s' AND is_active=true AND created_at < %d ALLOW FILTERING`, *topicID, createdAt)
+
+		qryStr := fmt.Sprintf(`SELECT * from coursez.topic_content where topicid='%s' AND is_active=true  ALLOW FILTERING`, *topicID)
 		getTopicContent := func() (content []coursez.TopicContent, err error) {
 			q := CassSession.Query(qryStr, nil)
 			defer q.Release()
@@ -125,8 +124,8 @@ func GetTopicExams(ctx context.Context, topicID *string) ([]*model.TopicExam, er
 		return nil, err
 	}
 	CassSession := session
-	createdAt := time.Now().Unix()
-	qryStr := fmt.Sprintf(`SELECT * from coursez.topic_exam where topicid='%s' AND is_active=true and created_at < %d ALLOW FILTERING`, *topicID, createdAt)
+
+	qryStr := fmt.Sprintf(`SELECT * from coursez.topic_exam where topicid='%s' AND is_active=true  ALLOW FILTERING`, *topicID)
 	getTopicContent := func() (content []coursez.TopicExam, err error) {
 		q := CassSession.Query(qryStr, nil)
 		defer q.Release()
@@ -187,8 +186,8 @@ func GetTopicContentByCourse(ctx context.Context, courseID *string) ([]*model.To
 			return nil, err
 		}
 		CassSession := session
-		createdAt := time.Now().Unix()
-		qryStr := fmt.Sprintf(`SELECT * from coursez.topic_content where courseid='%s' AND is_active=true and created_at < %d AND lsp_id ='%s' ALLOW FILTERING`, *courseID, createdAt, *course.LspID)
+
+		qryStr := fmt.Sprintf(`SELECT * from coursez.topic_content where courseid='%s' AND is_active=true  AND lsp_id ='%s' ALLOW FILTERING`, *courseID, *course.LspID)
 		getTopicContent := func() (content []coursez.TopicContent, err error) {
 			q := CassSession.Query(qryStr, nil)
 			defer q.Release()
@@ -273,12 +272,12 @@ func GetTopicExamsByCourse(ctx context.Context, courseID *string) ([]*model.Topi
 		return nil, err
 	}
 	CassSession := session
-	createdAt := time.Now().Unix()
+
 	course, err := GetCourseByID(ctx, courseID)
 	if err != nil {
 		return nil, err
 	}
-	qryStr := fmt.Sprintf(`SELECT * from coursez.topic_exam where courseid='%s' AND is_active=true and created_at < %d AND lsp_id='%s' ALLOW FILTERING`, *courseID, createdAt, *course.LspID)
+	qryStr := fmt.Sprintf(`SELECT * from coursez.topic_exam where courseid='%s' AND is_active=true  AND lsp_id='%s' ALLOW FILTERING`, *courseID, *course.LspID)
 	getTopicContent := func() (content []coursez.TopicExam, err error) {
 		q := CassSession.Query(qryStr, nil)
 		defer q.Release()

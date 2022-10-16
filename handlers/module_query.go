@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/zicops/contracts/coursez"
 	"github.com/zicops/zicops-cass-pool/cassandra"
@@ -41,8 +40,8 @@ func GetModulesCourseByID(ctx context.Context, courseID *string) ([]*model.Modul
 		return nil, err
 	}
 	lspId := course.LspID
-	createdAt := time.Now().Unix()
-	qryStr := fmt.Sprintf(`SELECT * from coursez.module where courseid='%s' AND lsp_id='%s' AND is_active=true AND created_at<%d ALLOW FILTERING`, *courseID, *lspId, createdAt)
+
+	qryStr := fmt.Sprintf(`SELECT * from coursez.module where courseid='%s' AND lsp_id='%s' AND is_active=true AND  ALLOW FILTERING`, *courseID, *lspId)
 	getModules := func() (modules []coursez.Module, err error) {
 		q := CassSession.Query(qryStr, nil)
 		defer q.Release()
@@ -102,9 +101,8 @@ func GetModuleByID(ctx context.Context, moduleID *string) (*model.Module, error)
 		return nil, err
 	}
 	CassSession := session
-	createdAt := time.Now().Unix()
 
-	qryStr := fmt.Sprintf(`SELECT * from coursez.module where id='%s' AND created_at < %d AND is_active=true ALLOW FILTERING`, *moduleID, createdAt)
+	qryStr := fmt.Sprintf(`SELECT * from coursez.module where id='%s' AND is_active=true ALLOW FILTERING`, *moduleID)
 	getModules := func() (modules []coursez.Module, err error) {
 		q := CassSession.Query(qryStr, nil)
 		defer q.Release()
