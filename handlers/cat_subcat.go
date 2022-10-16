@@ -98,6 +98,7 @@ func AllCatMain(ctx context.Context, lspIds []*string, searchText *string) ([]*m
 	if err != nil {
 		return nil, err
 	}
+	log.Infof("claims: %v", claims)
 	role := strings.ToLower(claims["role"].(string))
 	cats := make([]coursez.CatMain, 0)
 	result, err := redis.GetRedisValue(key)
