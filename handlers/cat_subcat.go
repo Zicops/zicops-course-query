@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/coursez"
@@ -119,15 +120,14 @@ func AllCatMain(ctx context.Context, lspIds []*string, searchText *string) ([]*m
 		whereClause := ""
 		if len(lspIds) > 0 {
 			// cassandra contains clauses using lspIds
-			whereClause = "WHERE lsps CONTAINS ("
+			whereClause = "WHERE "
 			for i, lspId := range lspIds {
 				if i == 0 {
-					whereClause = whereClause + "'" + *lspId + "'"
+					whereClause = whereClause + " lsps CONTAINS '" + *lspId + "'"
 				} else {
-					whereClause = whereClause + ", '" + *lspId + "'"
+					whereClause = whereClause + " AND lsps CONTAINS '" + *lspId + "'"
 				}
 			}
-			whereClause = whereClause + ")"
 			if searchText != nil && *searchText != "" {
 				searchTextLower := strings.ToLower(*searchText)
 				words := strings.Split(searchTextLower, " ")
@@ -150,7 +150,8 @@ func AllCatMain(ctx context.Context, lspIds []*string, searchText *string) ([]*m
 				}
 			}
 		}
-
+		createdAt := time.Now().Unix()
+		whereClause = fmt.Sprintf("%s AND created_at < %d", whereClause, createdAt)
 		qryStr := `SELECT * from coursez.cat_main ` + whereClause + ` ALLOW FILTERING`
 		getCats := func() (banks []coursez.CatMain, err error) {
 			q := CassSession.Query(qryStr, nil)
@@ -234,15 +235,14 @@ func AllSubCatMain(ctx context.Context, lspIds []*string, searchText *string) ([
 		whereClause := ""
 		if len(lspIds) > 0 {
 			// cassandra contains clauses using lspIds
-			whereClause = "WHERE lsps CONTAINS ("
+			whereClause = "WHERE "
 			for i, lspId := range lspIds {
 				if i == 0 {
-					whereClause = whereClause + "'" + *lspId + "'"
+					whereClause = whereClause + " lsps CONTAINS '" + *lspId + "'"
 				} else {
-					whereClause = whereClause + ", '" + *lspId + "'"
+					whereClause = whereClause + " AND lsps CONTAINS '" + *lspId + "'"
 				}
 			}
-			whereClause = whereClause + ")"
 			if searchText != nil && *searchText != "" {
 				searchTextLower := strings.ToLower(*searchText)
 				words := strings.Split(searchTextLower, " ")
@@ -265,7 +265,8 @@ func AllSubCatMain(ctx context.Context, lspIds []*string, searchText *string) ([
 				}
 			}
 		}
-
+		createdAt := time.Now().Unix()
+		whereClause = fmt.Sprintf("%s AND created_at < %d", whereClause, createdAt)
 		qryStr := `SELECT * from coursez.sub_cat_main ` + whereClause + ` ALLOW FILTERING`
 		getCats := func() (banks []coursez.SubCatMain, err error) {
 			q := CassSession.Query(qryStr, nil)
@@ -342,6 +343,7 @@ func AllSubCatByCatID(ctx context.Context, catID *string) ([]*model.SubCatMain, 
 			log.Errorf("Failed to unmarshal value from redis: %v", err.Error())
 		}
 	}
+	createdAt := time.Now().Unix()
 	if len(cats) <= 0 || role == "admin" {
 		session, err := cassandra.GetCassSession("coursez")
 		if err != nil {
@@ -349,7 +351,7 @@ func AllSubCatByCatID(ctx context.Context, catID *string) ([]*model.SubCatMain, 
 		}
 		CassSession := session
 
-		qryStr := fmt.Sprintf(`SELECT * from coursez.sub_cat_main WHERE parent_id = '%s' ALLOW FILTERING`, *catID)
+		qryStr := fmt.Sprintf(`SELECT * from coursez.sub_cat_main WHERE parent_id = '%s' AND created_at < %d ALLOW FILTERING`, *catID, createdAt)
 		getCats := func() (banks []coursez.SubCatMain, err error) {
 			q := CassSession.Query(qryStr, nil)
 			defer q.Release()

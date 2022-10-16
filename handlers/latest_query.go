@@ -72,7 +72,7 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 			return nil, err
 		}
 		CassSession := session
-		whereClause := fmt.Sprintf(`where status='%s' and updated_at <= %d`, statusNew, *publishTime)
+		whereClause := fmt.Sprintf(`where status='%s' and created_at <= %d`, statusNew, *publishTime)
 		if filters != nil {
 			if filters.Category != nil {
 				whereClause = whereClause + fmt.Sprintf(` and category='%s'`, *filters.Category)
@@ -105,6 +105,7 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 				}
 			}
 		}
+		whereClause = whereClause + " AND is_active=true"
 		qryStr := fmt.Sprintf(`SELECT * from coursez.course %s ALLOW FILTERING`, whereClause)
 		getCourses := func(page []byte) (courses []coursez.Course, nextPage []byte, err error) {
 			q := CassSession.Query(qryStr, nil)

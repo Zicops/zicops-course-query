@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/zicops/contracts/qbankz"
 	"github.com/zicops/zicops-cass-pool/cassandra"
@@ -29,8 +30,8 @@ func GetQuestionBankSections(ctx context.Context, questionPaperID *string) ([]*m
 			return allSections, nil
 		}
 	}
-
-	qryStr := fmt.Sprintf(`SELECT * from qbankz.section_main where qp_id = '%s'  ALLOW FILTERING`, *questionPaperID)
+	createdAt := time.Now().Unix()
+	qryStr := fmt.Sprintf(`SELECT * from qbankz.section_main where qp_id = '%s'  AND is_active=true AND created_at < %d ALLOW FILTERING`, *questionPaperID, createdAt)
 	session, err := cassandra.GetCassSession("qbankz")
 	if err != nil {
 		return nil, err
@@ -90,7 +91,8 @@ func GetQPBankMappingByQPId(ctx context.Context, questionPaperID *string) ([]*mo
 			return allSectionsMap, nil
 		}
 	}
-	qryStr := fmt.Sprintf(`SELECT * from qbankz.section_qb_mapping where qb_id = '%s'  ALLOW FILTERING`, *questionPaperID)
+	createdAt := time.Now().Unix()
+	qryStr := fmt.Sprintf(`SELECT * from qbankz.section_qb_mapping where qb_id = '%s'  AND is_active=true AND created_at < %d ALLOW FILTERING`, *questionPaperID, createdAt)
 	session, err := cassandra.GetCassSession("qbankz")
 	if err != nil {
 		return nil, err
@@ -152,8 +154,8 @@ func GetQPBankMappingBySectionID(ctx context.Context, sectionID *string) ([]*mod
 			return allSectionsMap, nil
 		}
 	}
-
-	qryStr := fmt.Sprintf(`SELECT * from qbankz.section_qb_mapping where section_id = '%s'  ALLOW FILTERING`, *sectionID)
+	createdAt := time.Now().Unix()
+	qryStr := fmt.Sprintf(`SELECT * from qbankz.section_qb_mapping where section_id = '%s' AND is_active=true AND created_at < %d ALLOW FILTERING`, *sectionID, createdAt)
 	session, err := cassandra.GetCassSession("qbankz")
 	if err != nil {
 		return nil, err
@@ -215,8 +217,8 @@ func GetSectionFixedQuestions(ctx context.Context, sectionID *string) ([]*model.
 			return allSectionsMap, nil
 		}
 	}
-
-	qryStr := fmt.Sprintf(`SELECT * from qbankz.section_fixed_questions where sqb_id = '%s'  ALLOW FILTERING`, *sectionID)
+	createdAt := time.Now().Unix()
+	qryStr := fmt.Sprintf(`SELECT * from qbankz.section_fixed_questions where sqb_id = '%s' AND is_active=true AND created_at < %d ALLOW FILTERING`, *sectionID, createdAt)
 	session, err := cassandra.GetCassSession("qbankz")
 	if err != nil {
 		return nil, err

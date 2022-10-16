@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/coursez"
@@ -33,6 +34,7 @@ func GetTopicResources(ctx context.Context, topicID *string) ([]*model.TopicReso
 			log.Errorf("Failed to unmarshal redis value: %v", err.Error())
 		}
 	}
+	createdAt := time.Now().Unix()
 	if len(currentResources) <= 0 {
 		session, err := cassandra.GetCassSession("coursez")
 		if err != nil {
@@ -40,7 +42,7 @@ func GetTopicResources(ctx context.Context, topicID *string) ([]*model.TopicReso
 		}
 		CassSession := session
 
-		qryStr := fmt.Sprintf(`SELECT * from coursez.resource where topicid='%s' ALLOW FILTERING`, *topicID)
+		qryStr := fmt.Sprintf(`SELECT * from coursez.resource where topicid='%s' AND is_active=true AND created_at < %d  ALLOW FILTERING`, *topicID, createdAt)
 		getTopicrRes := func() (resources []coursez.Resource, err error) {
 			q := CassSession.Query(qryStr, nil)
 			defer q.Release()
@@ -114,8 +116,8 @@ func GetCourseResources(ctx context.Context, courseID *string) ([]*model.TopicRe
 			return nil, err
 		}
 		CassSession := session
-
-		qryStr := fmt.Sprintf(`SELECT * from coursez.resource where courseid='%s' ALLOW FILTERING`, *courseID)
+		createdAt := time.Now().Unix()
+		qryStr := fmt.Sprintf(`SELECT * from coursez.resource where courseid='%s' AND is_active=true AND created_at < %d ALLOW FILTERING`, *courseID, createdAt)
 		getTopicrRes := func() (resources []coursez.Resource, err error) {
 			q := CassSession.Query(qryStr, nil)
 			defer q.Release()

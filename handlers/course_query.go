@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/coursez"
@@ -81,8 +82,8 @@ func GetCourseByID(ctx context.Context, courseID *string) (*model.Course, error)
 			return nil, err
 		}
 		CassSession := session
-
-		qryStr := fmt.Sprintf(`SELECT * from coursez.course where id='%s' ALLOW FILTERING`, *courseID)
+		createdAt := time.Now().Unix()
+		qryStr := fmt.Sprintf(`SELECT * from coursez.course where id='%s' AND created_at < %d ALLOW FILTERING`, *courseID, createdAt)
 		getCourse := func() (courses []coursez.Course, err error) {
 			q := CassSession.Query(qryStr, nil)
 			defer q.Release()

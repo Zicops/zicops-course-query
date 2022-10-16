@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/zicops/contracts/coursez"
 	"github.com/zicops/zicops-cass-pool/cassandra"
@@ -35,8 +36,13 @@ func GetModulesCourseByID(ctx context.Context, courseID *string) ([]*model.Modul
 		return nil, err
 	}
 	CassSession := session
-
-	qryStr := fmt.Sprintf(`SELECT * from coursez.module where courseid='%s' ALLOW FILTERING`, *courseID)
+	course, err := GetCourseByID(ctx, courseID)
+	if err != nil {
+		return nil, err
+	}
+	lspId := course.LspID
+	createdAt := time.Now().Unix()
+	qryStr := fmt.Sprintf(`SELECT * from coursez.module where courseid='%s' AND lsp_id='%s' AND is_active=true AND created_at<%d ALLOW FILTERING`, *courseID, *lspId, createdAt)
 	getModules := func() (modules []coursez.Module, err error) {
 		q := CassSession.Query(qryStr, nil)
 		defer q.Release()
@@ -84,7 +90,7 @@ func GetModuleByID(ctx context.Context, moduleID *string) (*model.Module, error)
 	}
 	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
-	if err == nil && role != "admin"{
+	if err == nil && role != "admin" {
 		err = json.Unmarshal([]byte(result), &modules)
 		if err == nil {
 			return modules[0], nil
@@ -96,8 +102,9 @@ func GetModuleByID(ctx context.Context, moduleID *string) (*model.Module, error)
 		return nil, err
 	}
 	CassSession := session
+	createdAt := time.Now().Unix()
 
-	qryStr := fmt.Sprintf(`SELECT * from coursez.module where id='%s' ALLOW FILTERING`, *moduleID)
+	qryStr := fmt.Sprintf(`SELECT * from coursez.module where id='%s' AND created_at < %d AND is_active=true ALLOW FILTERING`, *moduleID, createdAt)
 	getModules := func() (modules []coursez.Module, err error) {
 		q := CassSession.Query(qryStr, nil)
 		defer q.Release()

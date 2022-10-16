@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/coursez"
@@ -33,14 +34,19 @@ func GetTopicsCourseByID(ctx context.Context, courseID *string) ([]*model.Topic,
 			log.Errorf("Failed to unmarshal topics: %v", err.Error())
 		}
 	}
+	course, err := GetCourseByID(ctx, courseID)
+	if err != nil {
+		return nil, err
+	}
+
 	if len(currentTopics) <= 0 {
 		session, err := cassandra.GetCassSession("coursez")
 		if err != nil {
 			return nil, err
 		}
 		CassSession := session
-
-		qryStr := fmt.Sprintf(`SELECT * from coursez.topic where courseid='%s' ALLOW FILTERING`, *courseID)
+		createdAt := time.Now().Unix()
+		qryStr := fmt.Sprintf(`SELECT * from coursez.topic where courseid='%s' AND is_active=true AND created_at < %d AND lsp_id='%s' ALLOW FILTERING`, *courseID, createdAt, *course.LspID)
 		getTopics := func() (topics []coursez.Topic, err error) {
 			q := CassSession.Query(qryStr, nil)
 			defer q.Release()
@@ -103,7 +109,7 @@ func GetTopicByID(ctx context.Context, topicID *string) (*model.Topic, error) {
 	}
 	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
-	if err == nil && role != "admin"{
+	if err == nil && role != "admin" {
 		err = json.Unmarshal([]byte(result), &currentTopics)
 		if err != nil {
 			log.Errorf("Failed to unmarshal topics: %v", err.Error())
@@ -115,8 +121,8 @@ func GetTopicByID(ctx context.Context, topicID *string) (*model.Topic, error) {
 			return nil, err
 		}
 		CassSession := session
-
-		qryStr := fmt.Sprintf(`SELECT * from coursez.topic where id='%s' ALLOW FILTERING`, *topicID)
+		createdAt := time.Now().Unix()
+		qryStr := fmt.Sprintf(`SELECT * from coursez.topic where id='%s' AND is_active=true AND created_at < %d ALLOW FILTERING`, *topicID, createdAt)
 		getTopics := func() (topics []coursez.Topic, err error) {
 			q := CassSession.Query(qryStr, nil)
 			defer q.Release()

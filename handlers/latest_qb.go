@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/qbankz"
@@ -58,8 +59,8 @@ func LatestQuestionBanks(ctx context.Context, publishTime *int, pageCursor *stri
 		return nil, err
 	}
 	CassSession := session
-
-	qryStr := fmt.Sprintf(`SELECT * from qbankz.question_bank_main where updated_at <= %d  ALLOW FILTERING`, *publishTime)
+	lspId := claims["lsp_id"].(string)
+	qryStr := fmt.Sprintf(`SELECT * from qbankz.question_bank_main where created_at <= %d AND lsp_id='%s' AND is_active=true ALLOW FILTERING`, *publishTime, lspId)
 	getBanks := func(page []byte) (banks []qbankz.QuestionBankMain, nextPage []byte, err error) {
 		q := CassSession.Query(qryStr, nil)
 		defer q.Release()
@@ -162,8 +163,8 @@ func LatestQuestionPapers(ctx context.Context, publishTime *int, pageCursor *str
 		return nil, err
 	}
 	CassSession := session
-
-	qryStr := fmt.Sprintf(`SELECT * from qbankz.question_paper_main where updated_at <= %d  ALLOW FILTERING`, *publishTime)
+	lspId := claims["lsp_id"].(string)
+	qryStr := fmt.Sprintf(`SELECT * from qbankz.question_paper_main where created_at <= %d AND lsp_id = '%s' AND is_active=true ALLOW FILTERING`, *publishTime, lspId)
 	getBanks := func(page []byte) (banks []qbankz.QuestionPaperMain, nextPage []byte, err error) {
 		q := CassSession.Query(qryStr, nil)
 		defer q.Release()
@@ -242,6 +243,7 @@ func GetLatestExams(ctx context.Context, publishTime *int, pageCursor *string, d
 	if err != nil {
 		return nil, err
 	}
+	lspId := claims["lsp_id"].(string)
 	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
 	if err != nil {
@@ -275,7 +277,8 @@ func GetLatestExams(ctx context.Context, publishTime *int, pageCursor *string, d
 			whereClause = whereClause + " AND  words CONTAINS '" + word + "'"
 		}
 	}
-	qryStr := fmt.Sprintf(`SELECT * from qbankz.exam where updated_at <= %d  %s ALLOW FILTERING`, *publishTime, whereClause)
+	whereClause = fmt.Sprintf(` %s AND  is_active = true AND created_at <= %d AND lsp_id = '%s' ALLOW FILTERING`, whereClause, *publishTime, lspId)
+	qryStr := fmt.Sprintf(`SELECT * from qbankz.exam %s ALLOW FILTERING`, whereClause)
 	getExams := func(page []byte) (exams []qbankz.Exam, nextPage []byte, err error) {
 		q := CassSession.Query(qryStr, nil)
 		defer q.Release()
@@ -368,8 +371,9 @@ func GetExamsMeta(ctx context.Context, examIds []*string) ([]*model.Exam, error)
 				continue
 			}
 		}
-
-		qryStr := fmt.Sprintf(`SELECT * from qbankz.exam where id='%s'  ALLOW FILTERING`, *questionId)
+		lspId := claims["lsp_id"].(string)
+		createdAt := time.Now().Unix()
+		qryStr := fmt.Sprintf(`SELECT * from qbankz.exam where id='%s' AND is_active=true AND lsp_id='%s' AND created_at<%d ALLOW FILTERING`, *questionId, lspId, createdAt)
 		getPapers := func() (banks []qbankz.Exam, err error) {
 			q := CassSession.Query(qryStr, nil)
 			defer q.Release()
@@ -432,7 +436,8 @@ func GetQBMeta(ctx context.Context, qbIds []*string) ([]*model.QuestionBank, err
 		return nil, err
 	}
 	role := strings.ToLower(claims["role"].(string))
-
+	lspId := claims["lsp_id"].(string)
+	createdAt := time.Now().Unix()
 	for _, qbId := range qbIds {
 		result, _ := redis.GetRedisValue("GetQBMeta" + *qbId)
 		if result != "" && role != "admin" {
@@ -444,7 +449,7 @@ func GetQBMeta(ctx context.Context, qbIds []*string) ([]*model.QuestionBank, err
 			}
 		}
 
-		qryStr := fmt.Sprintf(`SELECT * from qbankz.question_bank_main where id='%s'  ALLOW FILTERING`, *qbId)
+		qryStr := fmt.Sprintf(`SELECT * from qbankz.question_bank_main where id='%s' AND created_at<%d AND lsp_id='%s' AND is_active=true ALLOW FILTERING`, *qbId, createdAt, lspId)
 		getBanks := func() (banks []qbankz.QuestionBankMain, err error) {
 			q := CassSession.Query(qryStr, nil)
 			defer q.Release()

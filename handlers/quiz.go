@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/coursez"
@@ -27,7 +28,7 @@ func GetTopicQuizes(ctx context.Context, topicID *string) ([]*model.Quiz, error)
 	}
 	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
-	if err == nil  && role != "admin"{
+	if err == nil && role != "admin" {
 		err = json.Unmarshal([]byte(result), &currentQuizes)
 		if err == nil {
 			log.Errorf("GetTopicQuizes from redis")
@@ -39,8 +40,8 @@ func GetTopicQuizes(ctx context.Context, topicID *string) ([]*model.Quiz, error)
 			return nil, err
 		}
 		CassSession := session
-
-		qryStr := fmt.Sprintf(`SELECT * from coursez.quiz where topicid='%s' ALLOW FILTERING`, *topicID)
+		createdAt := time.Now().Unix()
+		qryStr := fmt.Sprintf(`SELECT * from coursez.quiz where topicid='%s' AND is_active=true AND created_at < %d ALLOW FILTERING`, *topicID, createdAt)
 		getTopicQuiz := func() (quizes []coursez.Quiz, err error) {
 			q := CassSession.Query(qryStr, nil)
 			defer q.Release()
@@ -93,7 +94,7 @@ func GetQuizFiles(ctx context.Context, quizID *string) ([]*model.QuizFile, error
 	}
 	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
-	if err == nil && role != "admin"{
+	if err == nil && role != "admin" {
 		err = json.Unmarshal([]byte(result), &currentFiles)
 		if err != nil {
 			log.Errorf("GetQuizFiles from redis")
@@ -107,7 +108,7 @@ func GetQuizFiles(ctx context.Context, quizID *string) ([]*model.QuizFile, error
 		}
 		CassSession := session
 
-		qryStr := fmt.Sprintf(`SELECT * from coursez.quiz_file where quizid='%s' ALLOW FILTERING`, *quizID)
+		qryStr := fmt.Sprintf(`SELECT * from coursez.quiz_file where quizid='%s' AND is_active=true ALLOW FILTERING`, *quizID)
 		getQuizFiles := func() (files []coursez.QuizFile, err error) {
 			q := CassSession.Query(qryStr, nil)
 			defer q.Release()
@@ -158,7 +159,7 @@ func GetMCQQuiz(ctx context.Context, quizID *string) ([]*model.QuizMcq, error) {
 	}
 	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
-	if err == nil && role != "admin"{
+	if err == nil && role != "admin" {
 		err = json.Unmarshal([]byte(result), &quizMcqs)
 		if err == nil {
 			return quizMcqs, nil
@@ -171,7 +172,7 @@ func GetMCQQuiz(ctx context.Context, quizID *string) ([]*model.QuizMcq, error) {
 	}
 	CassSession := session
 
-	qryStr := fmt.Sprintf(`SELECT * from coursez.quiz_mcq where quizid='%s' ALLOW FILTERING`, *quizID)
+	qryStr := fmt.Sprintf(`SELECT * from coursez.quiz_mcq where quizid='%s' and is_active=true ALLOW FILTERING`, *quizID)
 	getQuizMcq := func() (mcqs []coursez.QuizMcq, err error) {
 		q := CassSession.Query(qryStr, nil)
 		defer q.Release()
@@ -215,7 +216,7 @@ func GetQuizDes(ctx context.Context, quizID *string) ([]*model.QuizDescriptive, 
 	}
 	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
-	if err == nil && role != "admin"{
+	if err == nil && role != "admin" {
 		err = json.Unmarshal([]byte(result), &quizDes)
 		if err == nil {
 			return quizDes, nil
@@ -227,7 +228,7 @@ func GetQuizDes(ctx context.Context, quizID *string) ([]*model.QuizDescriptive, 
 	}
 	CassSession := session
 
-	qryStr := fmt.Sprintf(`SELECT * from coursez.quiz_descriptive where quizid='%s' ALLOW FILTERING`, *quizID)
+	qryStr := fmt.Sprintf(`SELECT * from coursez.quiz_descriptive where quizid='%s' AND is_active=true ALLOW FILTERING`, *quizID)
 	getQuizDes := func() (desq []coursez.QuizDescriptive, err error) {
 		q := CassSession.Query(qryStr, nil)
 		defer q.Release()

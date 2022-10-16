@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/qbankz"
@@ -136,6 +137,7 @@ func GetQuestionsByID(ctx context.Context, questionIds []*string) ([]*model.Ques
 	}
 	role := strings.ToLower(claims["role"].(string))
 	allQuestions := make([]*model.QuestionBankQuestion, 0)
+	createdAt := time.Now().Unix()
 	for _, id := range questionIds {
 		key := "GetQuestionsByID" + *id
 		result, err := redis.GetRedisValue(key)
@@ -144,7 +146,7 @@ func GetQuestionsByID(ctx context.Context, questionIds []*string) ([]*model.Ques
 			json.Unmarshal([]byte(result), &banks)
 		}
 		if len(banks) <= 0 {
-			qryStr := fmt.Sprintf(`SELECT * from qbankz.question_main where id = '%s' ALLOW FILTERING`, *id)
+			qryStr := fmt.Sprintf(`SELECT * from qbankz.question_main where id = '%s' AND is_active=true AND created_at< %d ALLOW FILTERING`, *id, createdAt)
 			getBanks := func() (banks []qbankz.QuestionMain, err error) {
 				q := CassSession.Query(qryStr, nil)
 				defer q.Release()
@@ -207,6 +209,8 @@ func getWhereClause(filters *model.QBFilters, qb_id string) string {
 			whereClause = fmt.Sprintf("%s AND difficulty_score <= %d", whereClause, *filters.DifficultyEnd)
 		}
 	}
+	createdAt := time.Now().Unix()
+	whereClause = whereClause + fmt.Sprintf(" AND is_active = true AND created_at < %d", createdAt)
 	return whereClause
 }
 

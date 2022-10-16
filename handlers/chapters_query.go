@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/coursez"
@@ -44,8 +45,8 @@ func GetChaptersCourseByID(ctx context.Context, courseID *string) ([]*model.Chap
 		return nil, err
 	}
 	CassSession := session
-
-	qryStr := fmt.Sprintf(`SELECT * from coursez.chapter where courseid='%s' ALLOW FILTERING`, *courseID)
+	createdAt := time.Now().Unix()
+	qryStr := fmt.Sprintf(`SELECT * from coursez.chapter where courseid='%s' AND created_at < %d ALLOW FILTERING`, *courseID, createdAt)
 	getChapters := func() (modules []coursez.Chapter, err error) {
 		q := CassSession.Query(qryStr, nil)
 		defer q.Release()
@@ -105,17 +106,17 @@ func GetChapterByID(ctx context.Context, chapterID *string) (*model.Chapter, err
 	}
 	if len(chapters) > 0 && role != "admin" {
 		return chapters[0], nil
-	}else {
+	} else {
 		chapters = make([]*model.Chapter, 0)
 	}
-	
+
 	session, err := cassandra.GetCassSession("coursez")
 	if err != nil {
 		return nil, err
 	}
 	CassSession := session
-
-	qryStr := fmt.Sprintf(`SELECT * from coursez.chapter where id='%s' ALLOW FILTERING`, *chapterID)
+	createdAt := time.Now().Unix()
+	qryStr := fmt.Sprintf(`SELECT * from coursez.chapter where id='%s' AND created_at < %d ALLOW FILTERING`, *chapterID, createdAt)
 	getChapters := func() (modules []coursez.Chapter, err error) {
 		q := CassSession.Query(qryStr, nil)
 		defer q.Release()
