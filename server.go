@@ -23,7 +23,7 @@ import (
 const defaultPort = "8080"
 
 func main() {
-	os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", "zicops-cc.json")
+	//os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", "zicops-cc.json")
 	log.Infof("Starting zicops course query service")
 	ctx, cancel := context.WithCancel(context.Background())
 	crySession := cry.New("09afa9f9544a7ff1ae9988f73ba42134")
@@ -43,15 +43,15 @@ func main() {
 	_, err2 := cassandra.GetCassSession("qbankz")
 	_, err3 := cassandra.GetCassSession("userz")
 	if err1 != nil || err2 != nil || err3 != nil {
-		//log.Fatalf("Error connecting to cassandra: %v and %v ", err1, err2, err3)
+		log.Fatalf("Error connecting to cassandra: %v and %v ", err1, err2, err3)
 	} else {
-		//log.Infof("Cassandra connection successful")
+		log.Infof("Cassandra connection successful")
 	}
 	_, err = redis.Initialize()
 	if err != nil {
-		//log.Fatalf("Error connecting to redis: %v", err)
+		log.Fatalf("Error connecting to redis: %v", err)
 	} else {
-		//log.Infof("Redis connection successful")
+		log.Infof("Redis connection successful")
 	}
 	bootUPErrors := make(chan error, 1)
 	go monitorSystem(cancel, bootUPErrors)
