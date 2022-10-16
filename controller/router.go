@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
@@ -117,7 +118,8 @@ func graphqlHandler() gin.HandlerFunc {
 				log.Errorf("Error getting cassandra session %s", err.Error())
 			}
 			CassUserSession := session
-			qryStr := fmt.Sprintf(`SELECT * from userz.users where id='%s'  ALLOW FILTERING`, userIdUsingEmail)
+			createdAt := time.Now().Unix()
+			qryStr := fmt.Sprintf(`SELECT * from userz.users where id='%s' AND created_at < %d  ALLOW FILTERING`, userIdUsingEmail, createdAt)
 			getUsers := func() (users []userz.User, err error) {
 				q := CassUserSession.Query(qryStr, nil)
 				defer q.Release()
