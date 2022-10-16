@@ -120,8 +120,8 @@ func AllCatMain(ctx context.Context, lspIds []*string, searchText *string) ([]*m
 		CassSession := session
 		whereClause := ""
 		if len(lspIds) > 0 {
-			// cassandra contains clauses using lspIds
 			whereClause = "WHERE "
+			// cassandra contains clauses using lspIds
 			for i, lspId := range lspIds {
 				if i == 0 {
 					whereClause = whereClause + " lsps CONTAINS '" + *lspId + "'"
@@ -141,7 +141,6 @@ func AllCatMain(ctx context.Context, lspIds []*string, searchText *string) ([]*m
 			if searchText != nil && *searchText != "" {
 				searchTextLower := strings.ToLower(*searchText)
 				words := strings.Split(searchTextLower, " ")
-				whereClause = "WHERE "
 				for i, word := range words {
 					if i == 0 {
 						whereClause = whereClause + "words CONTAINS '" + word + "'"
@@ -152,7 +151,11 @@ func AllCatMain(ctx context.Context, lspIds []*string, searchText *string) ([]*m
 			}
 		}
 		createdAt := time.Now().Unix()
-		whereClause = fmt.Sprintf("%s AND created_at < %d", whereClause, createdAt)
+		if whereClause != "" {
+			whereClause = fmt.Sprintf("%s AND created_at < %d", whereClause, createdAt)
+		} else {
+			whereClause = fmt.Sprintf("WHERE created_at < %d", createdAt)
+		}
 		qryStr := `SELECT * from coursez.cat_main ` + whereClause + ` ALLOW FILTERING`
 		getCats := func() (banks []coursez.CatMain, err error) {
 			q := CassSession.Query(qryStr, nil)
@@ -267,7 +270,11 @@ func AllSubCatMain(ctx context.Context, lspIds []*string, searchText *string) ([
 			}
 		}
 		createdAt := time.Now().Unix()
-		whereClause = fmt.Sprintf("%s AND created_at < %d", whereClause, createdAt)
+		if whereClause != "" {
+			whereClause = fmt.Sprintf("%s AND created_at < %d", whereClause, createdAt)
+		} else {
+			whereClause = fmt.Sprintf("WHERE created_at < %d", createdAt)
+		}
 		qryStr := `SELECT * from coursez.sub_cat_main ` + whereClause + ` ALLOW FILTERING`
 		getCats := func() (banks []coursez.SubCatMain, err error) {
 			q := CassSession.Query(qryStr, nil)
