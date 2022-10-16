@@ -41,7 +41,7 @@ func GetModulesCourseByID(ctx context.Context, courseID *string) ([]*model.Modul
 	}
 	lspId := course.LspID
 
-	qryStr := fmt.Sprintf(`SELECT * from coursez.module where courseid='%s' AND lsp_id='%s' AND is_active=true AND  ALLOW FILTERING`, *courseID, *lspId)
+	qryStr := fmt.Sprintf(`SELECT * from coursez.module where courseid='%s' AND lsp_id='%s' AND is_active=true ALLOW FILTERING`, *courseID, *lspId)
 	getModules := func() (modules []coursez.Module, err error) {
 		q := CassSession.Query(qryStr, nil)
 		defer q.Release()
