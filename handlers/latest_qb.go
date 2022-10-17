@@ -268,15 +268,18 @@ func GetLatestExams(ctx context.Context, publishTime *int, pageCursor *string, d
 		return nil, err
 	}
 	CassSession := session
-	whereClause := ""
+	whereClause := "WHERE "
 	if searchText != nil && *searchText != "" {
 		searchTextLower := strings.ToLower(*searchText)
 		words := strings.Split(searchTextLower, " ")
 		for _, word := range words {
-			whereClause = whereClause + " AND  words CONTAINS '" + word + "'"
+			whereClause = whereClause + " words CONTAINS '" + word + "'"
 		}
 	}
-	whereClause = fmt.Sprintf(` %s AND  is_active = true AND created_at <= %d AND lsp_id = '%s' ALLOW FILTERING`, whereClause, *publishTime, lspId)
+	if searchText != nil && *searchText != "" {
+		whereClause = whereClause + " AND "
+	}
+	whereClause = fmt.Sprintf(` %s is_active = true AND created_at <= %d AND lsp_id = '%s' ALLOW FILTERING`, whereClause, *publishTime, lspId)
 	qryStr := fmt.Sprintf(`SELECT * from qbankz.exam %s ALLOW FILTERING`, whereClause)
 	getExams := func(page []byte) (exams []qbankz.Exam, nextPage []byte, err error) {
 		q := CassSession.Query(qryStr, nil)
