@@ -81,7 +81,6 @@ func GetCourseByID(ctx context.Context, courseID *string) (*model.Course, error)
 			return nil, err
 		}
 		CassSession := session
-
 		qryStr := fmt.Sprintf(`SELECT * from coursez.course where id='%s' ALLOW FILTERING`, *courseID)
 		getCourse := func() (courses []coursez.Course, err error) {
 			q := CassSession.Query(qryStr, nil)
@@ -154,15 +153,15 @@ func GetCourseByID(ctx context.Context, courseID *string) (*model.Course, error)
 		log.Errorf("Failed to initialize storage: %v", err.Error())
 		return nil, err
 	}
-	tileUrl := ""
+	tileUrl := course.TileImage
 	if course.TileImageBucket != "" {
 		tileUrl = storageC.GetSignedURLForObject(course.TileImageBucket)
 	}
-	imageUrl := ""
+	imageUrl := course.Image
 	if course.ImageBucket != "" {
 		imageUrl = storageC.GetSignedURLForObject(course.ImageBucket)
 	}
-	previewUrl := ""
+	previewUrl := course.PreviewVideo
 	if course.PreviewVideoBucket != "" {
 		previewUrl = storageC.GetSignedURLForObject(course.PreviewVideoBucket)
 	}

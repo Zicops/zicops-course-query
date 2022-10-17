@@ -319,6 +319,7 @@ type Exam {
     Status: String
     Category: String
     SubCategory: String
+    TotalCount: Int
 }
 
 type PaginatedExams{
@@ -477,10 +478,10 @@ type Query{
   getTopicContentByCourseId(course_id: String): [TopicContent]
   getTopicExamsByCourseId(course_id: String): [TopicExam]
   getResourcesByCourseId(course_id: String): [TopicResource]
-  getLatestQuestionBank(publish_time: Int, pageCursor: String, Direction: String, pageSize:Int): PaginatedQuestionBank
+  getLatestQuestionBank(publish_time: Int, pageCursor: String, Direction: String, pageSize:Int, searchText: String): PaginatedQuestionBank
   getQBMeta(qb_ids:[String]): [QuestionBank]
   getQuestionBankQuestions(question_bank_id: String, filters: QBFilters): [QuestionBankQuestion]
-  getLatestQuestionPapers(publish_time: Int, pageCursor: String, Direction: String, pageSize:Int): PaginatedQuestionPapers
+  getLatestQuestionPapers(publish_time: Int, pageCursor: String, Direction: String, pageSize:Int, searchText: String): PaginatedQuestionPapers
   getQPMeta(question_papers_ids:[String]): [QuestionPaper]
   getLatestExams(publish_time: Int, pageCursor: String, Direction: String, pageSize:Int, searchText: String): PaginatedExams
   getQuestionPaperSections(question_paper_id: String): [QuestionPaperSection]

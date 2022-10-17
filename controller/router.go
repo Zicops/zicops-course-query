@@ -117,7 +117,7 @@ func graphqlHandler() gin.HandlerFunc {
 				log.Errorf("Error getting cassandra session %s", err.Error())
 			}
 			CassUserSession := session
-			qryStr := fmt.Sprintf(`SELECT * from userz.users where id='%s'  ALLOW FILTERING`, userIdUsingEmail)
+			qryStr := fmt.Sprintf(`SELECT * from userz.users where id='%s' `, userIdUsingEmail)
 			getUsers := func() (users []userz.User, err error) {
 				q := CassUserSession.Query(qryStr, nil)
 				defer q.Release()

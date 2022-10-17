@@ -35,8 +35,13 @@ func GetModulesCourseByID(ctx context.Context, courseID *string) ([]*model.Modul
 		return nil, err
 	}
 	CassSession := session
+	course, err := GetCourseByID(ctx, courseID)
+	if err != nil {
+		return nil, err
+	}
+	lspId := course.LspID
 
-	qryStr := fmt.Sprintf(`SELECT * from coursez.module where courseid='%s' ALLOW FILTERING`, *courseID)
+	qryStr := fmt.Sprintf(`SELECT * from coursez.module where courseid='%s' AND lsp_id='%s' AND is_active=true ALLOW FILTERING`, *courseID, *lspId)
 	getModules := func() (modules []coursez.Module, err error) {
 		q := CassSession.Query(qryStr, nil)
 		defer q.Release()
@@ -84,7 +89,7 @@ func GetModuleByID(ctx context.Context, moduleID *string) (*model.Module, error)
 	}
 	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
-	if err == nil && role != "admin"{
+	if err == nil && role != "admin" {
 		err = json.Unmarshal([]byte(result), &modules)
 		if err == nil {
 			return modules[0], nil
@@ -97,7 +102,7 @@ func GetModuleByID(ctx context.Context, moduleID *string) (*model.Module, error)
 	}
 	CassSession := session
 
-	qryStr := fmt.Sprintf(`SELECT * from coursez.module where id='%s' ALLOW FILTERING`, *moduleID)
+	qryStr := fmt.Sprintf(`SELECT * from coursez.module where id='%s' AND is_active=true ALLOW FILTERING`, *moduleID)
 	getModules := func() (modules []coursez.Module, err error) {
 		q := CassSession.Query(qryStr, nil)
 		defer q.Release()
