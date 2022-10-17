@@ -153,15 +153,15 @@ func GetCourseByID(ctx context.Context, courseID *string) (*model.Course, error)
 		log.Errorf("Failed to initialize storage: %v", err.Error())
 		return nil, err
 	}
-	tileUrl := ""
+	tileUrl := course.TileImage
 	if course.TileImageBucket != "" {
 		tileUrl = storageC.GetSignedURLForObject(course.TileImageBucket)
 	}
-	imageUrl := ""
+	imageUrl := course.Image
 	if course.ImageBucket != "" {
 		imageUrl = storageC.GetSignedURLForObject(course.ImageBucket)
 	}
-	previewUrl := ""
+	previewUrl := course.PreviewVideo
 	if course.PreviewVideoBucket != "" {
 		previewUrl = storageC.GetSignedURLForObject(course.PreviewVideoBucket)
 	}
