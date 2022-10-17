@@ -448,7 +448,7 @@ func GetQBMeta(ctx context.Context, qbIds []*string) ([]*model.QuestionBank, err
 			}
 		}
 
-		qryStr := fmt.Sprintf(`SELECT * from qbankz.question_bank_main where id='%s' AND  AND lsp_id='%s' AND is_active=true ALLOW FILTERING`, *qbId, lspId)
+		qryStr := fmt.Sprintf(`SELECT * from qbankz.question_bank_main where id='%s' AND lsp_id='%s' AND is_active=true ALLOW FILTERING`, *qbId, lspId)
 		getBanks := func() (banks []qbankz.QuestionBankMain, err error) {
 			q := CassSession.Query(qryStr, nil)
 			defer q.Release()
