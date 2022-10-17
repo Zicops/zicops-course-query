@@ -349,6 +349,7 @@ func GetLatestExams(ctx context.Context, publishTime *int, pageCursor *string, d
 			Category:     &copiedExam.Category,
 			SubCategory:  &copiedExam.SubCategory,
 			QuestionIds:  questionIDs,
+			TotalCount:   &copiedExam.TotalCount,
 		}
 		allExams = append(allExams, currentExam)
 	}
@@ -431,6 +432,7 @@ func GetExamsMeta(ctx context.Context, examIds []*string) ([]*model.Exam, error)
 				Category:     &copiedExam.Category,
 				SubCategory:  &copiedExam.SubCategory,
 				QuestionIds:  questionIDs,
+				TotalCount:   &copiedExam.TotalCount,
 			}
 			responseMap = append(responseMap, currentExam)
 			redisBytes, err := json.Marshal(currentExam)

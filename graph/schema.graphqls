@@ -319,6 +319,7 @@ type Exam {
     Status: String
     Category: String
     SubCategory: String
+    TotalCount: Int
 }
 
 type PaginatedExams{
