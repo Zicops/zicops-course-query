@@ -145,7 +145,7 @@ func GetQuestionsByID(ctx context.Context, questionIds []*string) ([]*model.Ques
 			json.Unmarshal([]byte(result), &banks)
 		}
 		if len(banks) <= 0 {
-			qryStr := fmt.Sprintf(`SELECT * from qbankz.question_main where id = '%s' AND is_active=true AND created_at< %d ALLOW FILTERING`, *id)
+			qryStr := fmt.Sprintf(`SELECT * from qbankz.question_main where id = '%s' AND is_active=true ALLOW FILTERING`, *id)
 			getBanks := func() (banks []qbankz.QuestionMain, err error) {
 				q := CassSession.Query(qryStr, nil)
 				defer q.Release()
