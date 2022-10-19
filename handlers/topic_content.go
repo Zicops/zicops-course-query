@@ -11,6 +11,7 @@ import (
 	"github.com/zicops/contracts/coursez"
 	"github.com/zicops/zicops-cass-pool/cassandra"
 	"github.com/zicops/zicops-cass-pool/redis"
+	"github.com/zicops/zicops-course-query/constants"
 	"github.com/zicops/zicops-course-query/graph/model"
 	"github.com/zicops/zicops-course-query/helpers"
 	"github.com/zicops/zicops-course-query/lib/db/bucket"
@@ -70,12 +71,14 @@ func GetTopicContent(ctx context.Context, topicID *string) ([]*model.TopicConten
 			urlSub = storageC.GetSignedURLsForObjects(mainBucket)
 		}
 
-		urlCon := ""
-		if mod.TopicContentBucket != "" {
+		urlCon := mod.Url
+		_, ok := constants.StaticTypeMap[mod.Type]
+		if mod.TopicContentBucket != "" && !ok {
 			urlCon = storageC.GetSignedURLForObject(mod.TopicContentBucket)
-		} else {
-			urlCon = mod.Url
+		} else if mod.TopicContentBucket != "" && ok {
+			urlCon = storageC.GetSignedURLForObjectPub(mod.TopicContentBucket)
 		}
+
 		currentModule := &model.TopicContent{
 			ID:                &mod.ID,
 			Language:          &mod.Language,
