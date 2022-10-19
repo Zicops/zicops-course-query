@@ -118,6 +118,7 @@ type Exam struct {
 	Status       *string   `json:"Status"`
 	Category     *string   `json:"Category"`
 	SubCategory  *string   `json:"SubCategory"`
+	TotalCount   *int      `json:"TotalCount"`
 }
 
 type ExamCohort struct {

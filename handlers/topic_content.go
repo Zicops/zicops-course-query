@@ -11,6 +11,7 @@ import (
 	"github.com/zicops/contracts/coursez"
 	"github.com/zicops/zicops-cass-pool/cassandra"
 	"github.com/zicops/zicops-cass-pool/redis"
+	"github.com/zicops/zicops-course-query/constants"
 	"github.com/zicops/zicops-course-query/graph/model"
 	"github.com/zicops/zicops-course-query/helpers"
 	"github.com/zicops/zicops-course-query/lib/db/bucket"
@@ -40,7 +41,7 @@ func GetTopicContent(ctx context.Context, topicID *string) ([]*model.TopicConten
 		}
 		CassSession := session
 
-		qryStr := fmt.Sprintf(`SELECT * from coursez.topic_content where topicid='%s' ALLOW FILTERING`, *topicID)
+		qryStr := fmt.Sprintf(`SELECT * from coursez.topic_content where topicid='%s' AND is_active=true  ALLOW FILTERING`, *topicID)
 		getTopicContent := func() (content []coursez.TopicContent, err error) {
 			q := CassSession.Query(qryStr, nil)
 			defer q.Release()
@@ -70,12 +71,14 @@ func GetTopicContent(ctx context.Context, topicID *string) ([]*model.TopicConten
 			urlSub = storageC.GetSignedURLsForObjects(mainBucket)
 		}
 
-		urlCon := ""
-		if mod.TopicContentBucket != "" {
+		urlCon := mod.Url
+		_, ok := constants.StaticTypeMap[mod.Type]
+		if mod.TopicContentBucket != "" && !ok {
 			urlCon = storageC.GetSignedURLForObject(mod.TopicContentBucket)
-		} else {
-			urlCon = mod.Url
+		} else if mod.TopicContentBucket != "" && ok {
+			urlCon = storageC.GetSignedURLForObjectPub(mod.TopicContentBucket)
 		}
+
 		currentModule := &model.TopicContent{
 			ID:                &mod.ID,
 			Language:          &mod.Language,
@@ -125,7 +128,7 @@ func GetTopicExams(ctx context.Context, topicID *string) ([]*model.TopicExam, er
 	}
 	CassSession := session
 
-	qryStr := fmt.Sprintf(`SELECT * from coursez.topic_exam where topicid='%s' ALLOW FILTERING`, *topicID)
+	qryStr := fmt.Sprintf(`SELECT * from coursez.topic_exam where topicid='%s' AND is_active=true  ALLOW FILTERING`, *topicID)
 	getTopicContent := func() (content []coursez.TopicExam, err error) {
 		q := CassSession.Query(qryStr, nil)
 		defer q.Release()
@@ -176,7 +179,10 @@ func GetTopicContentByCourse(ctx context.Context, courseID *string) ([]*model.To
 			log.Errorf("Error in unmarshalling redis value for key %s", key)
 		}
 	}
-
+	course, err := GetCourseByID(ctx, courseID)
+	if err != nil {
+		return nil, err
+	}
 	if len(currentContent) <= 0 {
 		session, err := cassandra.GetCassSession("coursez")
 		if err != nil {
@@ -184,7 +190,7 @@ func GetTopicContentByCourse(ctx context.Context, courseID *string) ([]*model.To
 		}
 		CassSession := session
 
-		qryStr := fmt.Sprintf(`SELECT * from coursez.topic_content where courseid='%s' ALLOW FILTERING`, *courseID)
+		qryStr := fmt.Sprintf(`SELECT * from coursez.topic_content where courseid='%s' AND is_active=true  AND lsp_id ='%s' ALLOW FILTERING`, *courseID, *course.LspID)
 		getTopicContent := func() (content []coursez.TopicContent, err error) {
 			q := CassSession.Query(qryStr, nil)
 			defer q.Release()
@@ -270,7 +276,11 @@ func GetTopicExamsByCourse(ctx context.Context, courseID *string) ([]*model.Topi
 	}
 	CassSession := session
 
-	qryStr := fmt.Sprintf(`SELECT * from coursez.topic_exam where courseid='%s' ALLOW FILTERING`, *courseID)
+	course, err := GetCourseByID(ctx, courseID)
+	if err != nil {
+		return nil, err
+	}
+	qryStr := fmt.Sprintf(`SELECT * from coursez.topic_exam where courseid='%s' AND is_active=true  AND lsp_id='%s' ALLOW FILTERING`, *courseID, *course.LspID)
 	getTopicContent := func() (content []coursez.TopicExam, err error) {
 		q := CassSession.Query(qryStr, nil)
 		defer q.Release()

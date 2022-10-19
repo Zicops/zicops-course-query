@@ -228,8 +228,8 @@ func (r *queryResolver) GetResourcesByCourseID(ctx context.Context, courseID *st
 	return resp, nil
 }
 
-func (r *queryResolver) GetLatestQuestionBank(ctx context.Context, publishTime *int, pageCursor *string, direction *string, pageSize *int) (*model.PaginatedQuestionBank, error) {
-	resp, err := handlers.LatestQuestionBanks(ctx, publishTime, pageCursor, direction, pageSize)
+func (r *queryResolver) GetLatestQuestionBank(ctx context.Context, publishTime *int, pageCursor *string, direction *string, pageSize *int, searchText *string) (*model.PaginatedQuestionBank, error) {
+	resp, err := handlers.LatestQuestionBanks(ctx, publishTime, pageCursor, direction, pageSize, searchText)
 	if err != nil {
 		log.Errorf("error getting latest question banks: %v", err)
 		return nil, err
@@ -255,8 +255,8 @@ func (r *queryResolver) GetQuestionBankQuestions(ctx context.Context, questionBa
 	return resp, nil
 }
 
-func (r *queryResolver) GetLatestQuestionPapers(ctx context.Context, publishTime *int, pageCursor *string, direction *string, pageSize *int) (*model.PaginatedQuestionPapers, error) {
-	resp, err := handlers.LatestQuestionPapers(ctx, publishTime, pageCursor, direction, pageSize)
+func (r *queryResolver) GetLatestQuestionPapers(ctx context.Context, publishTime *int, pageCursor *string, direction *string, pageSize *int, searchText *string) (*model.PaginatedQuestionPapers, error) {
+	resp, err := handlers.LatestQuestionPapers(ctx, publishTime, pageCursor, direction, pageSize, searchText)
 	if err != nil {
 		log.Errorf("error getting question papers: %v", err)
 		return nil, err

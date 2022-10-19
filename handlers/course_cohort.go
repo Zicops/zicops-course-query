@@ -40,8 +40,7 @@ func GetCohortCourseMaps(ctx context.Context, cohortID *string) ([]*model.Course
 		return nil, err
 	}
 	CassSession := session
-
-	qryStr := fmt.Sprintf(`SELECT * from coursez.course_cohort_mapping where cohortid = '%s'  ALLOW FILTERING`, *cohortID)
+	qryStr := fmt.Sprintf(`SELECT * from coursez.course_cohort_mapping where cohortid = '%s' ALLOW FILTERING`, *cohortID)
 	getCCohorts := func() (banks []coursez.CourseCohortMapping, err error) {
 		q := CassSession.Query(qryStr, nil)
 		defer q.Release()

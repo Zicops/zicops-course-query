@@ -10,3 +10,12 @@ const (
 	COURSES_BUCKET              = "courses-zicops-one"
 	COURSES_PUBLIC_BUCKET        = "courses-public-zicops-one"
 )
+
+var (
+	StaticTypeMap = map[string]string{
+		"scorm":  "story.html",
+		"cmi5":   "story.html",
+		"tincan": "story.html",
+		"html5":  "story.html",
+	}
+)

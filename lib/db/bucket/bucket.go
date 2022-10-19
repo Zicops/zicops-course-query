@@ -127,15 +127,15 @@ func (sc *Client) GetSignedURLsForObjects(bucketPath string) []*model.SubtitleUR
 }
 
 func (sc *Client) GetSignedURLForObjectPub(object string) string {
-	opts := &storage.SignedURLOptions{
-		Scheme:  storage.SigningSchemeV4,
-		Method:  "GET",
-		Expires: time.Now().Add(24 * time.Hour),
-	}
-	url, err := sc.bucketPublic.SignedURL(object, opts)
-	if err != nil {
-		return ""
-	}
-
+	// opts := &storage.SignedURLOptions{
+	// 	Scheme:  storage.SigningSchemeV4,
+	// 	Method:  "GET",
+	// 	Expires: time.Now().Add(24 * time.Hour),
+	// }
+	// url, err := sc.bucketPublic.SignedURL(object, opts)
+	// if err != nil {
+	// 	return ""
+	// }
+	url := "https://storage.googleapis.com/" + constants.COURSES_PUBLIC_BUCKET + "/" + object
 	return url
 }

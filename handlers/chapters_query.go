@@ -44,7 +44,6 @@ func GetChaptersCourseByID(ctx context.Context, courseID *string) ([]*model.Chap
 		return nil, err
 	}
 	CassSession := session
-
 	qryStr := fmt.Sprintf(`SELECT * from coursez.chapter where courseid='%s' ALLOW FILTERING`, *courseID)
 	getChapters := func() (modules []coursez.Chapter, err error) {
 		q := CassSession.Query(qryStr, nil)
@@ -105,16 +104,15 @@ func GetChapterByID(ctx context.Context, chapterID *string) (*model.Chapter, err
 	}
 	if len(chapters) > 0 && role != "admin" {
 		return chapters[0], nil
-	}else {
+	} else {
 		chapters = make([]*model.Chapter, 0)
 	}
-	
+
 	session, err := cassandra.GetCassSession("coursez")
 	if err != nil {
 		return nil, err
 	}
 	CassSession := session
-
 	qryStr := fmt.Sprintf(`SELECT * from coursez.chapter where id='%s' ALLOW FILTERING`, *chapterID)
 	getChapters := func() (modules []coursez.Chapter, err error) {
 		q := CassSession.Query(qryStr, nil)

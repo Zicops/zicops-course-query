@@ -97,6 +97,7 @@ func AllCatMain(ctx context.Context, lspIds []*string, searchText *string) ([]*m
 	if err != nil {
 		return nil, err
 	}
+	log.Infof("claims: %v", claims)
 	role := strings.ToLower(claims["role"].(string))
 	cats := make([]coursez.CatMain, 0)
 	result, err := redis.GetRedisValue(key)
@@ -118,25 +119,36 @@ func AllCatMain(ctx context.Context, lspIds []*string, searchText *string) ([]*m
 		CassSession := session
 		whereClause := ""
 		if len(lspIds) > 0 {
+			whereClause = "WHERE "
 			// cassandra contains clauses using lspIds
-			whereClause = "WHERE lsps CONTAINS ("
 			for i, lspId := range lspIds {
 				if i == 0 {
-					whereClause = whereClause + "'" + *lspId + "'"
+					whereClause = whereClause + " lsps CONTAINS '" + *lspId + "'"
 				} else {
-					whereClause = whereClause + ", '" + *lspId + "'"
+					whereClause = whereClause + " AND lsps CONTAINS '" + *lspId + "'"
 				}
 			}
-			whereClause = whereClause + ")"
 			if searchText != nil && *searchText != "" {
-				whereClause = whereClause + " AND name CONTAINS '" + *searchText + "'"
+				searchTextLower := strings.ToLower(*searchText)
+				words := strings.Split(searchTextLower, " ")
+				for _, word := range words {
+					whereClause = whereClause + " AND  words CONTAINS '" + word + "'"
+				}
 			}
+
 		} else {
 			if searchText != nil && *searchText != "" {
-				whereClause = whereClause + "WHERE name CONTAINS '" + *searchText + "'"
+				searchTextLower := strings.ToLower(*searchText)
+				words := strings.Split(searchTextLower, " ")
+				for i, word := range words {
+					if i == 0 {
+						whereClause = whereClause + "words CONTAINS '" + word + "'"
+					} else {
+						whereClause = whereClause + " AND  words CONTAINS '" + word + "'"
+					}
+				}
 			}
 		}
-
 		qryStr := `SELECT * from coursez.cat_main ` + whereClause + ` ALLOW FILTERING`
 		getCats := func() (banks []coursez.CatMain, err error) {
 			q := CassSession.Query(qryStr, nil)
@@ -220,24 +232,36 @@ func AllSubCatMain(ctx context.Context, lspIds []*string, searchText *string) ([
 		whereClause := ""
 		if len(lspIds) > 0 {
 			// cassandra contains clauses using lspIds
-			whereClause = "WHERE lsps CONTAINS ("
+			whereClause = "WHERE "
 			for i, lspId := range lspIds {
 				if i == 0 {
-					whereClause = whereClause + "'" + *lspId + "'"
+					whereClause = whereClause + " lsps CONTAINS '" + *lspId + "'"
 				} else {
-					whereClause = whereClause + ", '" + *lspId + "'"
+					whereClause = whereClause + " AND lsps CONTAINS '" + *lspId + "'"
 				}
 			}
-			whereClause = whereClause + ")"
 			if searchText != nil && *searchText != "" {
-				whereClause = whereClause + " AND name CONTAINS '" + *searchText + "'"
+				searchTextLower := strings.ToLower(*searchText)
+				words := strings.Split(searchTextLower, " ")
+				for _, word := range words {
+					whereClause = whereClause + " AND  words CONTAINS '" + word + "'"
+				}
 			}
+
 		} else {
 			if searchText != nil && *searchText != "" {
-				whereClause = whereClause + "WHERE name CONTAINS '" + *searchText + "'"
+				searchTextLower := strings.ToLower(*searchText)
+				words := strings.Split(searchTextLower, " ")
+				whereClause = "WHERE "
+				for i, word := range words {
+					if i == 0 {
+						whereClause = whereClause + "words CONTAINS '" + word + "'"
+					} else {
+						whereClause = whereClause + " AND  words CONTAINS '" + word + "'"
+					}
+				}
 			}
 		}
-
 		qryStr := `SELECT * from coursez.sub_cat_main ` + whereClause + ` ALLOW FILTERING`
 		getCats := func() (banks []coursez.SubCatMain, err error) {
 			q := CassSession.Query(qryStr, nil)
@@ -320,7 +344,6 @@ func AllSubCatByCatID(ctx context.Context, catID *string) ([]*model.SubCatMain, 
 			return nil, err
 		}
 		CassSession := session
-
 		qryStr := fmt.Sprintf(`SELECT * from coursez.sub_cat_main WHERE parent_id = '%s' ALLOW FILTERING`, *catID)
 		getCats := func() (banks []coursez.SubCatMain, err error) {
 			q := CassSession.Query(qryStr, nil)

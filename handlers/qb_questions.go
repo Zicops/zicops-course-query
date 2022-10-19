@@ -136,6 +136,7 @@ func GetQuestionsByID(ctx context.Context, questionIds []*string) ([]*model.Ques
 	}
 	role := strings.ToLower(claims["role"].(string))
 	allQuestions := make([]*model.QuestionBankQuestion, 0)
+
 	for _, id := range questionIds {
 		key := "GetQuestionsByID" + *id
 		result, err := redis.GetRedisValue(key)
@@ -144,7 +145,7 @@ func GetQuestionsByID(ctx context.Context, questionIds []*string) ([]*model.Ques
 			json.Unmarshal([]byte(result), &banks)
 		}
 		if len(banks) <= 0 {
-			qryStr := fmt.Sprintf(`SELECT * from qbankz.question_main where id = '%s' ALLOW FILTERING`, *id)
+			qryStr := fmt.Sprintf(`SELECT * from qbankz.question_main where id = '%s' AND is_active=true ALLOW FILTERING`, *id)
 			getBanks := func() (banks []qbankz.QuestionMain, err error) {
 				q := CassSession.Query(qryStr, nil)
 				defer q.Release()
@@ -207,6 +208,7 @@ func getWhereClause(filters *model.QBFilters, qb_id string) string {
 			whereClause = fmt.Sprintf("%s AND difficulty_score <= %d", whereClause, *filters.DifficultyEnd)
 		}
 	}
+	whereClause = whereClause + fmt.Sprintf(" AND is_active = true")
 	return whereClause
 }
 

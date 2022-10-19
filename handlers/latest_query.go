@@ -72,7 +72,7 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 			return nil, err
 		}
 		CassSession := session
-		whereClause := fmt.Sprintf(`where status='%s' and updated_at <= %d`, statusNew, *publishTime)
+		whereClause := fmt.Sprintf(`where status='%s' and created_at <= %d`, statusNew, *publishTime)
 		if filters != nil {
 			if filters.Category != nil {
 				whereClause = whereClause + fmt.Sprintf(` and category='%s'`, *filters.Category)
@@ -96,9 +96,16 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 				whereClause = whereClause + fmt.Sprintf(` and type='%s'`, *filters.Type)
 			}
 			if filters.SearchText != nil {
-				whereClause = whereClause + fmt.Sprintf(` and name CONTAINS '%s'`, *filters.SearchText)
+				if *filters.SearchText != "" {
+					searchTextLower := strings.ToLower(*filters.SearchText)
+					words := strings.Split(searchTextLower, " ")
+					for _, word := range words {
+						whereClause = whereClause + " AND  words CONTAINS '" + word + "'"
+					}
+				}
 			}
 		}
+		whereClause = whereClause + " AND is_active=true"
 		qryStr := fmt.Sprintf(`SELECT * from coursez.course %s ALLOW FILTERING`, whereClause)
 		getCourses := func(page []byte) (courses []coursez.Course, nextPage []byte, err error) {
 			q := CassSession.Query(qryStr, nil)
@@ -183,15 +190,15 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 			subCR.Rank = &subCopied.Rank
 			subCatsRes = append(subCatsRes, &subCR)
 		}
-		tileUrl := ""
+		tileUrl := course.TileImage
 		if course.TileImageBucket != "" {
 			tileUrl = storageC.GetSignedURLForObject(course.TileImageBucket)
 		}
-		imageUrl := ""
+		imageUrl := course.Image
 		if course.ImageBucket != "" {
 			imageUrl = storageC.GetSignedURLForObject(course.ImageBucket)
 		}
-		previewUrl := ""
+		previewUrl := course.PreviewVideo
 		if course.PreviewVideoBucket != "" {
 			previewUrl = storageC.GetSignedURLForObject(course.PreviewVideoBucket)
 		}
