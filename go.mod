@@ -11,7 +11,7 @@ require (
 	github.com/gin-gonic/gin v1.8.1
 	github.com/sirupsen/logrus v1.9.0
 	github.com/vektah/gqlparser/v2 v2.5.1
-	github.com/zicops/contracts v0.0.0-20221017180432-20e59226ab16
+	github.com/zicops/contracts v0.0.0-20221022182042-29cb12060054
 	github.com/zicops/zicops-cass-pool v0.0.0-20220919192352-78030dc81568
 	golang.org/x/oauth2 v0.1.0
 	google.golang.org/api v0.100.0
@@ -60,7 +60,7 @@ require (
 	golang.org/x/net v0.1.0 // indirect
 	golang.org/x/sys v0.1.0 // indirect
 	golang.org/x/text v0.4.0 // indirect
-	golang.org/x/tools v0.1.12 // indirect
+	golang.org/x/tools v0.2.0 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20221018160656-63c7b68cfc55 // indirect

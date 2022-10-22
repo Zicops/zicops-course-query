@@ -476,6 +476,7 @@ type Query{
   getMCQQuiz(quiz_id: String): [QuizMcq]
   getDescriptiveQuiz(quiz_id: String): [QuizDescriptive]
   getTopicContentByCourseId(course_id: String): [TopicContent]
+  getTopicContentByModuleId(module_id: String): [TopicContent]
   getTopicExamsByCourseId(course_id: String): [TopicExam]
   getResourcesByCourseId(course_id: String): [TopicResource]
   getLatestQuestionBank(publish_time: Int, pageCursor: String, Direction: String, pageSize:Int, searchText: String): PaginatedQuestionBank
