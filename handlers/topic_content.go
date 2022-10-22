@@ -315,3 +315,91 @@ func GetTopicExamsByCourse(ctx context.Context, courseID *string) ([]*model.Topi
 	}
 	return topicsOut, nil
 }
+
+func GetTopicContentByModule(ctx context.Context, moduleID *string) ([]*model.TopicContent, error) {
+	topicsOut := make([]*model.TopicContent, 0)
+	currentContent := make([]coursez.TopicContent, 0)
+	key := "GetTopicContentByModule" + *moduleID
+	claims, err := helpers.GetClaimsFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+	role := strings.ToLower(claims["role"].(string))
+	lspID := claims["lsp_id"].(string)
+	result, err := redis.GetRedisValue(key)
+	if err == nil && role != "admin" {
+		err = json.Unmarshal([]byte(result), &currentContent)
+		if err != nil {
+			log.Errorf("Error in unmarshalling redis value for key %s", key)
+		}
+	}
+	if len(currentContent) <= 0 {
+		session, err := cassandra.GetCassSession("coursez")
+		if err != nil {
+			return nil, err
+		}
+		CassSession := session
+
+		qryStr := fmt.Sprintf(`SELECT * from coursez.topic_content where moduleid='%s' AND is_active=true  AND lsp_id ='%s' ALLOW FILTERING`, *moduleID, lspID)
+		getTopicContent := func() (content []coursez.TopicContent, err error) {
+			q := CassSession.Query(qryStr, nil)
+			defer q.Release()
+			iter := q.Iter()
+			return content, iter.Select(&content)
+		}
+		currentContent, err = getTopicContent()
+		if err != nil {
+			return nil, err
+		}
+	}
+	storageC := bucket.NewStorageHandler()
+	gproject := googleprojectlib.GetGoogleProjectID()
+	urlSub := make([]*model.SubtitleURL, 0)
+	for _, topCon := range currentContent {
+		mod := topCon
+		createdAt := strconv.FormatInt(mod.CreatedAt, 10)
+		updatedAt := strconv.FormatInt(mod.UpdatedAt, 10)
+		err = storageC.InitializeStorageClient(ctx, gproject, mod.LspId)
+		if err != nil {
+			log.Errorf("Failed to initialize storage: %v", err.Error())
+			return nil, err
+		}
+		mainBucket := mod.CourseId + "/" + mod.TopicId + "/subtitles/"
+		if mainBucket != "" {
+			urlSub = storageC.GetSignedURLsForObjects(mainBucket)
+		}
+
+		urlCon := mod.Url
+		typeCon := strings.ToLower(mod.Type)
+		if mod.TopicContentBucket != "" && (strings.Contains(typeCon, "static") || strings.Contains(typeCon, "scorm") || strings.Contains(typeCon, "tincan") || strings.Contains(typeCon, "cmi5") || strings.Contains(typeCon, "html5")) {
+			urlCon = storageC.GetSignedURLForObjectPub(mod.TopicContentBucket)
+		} else if mod.TopicContentBucket != "" {
+			urlCon = storageC.GetSignedURLForObject(mod.TopicContentBucket)
+		}
+		currentModule := &model.TopicContent{
+			ID:                &mod.ID,
+			Language:          &mod.Language,
+			TopicID:           &mod.TopicId,
+			CourseID:          &mod.CourseId,
+			SubtitleURL:       urlSub,
+			ContentURL:        &urlCon,
+			CreatedAt:         &createdAt,
+			UpdatedAt:         &updatedAt,
+			StartTime:         &mod.StartTime,
+			Duration:          &mod.Duration,
+			SkipIntroDuration: &mod.SkipIntroDuration,
+			NextShowTime:      &mod.NextShowtime,
+			FromEndTime:       &mod.FromEndTime,
+			Type:              &mod.Type,
+			IsDefault:         &mod.IsDefault,
+		}
+
+		topicsOut = append(topicsOut, currentModule)
+	}
+	redisBytes, err := json.Marshal(currentContent)
+	if err == nil {
+		redis.SetTTL(key, 3600)
+		redis.SetRedisValue(key, string(redisBytes))
+	}
+	return topicsOut, nil
+}
