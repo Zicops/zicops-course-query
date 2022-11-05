@@ -92,6 +92,9 @@ func GetCourseByID(ctx context.Context, courseID *string) (*model.Course, error)
 		if err != nil {
 			return nil, err
 		}
+		if len(courses) > 0 {
+			return nil, fmt.Errorf("course not found")
+		}
 		course = &courses[0]
 	}
 	createdAt := strconv.FormatInt(course.CreatedAt, 10)
