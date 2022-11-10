@@ -76,7 +76,7 @@ func GetTopicContent(ctx context.Context, topicID *string) ([]*model.TopicConten
 		if mod.TopicContentBucket != "" && !ok {
 			urlCon = storageC.GetSignedURLForObject(mod.TopicContentBucket)
 		} else if mod.TopicContentBucket != "" && ok {
-			urlCon = storageC.GetSignedURLForObjectPub(mod.TopicContentBucket)
+			urlCon = mod.Url
 		}
 
 		currentModule := &model.TopicContent{
@@ -222,7 +222,7 @@ func GetTopicContentByCourse(ctx context.Context, courseID *string) ([]*model.To
 		urlCon := mod.Url
 		typeCon := strings.ToLower(mod.Type)
 		if mod.TopicContentBucket != "" && (strings.Contains(typeCon, "static") || strings.Contains(typeCon, "scorm") || strings.Contains(typeCon, "tincan") || strings.Contains(typeCon, "cmi5") || strings.Contains(typeCon, "html5")) {
-			urlCon = storageC.GetSignedURLForObjectPub(mod.TopicContentBucket)
+			urlCon = mod.Url
 		} else if mod.TopicContentBucket != "" {
 			urlCon = storageC.GetSignedURLForObject(mod.TopicContentBucket)
 		}
@@ -372,7 +372,7 @@ func GetTopicContentByModule(ctx context.Context, moduleID *string) ([]*model.To
 		urlCon := mod.Url
 		typeCon := strings.ToLower(mod.Type)
 		if mod.TopicContentBucket != "" && (strings.Contains(typeCon, "static") || strings.Contains(typeCon, "scorm") || strings.Contains(typeCon, "tincan") || strings.Contains(typeCon, "cmi5") || strings.Contains(typeCon, "html5")) {
-			urlCon = storageC.GetSignedURLForObjectPub(mod.TopicContentBucket)
+			urlCon = mod.Url
 		} else if mod.TopicContentBucket != "" {
 			urlCon = storageC.GetSignedURLForObject(mod.TopicContentBucket)
 		}
