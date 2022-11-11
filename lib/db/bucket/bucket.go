@@ -22,12 +22,12 @@ type Client struct {
 }
 
 // NewStorageHandler return new database action
-func NewStorageHandler() Client {
-	return Client{projectID: "", client: nil}
+func NewStorageHandler() *Client {
+	return &Client{projectID: "", client: nil}
 }
 
 // InitializeStorageClient ...........
-func (sc Client) InitializeStorageClient(ctx context.Context, projectID string, lspId string) error {
+func (sc *Client) InitializeStorageClient(ctx context.Context, projectID string, lspId string) error {
 	serviceAccountZicops := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")
 	if serviceAccountZicops == "" {
 		return fmt.Errorf("failed to get right credentials for course creator")
@@ -52,7 +52,7 @@ func (sc Client) InitializeStorageClient(ctx context.Context, projectID string, 
 }
 
 // CreateBucket  ...........
-func (sc Client) CreateBucket(ctx context.Context, bucketName string) (*storage.BucketHandle, error) {
+func (sc *Client) CreateBucket(ctx context.Context, bucketName string) (*storage.BucketHandle, error) {
 	bkt := sc.client.Bucket(bucketName)
 	exists, err := bkt.Attrs(ctx)
 	if err != nil && exists == nil {
@@ -64,7 +64,7 @@ func (sc Client) CreateBucket(ctx context.Context, bucketName string) (*storage.
 }
 
 // CreateBucketPublic  ...........
-func (sc Client) CreateBucketPublic(ctx context.Context, bucketName string) (*storage.BucketHandle, error) {
+func (sc *Client) CreateBucketPublic(ctx context.Context, bucketName string) (*storage.BucketHandle, error) {
 	bkt := sc.client.Bucket(bucketName)
 	exists, err := bkt.Attrs(ctx)
 	if err != nil && exists == nil {
@@ -76,12 +76,12 @@ func (sc Client) CreateBucketPublic(ctx context.Context, bucketName string) (*st
 }
 
 // UploadToGCS ....
-func (sc Client) UploadToGCS(ctx context.Context, fileName string) (*storage.Writer, error) {
+func (sc *Client) UploadToGCS(ctx context.Context, fileName string) (*storage.Writer, error) {
 	bucketWriter := sc.bucket.Object(fileName).NewWriter(ctx)
 	return bucketWriter, nil
 }
 
-func (sc Client) GetSignedURLForObject(object string) string {
+func (sc *Client) GetSignedURLForObject(object string) string {
 	opts := &storage.SignedURLOptions{
 		Scheme:  storage.SigningSchemeV4,
 		Method:  "GET",
@@ -94,7 +94,7 @@ func (sc Client) GetSignedURLForObject(object string) string {
 	return url
 }
 
-func (sc Client) GetSignedURLsForObjects(bucketPath string) []*model.SubtitleURL {
+func (sc *Client) GetSignedURLsForObjects(bucketPath string) []*model.SubtitleURL {
 	opts := &storage.SignedURLOptions{
 		Scheme:  storage.SigningSchemeV4,
 		Method:  "GET",
@@ -126,7 +126,7 @@ func (sc Client) GetSignedURLsForObjects(bucketPath string) []*model.SubtitleURL
 	return urls
 }
 
-func (sc Client) GetSignedURLForObjectPub(object string) string {
+func (sc *Client) GetSignedURLForObjectPub(object string) string {
 	// opts := &storage.SignedURLOptions{
 	// 	Scheme:  storage.SigningSchemeV4,
 	// 	Method:  "GET",
