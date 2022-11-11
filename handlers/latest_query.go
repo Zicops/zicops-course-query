@@ -137,27 +137,24 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 	storageC := bucket.NewStorageHandler()
 	var outputResponse model.PaginatedCourse
 	allCourses := make([]*model.Course, len(dbCourses))
-	wg := sync.WaitGroup{}
-	for i, copiedCourse := range dbCourses {
+	for _, copiedCourse := range dbCourses {
 		course := copiedCourse
 		err = storageC.InitializeStorageClient(ctx, gproject, course.LspId)
 		if err != nil {
 			log.Errorf("Failed to initialize bucket to course: %v", err.Error())
 		}
-		go func(i int, course coursez.Course, storageC *bucket.Client) {
-			defer wg.Done()
-			wg.Add(1)
-			createdAt := strconv.FormatInt(course.CreatedAt, 10)
-			updatedAt := strconv.FormatInt(course.UpdatedAt, 10)
-			language := make([]*string, 0)
-			takeaways := make([]*string, 0)
-			outcomes := make([]*string, 0)
-			prequisites := make([]*string, 0)
-			goodFor := make([]*string, 0)
-			mustFor := make([]*string, 0)
-			relatedSkills := make([]*string, 0)
-			approvers := make([]*string, 0)
-			subCatsRes := make([]*model.SubCategories, 0)
+
+		createdAt := strconv.FormatInt(course.CreatedAt, 10)
+		updatedAt := strconv.FormatInt(course.UpdatedAt, 10)
+		language := make([]*string, 0)
+		takeaways := make([]*string, 0)
+		outcomes := make([]*string, 0)
+		prequisites := make([]*string, 0)
+		goodFor := make([]*string, 0)
+		mustFor := make([]*string, 0)
+		relatedSkills := make([]*string, 0)
+		approvers := make([]*string, 0)
+		subCatsRes := make([]*model.SubCategories, 0)
 
 		for _, lang := range course.Language {
 			langCopied := lang
@@ -256,7 +253,6 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 		}
 		allCourses = append(allCourses, &currentCourse)
 	}
-	wg.Wait()
 	outputResponse.Courses = allCourses
 	outputResponse.PageCursor = &newCursor
 	outputResponse.PageSize = &pageSizeInt
