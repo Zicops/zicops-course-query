@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"sync"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/qbankz"
@@ -18,9 +19,6 @@ import (
 )
 
 func GetOptionsForQuestions(ctx context.Context, questionIds []*string) ([]*model.MapQuestionWithOption, error) {
-	storageC := bucket.NewStorageHandler()
-	gproject := googleprojectlib.GetGoogleProjectID()
-
 	claims, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -58,34 +56,44 @@ func GetOptionsForQuestions(ctx context.Context, questionIds []*string) ([]*mode
 				return nil, err
 			}
 		}
-		allSections := make([]*model.QuestionOption, 0)
-		for _, bank := range banks {
+		allSections := make([]*model.QuestionOption, len(banks))
+		var wg sync.WaitGroup
+		for i, bank := range banks {
 			copiedQuestion := bank
-			createdAt := strconv.FormatInt(copiedQuestion.CreatedAt, 10)
-			updatedAt := strconv.FormatInt(copiedQuestion.UpdatedAt, 10)
-			attUrl := ""
-			if copiedQuestion.AttachmentBucket != "" {
-				err := storageC.InitializeStorageClient(ctx, gproject, copiedQuestion.LspId)
-				if err != nil {
-					log.Errorf("Error in initializing storage client: %v", err)
+			wg.Add(1)
+			go func(copiedQuestion qbankz.OptionsMain, i int) {
+				defer wg.Done()
+				createdAt := strconv.FormatInt(copiedQuestion.CreatedAt, 10)
+				updatedAt := strconv.FormatInt(copiedQuestion.UpdatedAt, 10)
+				attUrl := ""
+
+				if copiedQuestion.AttachmentBucket != "" {
+					storageC := bucket.NewStorageHandler()
+					gproject := googleprojectlib.GetGoogleProjectID()
+
+					err := storageC.InitializeStorageClient(ctx, gproject, copiedQuestion.LspId)
+					if err != nil {
+						log.Errorf("Error in initializing storage client: %v", err)
+					}
+					attUrl = storageC.GetSignedURLForObject(copiedQuestion.AttachmentBucket)
 				}
-				attUrl = storageC.GetSignedURLForObject(copiedQuestion.AttachmentBucket)
-			}
-			currentQuestion := &model.QuestionOption{
-				ID:             &copiedQuestion.ID,
-				QmID:           &copiedQuestion.QmId,
-				Description:    &copiedQuestion.Description,
-				IsCorrect:      &copiedQuestion.IsCorrect,
-				AttachmentType: &copiedQuestion.AttachmentType,
-				CreatedBy:      &copiedQuestion.CreatedBy,
-				CreatedAt:      &createdAt,
-				UpdatedBy:      &copiedQuestion.UpdatedBy,
-				UpdatedAt:      &updatedAt,
-				IsActive:       &copiedQuestion.IsActive,
-				Attachment:     &attUrl,
-			}
-			allSections = append(allSections, currentQuestion)
+				currentQuestion := &model.QuestionOption{
+					ID:             &copiedQuestion.ID,
+					QmID:           &copiedQuestion.QmId,
+					Description:    &copiedQuestion.Description,
+					IsCorrect:      &copiedQuestion.IsCorrect,
+					AttachmentType: &copiedQuestion.AttachmentType,
+					CreatedBy:      &copiedQuestion.CreatedBy,
+					CreatedAt:      &createdAt,
+					UpdatedBy:      &copiedQuestion.UpdatedBy,
+					UpdatedAt:      &updatedAt,
+					IsActive:       &copiedQuestion.IsActive,
+					Attachment:     &attUrl,
+				}
+				allSections[i] = currentQuestion
+			}(copiedQuestion, i)
 		}
+		wg.Wait()
 		currentMap.Options = allSections
 		redisBytes, err := json.Marshal(banks)
 		if err == nil {

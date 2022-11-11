@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"sync"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/qbankz"
@@ -19,7 +20,6 @@ import (
 )
 
 func GetQuestionBankQuestions(ctx context.Context, questionBankID *string, filters *model.QBFilters) ([]*model.QuestionBankQuestion, error) {
-	storageC := bucket.NewStorageHandler()
 	gproject := googleprojectlib.GetGoogleProjectID()
 
 	key := "GetQuestionBankQuestions" + *questionBankID + fmt.Sprintf("%v", filters)
@@ -58,7 +58,6 @@ func GetQuestionBankQuestions(ctx context.Context, questionBankID *string, filte
 	}
 	filteredBanks := make([]qbankz.QuestionMain, 0)
 	excludedIds := []string{}
-	allQuestions := make([]*model.QuestionBankQuestion, 0)
 	if filters != nil && filters.ExcludedQuestionIds != nil {
 		currentExclusion := filters.ExcludedQuestionIds
 		for _, id := range currentExclusion {
@@ -82,37 +81,44 @@ func GetQuestionBankQuestions(ctx context.Context, questionBankID *string, filte
 		}
 		shuffledBanks = shuffledBanks[:totalQuestions]
 	}
-	for _, bank := range shuffledBanks {
-		copiedQuestion := bank
-		createdAt := strconv.FormatInt(copiedQuestion.CreatedAt, 10)
-		updatedAt := strconv.FormatInt(copiedQuestion.UpdatedAt, 10)
-		bucketQ := copiedQuestion.AttachmentBucket
-		attUrl := ""
-		if bucketQ != "" {
-			err = storageC.InitializeStorageClient(ctx, gproject, copiedQuestion.LspId)
-			if err != nil {
-				log.Errorf("Failed to initialize storage client: %v", err.Error())
+	allQuestions := make([]*model.QuestionBankQuestion, len(shuffledBanks))
+	var wg sync.WaitGroup
+	for i, bank := range shuffledBanks {
+		wg.Add(1)
+		go func(i int, bank qbankz.QuestionMain) {
+			copiedQuestion := bank
+			createdAt := strconv.FormatInt(copiedQuestion.CreatedAt, 10)
+			updatedAt := strconv.FormatInt(copiedQuestion.UpdatedAt, 10)
+			bucketQ := copiedQuestion.AttachmentBucket
+			attUrl := ""
+			if bucketQ != "" {
+				storageC := bucket.NewStorageHandler()
+				err = storageC.InitializeStorageClient(ctx, gproject, copiedQuestion.LspId)
+				if err != nil {
+					log.Errorf("Failed to initialize storage client: %v", err.Error())
+				}
+				attUrl = storageC.GetSignedURLForObject(bucketQ)
 			}
-			attUrl = storageC.GetSignedURLForObject(bucketQ)
-		}
-		currentQuestion := &model.QuestionBankQuestion{
-			ID:             &copiedQuestion.ID,
-			Name:           &copiedQuestion.Name,
-			Description:    &copiedQuestion.Description,
-			Type:           &copiedQuestion.Type,
-			AttachmentType: &copiedQuestion.AttachmentType,
-			Attachment:     &attUrl,
-			Hint:           &copiedQuestion.Hint,
-			Difficulty:     &copiedQuestion.Difficulty,
-			QbmID:          &copiedQuestion.QbmId,
-			Status:         &copiedQuestion.Status,
-			CreatedBy:      &copiedQuestion.CreatedBy,
-			CreatedAt:      &createdAt,
-			UpdatedBy:      &copiedQuestion.UpdatedBy,
-			UpdatedAt:      &updatedAt,
-		}
-		allQuestions = append(allQuestions, currentQuestion)
+			currentQuestion := &model.QuestionBankQuestion{
+				ID:             &copiedQuestion.ID,
+				Name:           &copiedQuestion.Name,
+				Description:    &copiedQuestion.Description,
+				Type:           &copiedQuestion.Type,
+				AttachmentType: &copiedQuestion.AttachmentType,
+				Attachment:     &attUrl,
+				Hint:           &copiedQuestion.Hint,
+				Difficulty:     &copiedQuestion.Difficulty,
+				QbmID:          &copiedQuestion.QbmId,
+				Status:         &copiedQuestion.Status,
+				CreatedBy:      &copiedQuestion.CreatedBy,
+				CreatedAt:      &createdAt,
+				UpdatedBy:      &copiedQuestion.UpdatedBy,
+				UpdatedAt:      &updatedAt,
+			}
+			allQuestions[i] = currentQuestion
+		}(i, bank)
 	}
+	wg.Wait()
 	redisBytes, err := json.Marshal(banks)
 	if err == nil {
 		redis.SetTTL(key, 3600)
@@ -122,7 +128,6 @@ func GetQuestionBankQuestions(ctx context.Context, questionBankID *string, filte
 }
 
 func GetQuestionsByID(ctx context.Context, questionIds []*string) ([]*model.QuestionBankQuestion, error) {
-	storageC := bucket.NewStorageHandler()
 	gproject := googleprojectlib.GetGoogleProjectID()
 
 	session, err := cassandra.GetCassSession("qbankz")
@@ -157,38 +162,46 @@ func GetQuestionsByID(ctx context.Context, questionIds []*string) ([]*model.Ques
 				return nil, err
 			}
 		}
-		for _, bank := range banks {
+		var wg sync.WaitGroup
+		collectQs := make([]*model.QuestionBankQuestion, len(banks))
+		for i, bank := range banks {
 			copiedQuestion := bank
-			createdAt := strconv.FormatInt(copiedQuestion.CreatedAt, 10)
-			updatedAt := strconv.FormatInt(copiedQuestion.UpdatedAt, 10)
-			bucketQ := copiedQuestion.AttachmentBucket
-			attUrl := ""
-			if bucketQ != "" {
-				err := storageC.InitializeStorageClient(ctx, gproject, copiedQuestion.LspId)
-				if err != nil {
-					log.Errorf("Failed to get questions: %v", err.Error())
-					return nil, err
+			wg.Add(1)
+			go func(i int, bank qbankz.QuestionMain) {
+				createdAt := strconv.FormatInt(copiedQuestion.CreatedAt, 10)
+				updatedAt := strconv.FormatInt(copiedQuestion.UpdatedAt, 10)
+				bucketQ := copiedQuestion.AttachmentBucket
+				attUrl := ""
+				if bucketQ != "" {
+					storageC := bucket.NewStorageHandler()
+					err := storageC.InitializeStorageClient(ctx, gproject, copiedQuestion.LspId)
+					if err != nil {
+						log.Errorf("Failed to get questions: %v", err.Error())
+						return
+					}
+					attUrl = storageC.GetSignedURLForObject(bucketQ)
 				}
-				attUrl = storageC.GetSignedURLForObject(bucketQ)
-			}
-			currentQuestion := &model.QuestionBankQuestion{
-				ID:             &copiedQuestion.ID,
-				Name:           &copiedQuestion.Name,
-				Description:    &copiedQuestion.Description,
-				Type:           &copiedQuestion.Type,
-				AttachmentType: &copiedQuestion.AttachmentType,
-				Attachment:     &attUrl,
-				Hint:           &copiedQuestion.Hint,
-				Difficulty:     &copiedQuestion.Difficulty,
-				QbmID:          &copiedQuestion.QbmId,
-				Status:         &copiedQuestion.Status,
-				CreatedBy:      &copiedQuestion.CreatedBy,
-				CreatedAt:      &createdAt,
-				UpdatedBy:      &copiedQuestion.UpdatedBy,
-				UpdatedAt:      &updatedAt,
-			}
-			allQuestions = append(allQuestions, currentQuestion)
+				currentQuestion := &model.QuestionBankQuestion{
+					ID:             &copiedQuestion.ID,
+					Name:           &copiedQuestion.Name,
+					Description:    &copiedQuestion.Description,
+					Type:           &copiedQuestion.Type,
+					AttachmentType: &copiedQuestion.AttachmentType,
+					Attachment:     &attUrl,
+					Hint:           &copiedQuestion.Hint,
+					Difficulty:     &copiedQuestion.Difficulty,
+					QbmID:          &copiedQuestion.QbmId,
+					Status:         &copiedQuestion.Status,
+					CreatedBy:      &copiedQuestion.CreatedBy,
+					CreatedAt:      &createdAt,
+					UpdatedBy:      &copiedQuestion.UpdatedBy,
+					UpdatedAt:      &updatedAt,
+				}
+				collectQs[i] = currentQuestion
+			}(i, bank)
+			allQuestions = append(allQuestions, collectQs...)
 		}
+		wg.Wait()
 		redisBytes, err := json.Marshal(banks)
 		if err == nil {
 			redis.SetTTL(key, 3600)
