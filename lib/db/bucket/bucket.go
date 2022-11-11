@@ -16,18 +16,18 @@ import (
 // Client ....
 type Client struct {
 	projectID    string
-	client       *storage.Client
-	bucket       *storage.BucketHandle
-	bucketPublic *storage.BucketHandle
+	client       storage.Client
+	bucket       storage.BucketHandle
+	bucketPublic storage.BucketHandle
 }
 
 // NewStorageHandler return new database action
-func NewStorageHandler() *Client {
-	return &Client{projectID: "", client: nil}
+func NewStorageHandler() Client {
+	return Client{projectID: "", client: storage.Client{}, bucket: storage.BucketHandle{}, bucketPublic: storage.BucketHandle{}}
 }
 
 // InitializeStorageClient ...........
-func (sc *Client) InitializeStorageClient(ctx context.Context, projectID string, lspId string) error {
+func (sc Client) InitializeStorageClient(ctx context.Context, projectID string, lspId string) error {
 	serviceAccountZicops := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")
 	if serviceAccountZicops == "" {
 		return fmt.Errorf("failed to get right credentials for course creator")
@@ -44,10 +44,10 @@ func (sc *Client) InitializeStorageClient(ctx context.Context, projectID string,
 	if err != nil {
 		return err
 	}
-	sc.client = client
+	sc.client = *client
 	sc.projectID = projectID
-	sc.bucket, _ = sc.CreateBucket(ctx, lspId)
-	sc.bucketPublic, _ = sc.CreateBucketPublic(ctx, constants.COURSES_PUBLIC_BUCKET)
+	bClient, _ := sc.CreateBucket(ctx, lspId)
+	sc.bucket = *bClient
 	return nil
 }
 
@@ -81,7 +81,7 @@ func (sc *Client) UploadToGCS(ctx context.Context, fileName string) (*storage.Wr
 	return bucketWriter, nil
 }
 
-func (sc *Client) GetSignedURLForObject(object string) string {
+func (sc Client) GetSignedURLForObject(object string) string {
 	opts := &storage.SignedURLOptions{
 		Scheme:  storage.SigningSchemeV4,
 		Method:  "GET",
@@ -94,7 +94,7 @@ func (sc *Client) GetSignedURLForObject(object string) string {
 	return url
 }
 
-func (sc *Client) GetSignedURLsForObjects(bucketPath string) []*model.SubtitleURL {
+func (sc Client) GetSignedURLsForObjects(bucketPath string) []*model.SubtitleURL {
 	opts := &storage.SignedURLOptions{
 		Scheme:  storage.SigningSchemeV4,
 		Method:  "GET",
@@ -126,7 +126,7 @@ func (sc *Client) GetSignedURLsForObjects(bucketPath string) []*model.SubtitleUR
 	return urls
 }
 
-func (sc *Client) GetSignedURLForObjectPub(object string) string {
+func (sc Client) GetSignedURLForObjectPub(object string) string {
 	// opts := &storage.SignedURLOptions{
 	// 	Scheme:  storage.SigningSchemeV4,
 	// 	Method:  "GET",
