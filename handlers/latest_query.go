@@ -249,7 +249,7 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 			if course.PreviewVideoBucket != "" {
 				currentCourse.PreviewVideo = &previewUrl
 			}
-			allCourses = append(allCourses, &currentCourse)
+			allCourses[i] = &currentCourse
 			wg.Done()
 		}(i, course)
 	}
