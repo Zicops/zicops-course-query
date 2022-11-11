@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-	"sync"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/coursez"
@@ -160,103 +159,102 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 			approvers := make([]*string, 0)
 			subCatsRes := make([]*model.SubCategories, 0)
 
-			for _, lang := range course.Language {
-				langCopied := lang
-				language = append(language, &langCopied)
-			}
-			for _, take := range course.Benefits {
-				takeCopied := take
-				takeaways = append(takeaways, &takeCopied)
-			}
-			for _, out := range course.Outcomes {
-				outCopied := out
-				outcomes = append(outcomes, &outCopied)
-			}
-			for _, preq := range course.Prequisites {
-				preCopied := preq
-				prequisites = append(prequisites, &preCopied)
-			}
-			for _, good := range course.GoodFor {
-				goodCopied := good
-				goodFor = append(goodFor, &goodCopied)
-			}
-			for _, must := range course.MustFor {
-				mustCopied := must
-				mustFor = append(mustFor, &mustCopied)
-			}
-			for _, relSkill := range course.RelatedSkills {
-				relCopied := relSkill
-				relatedSkills = append(relatedSkills, &relCopied)
-			}
-			for _, approver := range course.Approvers {
-				appoverCopied := approver
-				approvers = append(approvers, &appoverCopied)
-			}
-			for _, subCat := range course.SubCategories {
-				subCopied := subCat
-				var subCR model.SubCategories
-				subCR.Name = &subCopied.Name
-				subCR.Rank = &subCopied.Rank
-				subCatsRes = append(subCatsRes, &subCR)
-			}
-			tileUrl := course.TileImage
-			if course.TileImageBucket != "" {
-				tileUrl = storageC.GetSignedURLForObject(course.TileImageBucket)
-			}
-			imageUrl := course.Image
-			if course.ImageBucket != "" {
-				imageUrl = storageC.GetSignedURLForObject(course.ImageBucket)
-			}
-			previewUrl := course.PreviewVideo
-			if course.PreviewVideoBucket != "" {
-				previewUrl = storageC.GetSignedURLForObject(course.PreviewVideoBucket)
-			}
-			currentCourse := model.Course{
-				ID:                 &course.ID,
-				Name:               &course.Name,
-				LspID:              &course.LspId,
-				Publisher:          &course.Publisher,
-				Description:        &course.Description,
-				Summary:            &course.Summary,
-				Instructor:         &course.Instructor,
-				Owner:              &course.Owner,
-				Duration:           &course.Duration,
-				ExpertiseLevel:     &course.ExpertiseLevel,
-				Language:           language,
-				Benefits:           takeaways,
-				Outcomes:           outcomes,
-				CreatedAt:          &createdAt,
-				UpdatedAt:          &updatedAt,
-				Type:               &course.Type,
-				Prequisites:        prequisites,
-				GoodFor:            goodFor,
-				MustFor:            mustFor,
-				RelatedSkills:      relatedSkills,
-				PublishDate:        &course.PublishDate,
-				ExpiryDate:         &course.ExpiryDate,
-				ExpectedCompletion: &course.ExpectedCompletion,
-				QaRequired:         &course.QARequired,
-				Approvers:          approvers,
-				CreatedBy:          &course.CreatedBy,
-				UpdatedBy:          &course.UpdatedBy,
-				Status:             &statusNew,
-				IsDisplay:          &course.IsDisplay,
-				Category:           &course.Category,
-				SubCategory:        &course.SubCategory,
-				SubCategories:      subCatsRes,
-				IsActive:           &course.IsActive,
-			}
-			if course.TileImageBucket != "" {
-				currentCourse.TileImage = &tileUrl
-			}
-			if course.ImageBucket != "" {
-				currentCourse.Image = &imageUrl
-			}
-			if course.PreviewVideoBucket != "" {
-				currentCourse.PreviewVideo = &previewUrl
-			}
-			allCourses[i] = &currentCourse
-		}(i, course, storageC)
+		for _, lang := range course.Language {
+			langCopied := lang
+			language = append(language, &langCopied)
+		}
+		for _, take := range course.Benefits {
+			takeCopied := take
+			takeaways = append(takeaways, &takeCopied)
+		}
+		for _, out := range course.Outcomes {
+			outCopied := out
+			outcomes = append(outcomes, &outCopied)
+		}
+		for _, preq := range course.Prequisites {
+			preCopied := preq
+			prequisites = append(prequisites, &preCopied)
+		}
+		for _, good := range course.GoodFor {
+			goodCopied := good
+			goodFor = append(goodFor, &goodCopied)
+		}
+		for _, must := range course.MustFor {
+			mustCopied := must
+			mustFor = append(mustFor, &mustCopied)
+		}
+		for _, relSkill := range course.RelatedSkills {
+			relCopied := relSkill
+			relatedSkills = append(relatedSkills, &relCopied)
+		}
+		for _, approver := range course.Approvers {
+			appoverCopied := approver
+			approvers = append(approvers, &appoverCopied)
+		}
+		for _, subCat := range course.SubCategories {
+			subCopied := subCat
+			var subCR model.SubCategories
+			subCR.Name = &subCopied.Name
+			subCR.Rank = &subCopied.Rank
+			subCatsRes = append(subCatsRes, &subCR)
+		}
+		tileUrl := course.TileImage
+		if course.TileImageBucket != "" {
+			tileUrl = storageC.GetSignedURLForObject(course.TileImageBucket)
+		}
+		imageUrl := course.Image
+		if course.ImageBucket != "" {
+			imageUrl = storageC.GetSignedURLForObject(course.ImageBucket)
+		}
+		previewUrl := course.PreviewVideo
+		if course.PreviewVideoBucket != "" {
+			previewUrl = storageC.GetSignedURLForObject(course.PreviewVideoBucket)
+		}
+		currentCourse := model.Course{
+			ID:                 &course.ID,
+			Name:               &course.Name,
+			LspID:              &course.LspId,
+			Publisher:          &course.Publisher,
+			Description:        &course.Description,
+			Summary:            &course.Summary,
+			Instructor:         &course.Instructor,
+			Owner:              &course.Owner,
+			Duration:           &course.Duration,
+			ExpertiseLevel:     &course.ExpertiseLevel,
+			Language:           language,
+			Benefits:           takeaways,
+			Outcomes:           outcomes,
+			CreatedAt:          &createdAt,
+			UpdatedAt:          &updatedAt,
+			Type:               &course.Type,
+			Prequisites:        prequisites,
+			GoodFor:            goodFor,
+			MustFor:            mustFor,
+			RelatedSkills:      relatedSkills,
+			PublishDate:        &course.PublishDate,
+			ExpiryDate:         &course.ExpiryDate,
+			ExpectedCompletion: &course.ExpectedCompletion,
+			QaRequired:         &course.QARequired,
+			Approvers:          approvers,
+			CreatedBy:          &course.CreatedBy,
+			UpdatedBy:          &course.UpdatedBy,
+			Status:             &statusNew,
+			IsDisplay:          &course.IsDisplay,
+			Category:           &course.Category,
+			SubCategory:        &course.SubCategory,
+			SubCategories:      subCatsRes,
+			IsActive:           &course.IsActive,
+		}
+		if course.TileImageBucket != "" {
+			currentCourse.TileImage = &tileUrl
+		}
+		if course.ImageBucket != "" {
+			currentCourse.Image = &imageUrl
+		}
+		if course.PreviewVideoBucket != "" {
+			currentCourse.PreviewVideo = &previewUrl
+		}
+		allCourses = append(allCourses, &currentCourse)
 	}
 	wg.Wait()
 	outputResponse.Courses = allCourses
