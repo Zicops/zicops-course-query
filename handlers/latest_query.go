@@ -54,6 +54,10 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 		if err != nil {
 			log.Errorf("Error in unmarshalling redis value: %v", err)
 		}
+		if len(dbCourses) > 0 && dbCourses[0].Status == "" {
+			// clear dbCourses if status is empty
+			dbCourses = make([]coursez.Course, 0)
+		}
 	}
 	if pageSize == nil {
 		pageSizeInt = 10
