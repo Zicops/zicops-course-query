@@ -134,20 +134,20 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 		log.Infof("Courses: %v", string(newCursor))
 
 	}
+	gproject := googleprojectlib.GetGoogleProjectID()
+	storageC := bucket.NewStorageHandler()
 	var outputResponse model.PaginatedCourse
 	allCourses := make([]*model.Course, len(dbCourses))
 	wg := sync.WaitGroup{}
 	for i, copiedCourse := range dbCourses {
 		course := copiedCourse
-		go func(i int, course coursez.Course) {
+		err = storageC.InitializeStorageClient(ctx, gproject, course.LspId)
+		if err != nil {
+			log.Errorf("Failed to initialize bucket to course: %v", err.Error())
+		}
+		go func(i int, course coursez.Course, storageC *bucket.Client) {
 			defer wg.Done()
 			wg.Add(1)
-			gproject := googleprojectlib.GetGoogleProjectID()
-			storageC := bucket.NewStorageHandler()
-			err = storageC.InitializeStorageClient(ctx, gproject, course.LspId)
-			if err != nil {
-				log.Errorf("Failed to initialize bucket to course: %v", err.Error())
-			}
 			createdAt := strconv.FormatInt(course.CreatedAt, 10)
 			updatedAt := strconv.FormatInt(course.UpdatedAt, 10)
 			language := make([]*string, 0)
@@ -256,7 +256,7 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 				currentCourse.PreviewVideo = &previewUrl
 			}
 			allCourses[i] = &currentCourse
-		}(i, course)
+		}(i, course, storageC)
 	}
 	wg.Wait()
 	outputResponse.Courses = allCourses
