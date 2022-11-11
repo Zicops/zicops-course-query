@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/coursez"
@@ -61,13 +62,34 @@ func GetTopicResources(ctx context.Context, topicID *string) ([]*model.TopicReso
 		createdAt := strconv.FormatInt(mod.CreatedAt, 10)
 		updatedAt := strconv.FormatInt(mod.UpdatedAt, 10)
 		url := mod.Url
-		if mod.BucketPath != "" {
+		urlDiff := time.Now().Unix() - mod.UpdatedAt
+		needUrl := true
+		if urlDiff < 86400 {
+			needUrl = false
+		}
+		if mod.BucketPath != "" && needUrl {
 			err = storageC.InitializeStorageClient(ctx, gproject, mod.LspId)
 			if err != nil {
 				log.Errorf("Failed to initialize storage: %v", err.Error())
 				return nil, err
 			}
 			url = storageC.GetSignedURLForObject(mod.BucketPath)
+			session, err := cassandra.GetCassSession("coursez")
+			if err != nil {
+				return nil, err
+			}
+			CassSession := session
+			qryStr := fmt.Sprintf(`UPDATE coursez.resource SET url='%s', updated_at=%d where id='%s' AND lsp_id='%s' AND is_active=true`, url, time.Now().Unix(), mod.ID, mod.LspId)
+			updateTopicrRes := func() (err error) {
+				q := CassSession.Query(qryStr, nil)
+				defer q.Release()
+				return q.Exec()
+			}
+			err = updateTopicrRes()
+			if err != nil {
+				log.Errorf("Failed to update resource url: %v", err.Error())
+				return nil, err
+			}
 		}
 		currentRes := &model.TopicResource{
 			ID:        &mod.ID,
@@ -136,13 +158,34 @@ func GetCourseResources(ctx context.Context, courseID *string) ([]*model.TopicRe
 		createdAt := strconv.FormatInt(mod.CreatedAt, 10)
 		updatedAt := strconv.FormatInt(mod.UpdatedAt, 10)
 		url := mod.Url
-		if mod.BucketPath != "" {
+		urlDiff := time.Now().Unix() - mod.UpdatedAt
+		needUrl := true
+		if urlDiff < 86400 {
+			needUrl = false
+		}
+		if mod.BucketPath != "" && needUrl {
 			err = storageC.InitializeStorageClient(ctx, gproject, mod.LspId)
 			if err != nil {
 				log.Errorf("Failed to initialize storage: %v", err.Error())
 				return nil, err
 			}
 			url = storageC.GetSignedURLForObject(mod.BucketPath)
+			session, err := cassandra.GetCassSession("coursez")
+			if err != nil {
+				return nil, err
+			}
+			CassSession := session
+			qryStr := fmt.Sprintf(`UPDATE coursez.resource SET url='%s', updated_at=%d where id='%s' AND lsp_id='%s' AND is_active=true`, url, time.Now().Unix(), mod.ID, mod.LspId)
+			updateTopicrRes := func() (err error) {
+				q := CassSession.Query(qryStr, nil)
+				defer q.Release()
+				return q.Exec()
+			}
+			err = updateTopicrRes()
+			if err != nil {
+				log.Errorf("Failed to update resource url: %v", err.Error())
+				return nil, err
+			}
 		}
 		currentRes := &model.TopicResource{
 			ID:        &mod.ID,

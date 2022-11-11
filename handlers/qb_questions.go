@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/qbankz"
@@ -87,13 +88,33 @@ func GetQuestionBankQuestions(ctx context.Context, questionBankID *string, filte
 		createdAt := strconv.FormatInt(copiedQuestion.CreatedAt, 10)
 		updatedAt := strconv.FormatInt(copiedQuestion.UpdatedAt, 10)
 		bucketQ := copiedQuestion.AttachmentBucket
-		attUrl := ""
-		if bucketQ != "" {
+		attUrl := copiedQuestion.Attachment
+		urlDiff := time.Now().Unix() - copiedQuestion.UpdatedAt
+		needUrl := true
+		if urlDiff < 86400 {
+			needUrl = false
+		}
+		if bucketQ != "" && needUrl {
 			err = storageC.InitializeStorageClient(ctx, gproject, copiedQuestion.LspId)
 			if err != nil {
 				log.Errorf("Failed to initialize storage client: %v", err.Error())
 			}
 			attUrl = storageC.GetSignedURLForObject(bucketQ)
+			session, err := cassandra.GetCassSession("qbankz")
+			if err != nil {
+				return nil, err
+			}
+			CassSession := session
+			qryStr := fmt.Sprintf(`UPDATE qbankz.question_main SET attachment = '%s', updated_at=%d WHERE id = '%s' AND lsp_id='%s' AND is_active=true`, attUrl, time.Now().Unix(), copiedQuestion.ID, copiedQuestion.LspId)
+			updateAttachment := func() error {
+				q := CassSession.Query(qryStr, nil)
+				defer q.Release()
+				return q.Exec()
+			}
+			err = updateAttachment()
+			if err != nil {
+				log.Errorf("Failed to update attachment url: %v", err.Error())
+			}
 		}
 		currentQuestion := &model.QuestionBankQuestion{
 			ID:             &copiedQuestion.ID,
@@ -162,14 +183,34 @@ func GetQuestionsByID(ctx context.Context, questionIds []*string) ([]*model.Ques
 			createdAt := strconv.FormatInt(copiedQuestion.CreatedAt, 10)
 			updatedAt := strconv.FormatInt(copiedQuestion.UpdatedAt, 10)
 			bucketQ := copiedQuestion.AttachmentBucket
-			attUrl := ""
-			if bucketQ != "" {
+			attUrl := copiedQuestion.Attachment
+			urlDiff := time.Now().Unix() - copiedQuestion.UpdatedAt
+			needUrl := true
+			if urlDiff < 86400 {
+				needUrl = false
+			}
+			if bucketQ != "" && needUrl {
 				err := storageC.InitializeStorageClient(ctx, gproject, copiedQuestion.LspId)
 				if err != nil {
 					log.Errorf("Failed to get questions: %v", err.Error())
 					return nil, err
 				}
 				attUrl = storageC.GetSignedURLForObject(bucketQ)
+				session, err := cassandra.GetCassSession("qbankz")
+				if err != nil {
+					return nil, err
+				}
+				CassSession := session
+				qryStr := fmt.Sprintf(`UPDATE qbankz.question_main SET attachment = '%s', updated_at=%d WHERE id = '%s' AND lsp_id='%s' AND is_active=true`, attUrl, time.Now().Unix(), copiedQuestion.ID, copiedQuestion.LspId)
+				updateAttachment := func() error {
+					q := CassSession.Query(qryStr, nil)
+					defer q.Release()
+					return q.Exec()
+				}
+				err = updateAttachment()
+				if err != nil {
+					log.Errorf("Failed to update attachment url: %v", err.Error())
+				}
 			}
 			currentQuestion := &model.QuestionBankQuestion{
 				ID:             &copiedQuestion.ID,

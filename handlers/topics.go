@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/coursez"
@@ -63,14 +64,29 @@ func GetTopicsCourseByID(ctx context.Context, courseID *string) ([]*model.Topic,
 		mod := topCopied
 		createdAt := strconv.FormatInt(mod.CreatedAt, 10)
 		updatedAt := strconv.FormatInt(mod.UpdatedAt, 10)
-		url := ""
-		if mod.ImageBucket != "" {
+		url := mod.Image
+		urlDiff := time.Now().Unix() - mod.UpdatedAt
+		needUrl := true
+		if urlDiff < 86400 {
+			needUrl = false
+		}
+		if mod.ImageBucket != "" && needUrl {
 			err = storageC.InitializeStorageClient(ctx, gproject, mod.LspId)
 			if err != nil {
 				log.Errorf("Failed to initialize storage: %v", err.Error())
 				return nil, err
 			}
 			url = storageC.GetSignedURLForObject(mod.ImageBucket)
+			session, err := cassandra.GetCassSession("coursez")
+			if err != nil {
+				return nil, err
+			}
+			qryStr := fmt.Sprintf(`UPDATE coursez.topic SET image='%s', updated_at=%d WHERE id='%s' AND is_active=true AND lsp_id='%s'`, url, time.Now().Unix(), mod.ID, mod.LspId)
+			err = session.Query(qryStr, nil).Exec()
+			if err != nil {
+				log.Errorf("Failed to update topic image: %v", err.Error())
+				return nil, err
+			}
 		}
 		currentModule := &model.Topic{
 			ID:          &mod.ID,
@@ -139,14 +155,29 @@ func GetTopicByID(ctx context.Context, topicID *string) (*model.Topic, error) {
 		top := copiedTop
 		createdAt := strconv.FormatInt(top.CreatedAt, 10)
 		updatedAt := strconv.FormatInt(top.UpdatedAt, 10)
-		url := ""
-		if top.ImageBucket != "" {
+		url := top.Image
+		urlDiff := time.Now().Unix() - top.UpdatedAt
+		needUrl := true
+		if urlDiff < 86400 {
+			needUrl = false
+		}
+		if top.ImageBucket != "" && needUrl {
 			err = storageC.InitializeStorageClient(ctx, gproject, top.LspId)
 			if err != nil {
 				log.Errorf("Failed to initialize storage: %v", err.Error())
 				return nil, err
 			}
 			url = storageC.GetSignedURLForObject(top.ImageBucket)
+			session, err := cassandra.GetCassSession("coursez")
+			if err != nil {
+				return nil, err
+			}
+			qryStr := fmt.Sprintf(`UPDATE coursez.topic SET image='%s', updated_at=%d WHERE id='%s' AND is_active=true AND lsp_id='%s'`, url, time.Now().Unix(), top.ID, top.LspId)
+			err = session.Query(qryStr, nil).Exec()
+			if err != nil {
+				log.Errorf("Failed to update topic image: %v", err.Error())
+				return nil, err
+			}
 		}
 		currentTop := &model.Topic{
 			ID:          &top.ID,

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/coursez"
@@ -156,18 +157,73 @@ func GetCourseByID(ctx context.Context, courseID *string) (*model.Course, error)
 		log.Errorf("Failed to initialize storage: %v", err.Error())
 		return nil, err
 	}
+	urlDiff := time.Now().Unix() - course.UpdatedAt
+	needUrl := true
+	if urlDiff < 86400 {
+		needUrl = false
+	}
 	tileUrl := course.TileImage
-	if course.TileImageBucket != "" {
+	if course.TileImageBucket != "" && needUrl {
 		tileUrl = storageC.GetSignedURLForObject(course.TileImageBucket)
+		// update tile image url in cassandra
+		session, err := cassandra.GetCassSession("coursez")
+		if err != nil {
+			return nil, err
+		}
+		CassSession := session
+		qryStr := fmt.Sprintf(`UPDATE coursez.course SET tileimage='%s', updated_at=%d where id='%s' AND is_active=true AND lsp_id='%s'`, tileUrl, time.Now().Unix(), *courseID, course.LspId)
+		updateCourse := func() error {
+			q := CassSession.Query(qryStr, nil)
+			defer q.Release()
+			return q.Exec()
+		}
+		err = updateCourse()
+		if err != nil {
+			return nil, err
+		}
+
 	}
 	imageUrl := course.Image
-	if course.ImageBucket != "" {
+	if course.ImageBucket != "" && needUrl {
 		imageUrl = storageC.GetSignedURLForObject(course.ImageBucket)
+		// update image url in cassandra
+		session, err := cassandra.GetCassSession("coursez")
+		if err != nil {
+			return nil, err
+		}
+		CassSession := session
+		qryStr := fmt.Sprintf(`UPDATE coursez.course SET image='%s', updated_at=%d where id='%s' AND is_active=true AND lsp_id='%s'`, imageUrl, time.Now().Unix(), *courseID, course.LspId)
+		updateCourse := func() error {
+			q := CassSession.Query(qryStr, nil)
+			defer q.Release()
+			return q.Exec()
+		}
+		err = updateCourse()
+		if err != nil {
+			return nil, err
+		}
 	}
 	previewUrl := course.PreviewVideo
-	if course.PreviewVideoBucket != "" {
+	if course.PreviewVideoBucket != "" && needUrl {
 		previewUrl = storageC.GetSignedURLForObject(course.PreviewVideoBucket)
+		// update preview url in cassandra
+		session, err := cassandra.GetCassSession("coursez")
+		if err != nil {
+			return nil, err
+		}
+		CassSession := session
+		qryStr := fmt.Sprintf(`UPDATE coursez.course SET previewvideo='%s', updated_at=%d where id='%s' AND is_active=true AND lsp_id='%s'`, previewUrl, time.Now().Unix(), *courseID, course.LspId)
+		updateCourse := func() error {
+			q := CassSession.Query(qryStr, nil)
+			defer q.Release()
+			return q.Exec()
+		}
+		err = updateCourse()
+		if err != nil {
+			return nil, err
+		}
 	}
+
 	var statusNew model.Status
 	if course.Status == model.StatusApprovalPending.String() {
 		statusNew = model.StatusApprovalPending
