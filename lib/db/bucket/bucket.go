@@ -27,7 +27,7 @@ func NewStorageHandler() Client {
 }
 
 // InitializeStorageClient ...........
-func (sc Client) InitializeStorageClient(ctx context.Context, projectID string, lspId string) error {
+func (sc *Client) InitializeStorageClient(ctx context.Context, projectID string, lspId string) error {
 	serviceAccountZicops := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")
 	if serviceAccountZicops == "" {
 		return fmt.Errorf("failed to get right credentials for course creator")
@@ -81,7 +81,7 @@ func (sc *Client) UploadToGCS(ctx context.Context, fileName string) (*storage.Wr
 	return bucketWriter, nil
 }
 
-func (sc Client) GetSignedURLForObject(object string) string {
+func (sc *Client) GetSignedURLForObject(object string) string {
 	opts := &storage.SignedURLOptions{
 		Scheme:  storage.SigningSchemeV4,
 		Method:  "GET",
@@ -94,7 +94,7 @@ func (sc Client) GetSignedURLForObject(object string) string {
 	return url
 }
 
-func (sc Client) GetSignedURLsForObjects(bucketPath string) []*model.SubtitleURL {
+func (sc *Client) GetSignedURLsForObjects(bucketPath string) []*model.SubtitleURL {
 	opts := &storage.SignedURLOptions{
 		Scheme:  storage.SigningSchemeV4,
 		Method:  "GET",
@@ -126,7 +126,7 @@ func (sc Client) GetSignedURLsForObjects(bucketPath string) []*model.SubtitleURL
 	return urls
 }
 
-func (sc Client) GetSignedURLForObjectPub(object string) string {
+func (sc *Client) GetSignedURLForObjectPub(object string) string {
 	// opts := &storage.SignedURLOptions{
 	// 	Scheme:  storage.SigningSchemeV4,
 	// 	Method:  "GET",
