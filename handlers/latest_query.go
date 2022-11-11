@@ -35,9 +35,9 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 	if filters != nil {
 		filtersStr = fmt.Sprintf("%v", *filters)
 	} else {
-		filtersStr = "nil"
+		filtersStr = ""
 	}
-	key := "LatestCourses" + string(newPage) + filtersStr
+	key := "LatestCourses" + string(newPage) + filtersStr + strconv.Itoa(*pageSize) + string(*status)
 	claims, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -135,15 +135,15 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 
 	}
 	var outputResponse model.PaginatedCourse
-	storageC := bucket.NewStorageHandler()
 	allCourses := make([]*model.Course, len(dbCourses))
-	gproject := googleprojectlib.GetGoogleProjectID()
 	wg := sync.WaitGroup{}
 	for i, copiedCourse := range dbCourses {
 		course := copiedCourse
 		go func(i int, course coursez.Course) {
 			defer wg.Done()
 			wg.Add(1)
+			gproject := googleprojectlib.GetGoogleProjectID()
+			storageC := bucket.NewStorageHandler()
 			err = storageC.InitializeStorageClient(ctx, gproject, course.LspId)
 			if err != nil {
 				log.Errorf("Failed to initialize bucket to course: %v", err.Error())
