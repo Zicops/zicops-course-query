@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/bradhe/stopwatch"
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/coursez"
 	"github.com/zicops/zicops-cass-pool/cassandra"
@@ -36,12 +37,13 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 	} else {
 		filtersStr = "nil"
 	}
-	key := "LatestCourses" + string(newPage) + filtersStr
 	claims, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
 	role := strings.ToLower(claims["role"].(string))
+	email := claims["email"].(string)
+	key := "LatestCourses" + string(newPage) + filtersStr + role + email
 	result, err := redis.GetRedisValue(key)
 	if err != nil {
 		log.Errorf("Error in getting redis value: %v", err)
@@ -121,6 +123,7 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 			return nil, err
 		}
 	}
+	start := stopwatch.Start()
 	if len(newPage) != 0 {
 		newCursor, err = global.CryptSession.EncryptAsString(newPage, nil)
 		if err != nil {
@@ -129,9 +132,12 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 		log.Infof("Courses: %v", string(newCursor))
 
 	}
+	end := start.Stop()
+	log.Infof("Time taken to encrypt cursor: %v", end)
 	var outputResponse model.PaginatedCourse
 	storageC := bucket.NewStorageHandler()
 	allCourses := make([]*model.Course, 0)
+	start = stopwatch.Start()
 	for _, copiedCourse := range dbCourses {
 		course := copiedCourse
 		gproject := googleprojectlib.GetGoogleProjectID()
@@ -252,10 +258,15 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 	outputResponse.PageCursor = &newCursor
 	outputResponse.PageSize = &pageSizeInt
 	outputResponse.Direction = direction
+	end = start.Stop()
+	log.Infof("Time taken to fetch all courses: %v", end)
+	start = stopwatch.Start()
 	redisBytes, err := json.Marshal(dbCourses)
 	if err == nil {
 		redis.SetTTL(key, 3600)
 		redis.SetRedisValue(key, string(redisBytes))
 	}
+	end = start.Stop()
+	log.Infof("Time taken to set redis value: %v", end)
 	return &outputResponse, nil
 }
