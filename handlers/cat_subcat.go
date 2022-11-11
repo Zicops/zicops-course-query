@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-	"time"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/coursez"
@@ -174,31 +173,9 @@ func AllCatMain(ctx context.Context, lspIds []*string, searchText *string) ([]*m
 		copiedCat := cat
 		createdAt := strconv.FormatInt(copiedCat.CreatedAt, 10)
 		updatedAt := strconv.FormatInt(copiedCat.UpdatedAt, 10)
-		urlDiff := time.Now().Unix() - copiedCat.UpdatedAt
-		needUrl := true
-		if urlDiff < 86400 {
-			needUrl = false
-		}
-
 		imageUrl := copiedCat.ImageURL
-		if copiedCat.ImageBucket != "" && needUrl {
+		if copiedCat.ImageBucket != "" {
 			imageUrl = storageC.GetSignedURLForObject(copiedCat.ImageBucket)
-			// update cat_main table and set image_url
-			session, err := cassandra.GetCassSession("coursez")
-			if err != nil {
-				return nil, err
-			}
-			CassSession := session
-			qryStr := fmt.Sprintf(`UPDATE coursez.cat_main SET image_url = '%s', updated_at=%d WHERE id = '%s' AND is_active=true`, imageUrl, time.Now().Unix(), copiedCat.ID)
-			updateCat := func() error {
-				q := CassSession.Query(qryStr, nil)
-				defer q.Release()
-				return q.Exec()
-			}
-			err = updateCat()
-			if err != nil {
-				return nil, err
-			}
 		}
 		currentCat := model.CatMain{
 			ID:          &copiedCat.ID,
@@ -310,23 +287,8 @@ func AllSubCatMain(ctx context.Context, lspIds []*string, searchText *string) ([
 		createdAt := strconv.FormatInt(copiedCat.CreatedAt, 10)
 		updatedAt := strconv.FormatInt(copiedCat.UpdatedAt, 10)
 		imageUrl := copiedCat.ImageURL
-		urlDiff := time.Now().Unix() - copiedCat.UpdatedAt
-		needUrl := true
-		if urlDiff < 86400 {
-			needUrl = false
-		}
-		if copiedCat.ImageBucket != "" && needUrl {
+		if copiedCat.ImageBucket != "" {
 			imageUrl = storageC.GetSignedURLForObject(copiedCat.ImageBucket)
-			session, err := cassandra.GetCassSession("coursez")
-			if err != nil {
-				return nil, err
-			}
-			CassSession := session
-			updateUrlQry := fmt.Sprintf(`UPDATE coursez.sub_cat_main SET image_url = '%s', updated_at = %d WHERE id = '%s' AND parent_id='%s' AND is_active=true`, imageUrl, time.Now().Unix(), copiedCat.ID, copiedCat.ParentID)
-			err = CassSession.Query(updateUrlQry, nil).Exec()
-			if err != nil {
-				log.Errorf("Failed to update image url: %v", err.Error())
-			}
 		}
 		currentCat := model.SubCatMain{
 			ID:          &copiedCat.ID,
@@ -406,23 +368,8 @@ func AllSubCatByCatID(ctx context.Context, catID *string) ([]*model.SubCatMain, 
 		createdAt := strconv.FormatInt(copiedCat.CreatedAt, 10)
 		updatedAt := strconv.FormatInt(copiedCat.UpdatedAt, 10)
 		imageUrl := copiedCat.ImageURL
-		urlDiff := time.Now().Unix() - copiedCat.UpdatedAt
-		needUrl := true
-		if urlDiff < 86400 {
-			needUrl = false
-		}
-		if copiedCat.ImageBucket != "" && needUrl {
+		if copiedCat.ImageBucket != "" {
 			imageUrl = storageC.GetSignedURLForObject(copiedCat.ImageBucket)
-			session, err := cassandra.GetCassSession("coursez")
-			if err != nil {
-				return nil, err
-			}
-			CassSession := session
-			updateUrlQry := fmt.Sprintf(`UPDATE coursez.sub_cat_main SET image_url = '%s', updated_at = %d WHERE id = '%s' AND parent_id='%s' AND is_active=true`, imageUrl, time.Now().Unix(), copiedCat.ID, copiedCat.ParentID)
-			err = CassSession.Query(updateUrlQry, nil).Exec()
-			if err != nil {
-				log.Errorf("Failed to update image url: %v", err.Error())
-			}
 		}
 		currentCat := model.SubCatMain{
 			ID:          &copiedCat.ID,

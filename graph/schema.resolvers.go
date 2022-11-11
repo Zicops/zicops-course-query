@@ -5,7 +5,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/zicops-course-query/graph/generated"
@@ -203,7 +202,12 @@ func (r *queryResolver) GetDescriptiveQuiz(ctx context.Context, quizID *string) 
 }
 
 func (r *queryResolver) GetTopicContentByCourseID(ctx context.Context, courseID *string) ([]*model.TopicContent, error) {
-	return nil, fmt.Errorf("not implemented")
+	resp, err := handlers.GetTopicContentByCourse(ctx, courseID)
+	if err != nil {
+		log.Errorf("error getting topic content: %v", err)
+		return nil, err
+	}
+	return resp, nil
 }
 
 func (r *queryResolver) GetTopicContentByModuleID(ctx context.Context, moduleID *string) ([]*model.TopicContent, error) {
