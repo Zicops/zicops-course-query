@@ -34,9 +34,9 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 	if filters != nil {
 		filtersStr = fmt.Sprintf("%v", *filters)
 	} else {
-		filtersStr = ""
+		filtersStr = "nil"
 	}
-	key := "LatestCourses" + string(newPage) + filtersStr + strconv.Itoa(*pageSize) + string(*status)
+	key := "LatestCourses" + string(newPage) + filtersStr
 	claims, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -52,10 +52,6 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 		err = json.Unmarshal([]byte(result), &dbCourses)
 		if err != nil {
 			log.Errorf("Error in unmarshalling redis value: %v", err)
-		}
-		if len(dbCourses) > 0 && dbCourses[0].Status == "" {
-			// clear dbCourses if status is empty
-			dbCourses = make([]coursez.Course, 0)
 		}
 	}
 	if pageSize == nil {
@@ -133,17 +129,16 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 		log.Infof("Courses: %v", string(newCursor))
 
 	}
-	gproject := googleprojectlib.GetGoogleProjectID()
-	storageC := bucket.NewStorageHandler()
 	var outputResponse model.PaginatedCourse
-	allCourses := make([]*model.Course, len(dbCourses))
+	storageC := bucket.NewStorageHandler()
+	allCourses := make([]*model.Course, 0)
 	for _, copiedCourse := range dbCourses {
 		course := copiedCourse
+		gproject := googleprojectlib.GetGoogleProjectID()
 		err = storageC.InitializeStorageClient(ctx, gproject, course.LspId)
 		if err != nil {
 			log.Errorf("Failed to initialize bucket to course: %v", err.Error())
 		}
-
 		createdAt := strconv.FormatInt(course.CreatedAt, 10)
 		updatedAt := strconv.FormatInt(course.UpdatedAt, 10)
 		language := make([]*string, 0)
