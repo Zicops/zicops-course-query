@@ -138,6 +138,8 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 	for i, copiedCourse := range dbCourses {
 		course := copiedCourse
 		go func(i int, course coursez.Course) {
+			defer wg.Done()
+			wg.Add(1)
 			err = storageC.InitializeStorageClient(ctx, gproject, course.LspId)
 			if err != nil {
 				log.Errorf("Failed to initialize bucket to course: %v", err.Error())
@@ -250,7 +252,6 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 				currentCourse.PreviewVideo = &previewUrl
 			}
 			allCourses[i] = &currentCourse
-			wg.Done()
 		}(i, course)
 	}
 	wg.Wait()
