@@ -116,6 +116,7 @@ func GetQuestionBankQuestions(ctx context.Context, questionBankID *string, filte
 				UpdatedAt:      &updatedAt,
 			}
 			allQuestions[i] = currentQuestion
+			wg.Done()
 		}(i, bank)
 	}
 	wg.Wait()
@@ -198,6 +199,7 @@ func GetQuestionsByID(ctx context.Context, questionIds []*string) ([]*model.Ques
 					UpdatedAt:      &updatedAt,
 				}
 				collectQs[i] = currentQuestion
+				wg.Done()
 			}(i, bank)
 			allQuestions = append(allQuestions, collectQs...)
 		}

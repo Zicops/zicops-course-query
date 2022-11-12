@@ -62,7 +62,6 @@ func GetOptionsForQuestions(ctx context.Context, questionIds []*string) ([]*mode
 			copiedQuestion := bank
 			wg.Add(1)
 			go func(copiedQuestion qbankz.OptionsMain, i int) {
-				defer wg.Done()
 				createdAt := strconv.FormatInt(copiedQuestion.CreatedAt, 10)
 				updatedAt := strconv.FormatInt(copiedQuestion.UpdatedAt, 10)
 				attUrl := ""
@@ -91,6 +90,7 @@ func GetOptionsForQuestions(ctx context.Context, questionIds []*string) ([]*mode
 					Attachment:     &attUrl,
 				}
 				allSections[i] = currentQuestion
+				wg.Done()
 			}(copiedQuestion, i)
 		}
 		wg.Wait()
