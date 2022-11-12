@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"sync"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/coursez"
@@ -84,7 +85,6 @@ func GetTopicQuizes(ctx context.Context, topicID *string) ([]*model.Quiz, error)
 }
 
 func GetQuizFiles(ctx context.Context, quizID *string) ([]*model.QuizFile, error) {
-	quizFiles := make([]*model.QuizFile, 0)
 	currentFiles := make([]coursez.QuizFile, 0)
 	key := "GetQuizFiles" + *quizID
 	claims, err := helpers.GetClaimsFromContext(ctx)
@@ -119,28 +119,35 @@ func GetQuizFiles(ctx context.Context, quizID *string) ([]*model.QuizFile, error
 			return nil, err
 		}
 	}
-	storageC := bucket.NewStorageHandler()
 	gproject := googleprojectlib.GetGoogleProjectID()
-	for _, file := range currentFiles {
+	quizFiles := make([]*model.QuizFile, len(currentFiles))
+	var wg sync.WaitGroup
+	for i, file := range currentFiles {
 		mod := file
 		url := ""
-		if mod.BucketPath != "" {
-			err = storageC.InitializeStorageClient(ctx, gproject, mod.LspId)
-			if err != nil {
-				log.Errorf("Failed to initialize storage: %v", err.Error())
-				return nil, err
+		wg.Add(1)
+		go func(mod coursez.QuizFile, i int) {
+			if mod.BucketPath != "" {
+				storageC := bucket.NewStorageHandler()
+				err = storageC.InitializeStorageClient(ctx, gproject, mod.LspId)
+				if err != nil {
+					log.Errorf("Failed to initialize storage: %v", err.Error())
+					return
+				}
+				url = storageC.GetSignedURLForObject(mod.BucketPath)
 			}
-			url = storageC.GetSignedURLForObject(mod.BucketPath)
-		}
-		currentFile := &model.QuizFile{
-			Name:    &mod.Name,
-			Type:    &mod.Type,
-			QuizID:  &mod.QuizId,
-			FileURL: &url,
-		}
+			currentFile := &model.QuizFile{
+				Name:    &mod.Name,
+				Type:    &mod.Type,
+				QuizID:  &mod.QuizId,
+				FileURL: &url,
+			}
 
-		quizFiles = append(quizFiles, currentFile)
+			quizFiles[i] = currentFile
+			wg.Done()
+		}(mod, i)
 	}
+	wg.Wait()
 	redisBytes, err := json.Marshal(currentFiles)
 	if err == nil {
 		redis.SetTTL(key, 3600)

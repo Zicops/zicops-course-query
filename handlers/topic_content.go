@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"sync"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/coursez"
@@ -19,7 +20,6 @@ import (
 )
 
 func GetTopicContent(ctx context.Context, topicID *string) ([]*model.TopicContent, error) {
-	topicsOut := make([]*model.TopicContent, 0)
 	currentContent := make([]coursez.TopicContent, 0)
 	key := "GetTopicContent" + *topicID
 	claims, err := helpers.GetClaimsFromContext(ctx)
@@ -53,52 +53,57 @@ func GetTopicContent(ctx context.Context, topicID *string) ([]*model.TopicConten
 			return nil, err
 		}
 	}
-	storageC := bucket.NewStorageHandler()
 	gproject := googleprojectlib.GetGoogleProjectID()
-
+	topicsOut := make([]*model.TopicContent, len(currentContent))
 	urlSub := make([]*model.SubtitleURL, 0)
-	for _, topCon := range currentContent {
+	var wg sync.WaitGroup
+	for i, topCon := range currentContent {
 		mod := topCon
-		createdAt := strconv.FormatInt(mod.CreatedAt, 10)
-		updatedAt := strconv.FormatInt(mod.UpdatedAt, 10)
-		mainBucket := mod.CourseId + "/" + mod.TopicId + "/subtitles/"
-		err = storageC.InitializeStorageClient(ctx, gproject, mod.LspId)
-		if err != nil {
-			log.Errorf("Failed to initialize storage: %v", err.Error())
-			return nil, err
-		}
-		if mainBucket != "" {
-			urlSub = storageC.GetSignedURLsForObjects(mainBucket)
-		}
+		wg.Add(1)
+		go func(i int, mod coursez.TopicContent) {
+			createdAt := strconv.FormatInt(mod.CreatedAt, 10)
+			updatedAt := strconv.FormatInt(mod.UpdatedAt, 10)
+			mainBucket := mod.CourseId + "/" + mod.TopicId + "/subtitles/"
+			storageC := bucket.NewStorageHandler()
+			err = storageC.InitializeStorageClient(ctx, gproject, mod.LspId)
+			if err != nil {
+				log.Errorf("Failed to initialize storage: %v", err.Error())
+			}
+			if mainBucket != "" {
+				urlSub = storageC.GetSignedURLsForObjects(mainBucket)
+			}
 
-		urlCon := mod.Url
-		_, ok := constants.StaticTypeMap[mod.Type]
-		if mod.TopicContentBucket != "" && !ok {
-			urlCon = storageC.GetSignedURLForObject(mod.TopicContentBucket)
-		} else if mod.TopicContentBucket != "" && ok {
-			urlCon = mod.Url
-		}
+			urlCon := mod.Url
+			_, ok := constants.StaticTypeMap[mod.Type]
+			if mod.TopicContentBucket != "" && !ok {
+				urlCon = storageC.GetSignedURLForObject(mod.TopicContentBucket)
+			} else if mod.TopicContentBucket != "" && ok {
+				urlCon = mod.Url
+			}
 
-		currentModule := &model.TopicContent{
-			ID:                &mod.ID,
-			Language:          &mod.Language,
-			TopicID:           &mod.TopicId,
-			CourseID:          &mod.CourseId,
-			SubtitleURL:       urlSub,
-			ContentURL:        &urlCon,
-			CreatedAt:         &createdAt,
-			UpdatedAt:         &updatedAt,
-			StartTime:         &mod.StartTime,
-			Duration:          &mod.Duration,
-			SkipIntroDuration: &mod.SkipIntroDuration,
-			NextShowTime:      &mod.NextShowtime,
-			FromEndTime:       &mod.FromEndTime,
-			Type:              &mod.Type,
-			IsDefault:         &mod.IsDefault,
-		}
+			currentModule := &model.TopicContent{
+				ID:                &mod.ID,
+				Language:          &mod.Language,
+				TopicID:           &mod.TopicId,
+				CourseID:          &mod.CourseId,
+				SubtitleURL:       urlSub,
+				ContentURL:        &urlCon,
+				CreatedAt:         &createdAt,
+				UpdatedAt:         &updatedAt,
+				StartTime:         &mod.StartTime,
+				Duration:          &mod.Duration,
+				SkipIntroDuration: &mod.SkipIntroDuration,
+				NextShowTime:      &mod.NextShowtime,
+				FromEndTime:       &mod.FromEndTime,
+				Type:              &mod.Type,
+				IsDefault:         &mod.IsDefault,
+			}
 
-		topicsOut = append(topicsOut, currentModule)
+			topicsOut[i] = currentModule
+			wg.Done()
+		}(i, mod)
 	}
+	wg.Wait()
 	redisBytes, err := json.Marshal(currentContent)
 	if err == nil {
 		redis.SetTTL(key, 3600)
@@ -164,7 +169,6 @@ func GetTopicExams(ctx context.Context, topicID *string) ([]*model.TopicExam, er
 }
 
 func GetTopicContentByCourse(ctx context.Context, courseID *string) ([]*model.TopicContent, error) {
-	topicsOut := make([]*model.TopicContent, 0)
 	currentContent := make([]coursez.TopicContent, 0)
 	key := "GetTopicContentByCourse" + *courseID
 	claims, err := helpers.GetClaimsFromContext(ctx)
@@ -202,50 +206,56 @@ func GetTopicContentByCourse(ctx context.Context, courseID *string) ([]*model.To
 			return nil, err
 		}
 	}
-	storageC := bucket.NewStorageHandler()
 	gproject := googleprojectlib.GetGoogleProjectID()
 	urlSub := make([]*model.SubtitleURL, 0)
-	for _, topCon := range currentContent {
+	topicsOut := make([]*model.TopicContent, len(currentContent))
+	var wg sync.WaitGroup
+	for i, topCon := range currentContent {
 		mod := topCon
-		createdAt := strconv.FormatInt(mod.CreatedAt, 10)
-		updatedAt := strconv.FormatInt(mod.UpdatedAt, 10)
-		err = storageC.InitializeStorageClient(ctx, gproject, mod.LspId)
-		if err != nil {
-			log.Errorf("Failed to initialize storage: %v", err.Error())
-			return nil, err
-		}
-		mainBucket := mod.CourseId + "/" + mod.TopicId + "/subtitles/"
-		if mainBucket != "" {
-			urlSub = storageC.GetSignedURLsForObjects(mainBucket)
-		}
+		wg.Add(1)
+		go func(i int, mod coursez.TopicContent) {
+			createdAt := strconv.FormatInt(mod.CreatedAt, 10)
+			updatedAt := strconv.FormatInt(mod.UpdatedAt, 10)
+			storageC := bucket.NewStorageHandler()
+			err = storageC.InitializeStorageClient(ctx, gproject, mod.LspId)
+			if err != nil {
+				log.Errorf("Failed to initialize storage: %v", err.Error())
+			}
+			mainBucket := mod.CourseId + "/" + mod.TopicId + "/subtitles/"
+			if mainBucket != "" {
+				urlSub = storageC.GetSignedURLsForObjects(mainBucket)
+			}
 
-		urlCon := mod.Url
-		typeCon := strings.ToLower(mod.Type)
-		if mod.TopicContentBucket != "" && (strings.Contains(typeCon, "static") || strings.Contains(typeCon, "scorm") || strings.Contains(typeCon, "tincan") || strings.Contains(typeCon, "cmi5") || strings.Contains(typeCon, "html5")) {
-			urlCon = mod.Url
-		} else if mod.TopicContentBucket != "" {
-			urlCon = storageC.GetSignedURLForObject(mod.TopicContentBucket)
-		}
-		currentModule := &model.TopicContent{
-			ID:                &mod.ID,
-			Language:          &mod.Language,
-			TopicID:           &mod.TopicId,
-			CourseID:          &mod.CourseId,
-			SubtitleURL:       urlSub,
-			ContentURL:        &urlCon,
-			CreatedAt:         &createdAt,
-			UpdatedAt:         &updatedAt,
-			StartTime:         &mod.StartTime,
-			Duration:          &mod.Duration,
-			SkipIntroDuration: &mod.SkipIntroDuration,
-			NextShowTime:      &mod.NextShowtime,
-			FromEndTime:       &mod.FromEndTime,
-			Type:              &mod.Type,
-			IsDefault:         &mod.IsDefault,
-		}
+			urlCon := mod.Url
+			typeCon := strings.ToLower(mod.Type)
+			if mod.TopicContentBucket != "" && (strings.Contains(typeCon, "static") || strings.Contains(typeCon, "scorm") || strings.Contains(typeCon, "tincan") || strings.Contains(typeCon, "cmi5") || strings.Contains(typeCon, "html5")) {
+				urlCon = mod.Url
+			} else if mod.TopicContentBucket != "" {
+				urlCon = storageC.GetSignedURLForObject(mod.TopicContentBucket)
+			}
+			currentModule := &model.TopicContent{
+				ID:                &mod.ID,
+				Language:          &mod.Language,
+				TopicID:           &mod.TopicId,
+				CourseID:          &mod.CourseId,
+				SubtitleURL:       urlSub,
+				ContentURL:        &urlCon,
+				CreatedAt:         &createdAt,
+				UpdatedAt:         &updatedAt,
+				StartTime:         &mod.StartTime,
+				Duration:          &mod.Duration,
+				SkipIntroDuration: &mod.SkipIntroDuration,
+				NextShowTime:      &mod.NextShowtime,
+				FromEndTime:       &mod.FromEndTime,
+				Type:              &mod.Type,
+				IsDefault:         &mod.IsDefault,
+			}
 
-		topicsOut = append(topicsOut, currentModule)
+			topicsOut[i] = currentModule
+			wg.Done()
+		}(i, mod)
 	}
+	wg.Wait()
 	redisBytes, err := json.Marshal(currentContent)
 	if err == nil {
 		redis.SetTTL(key, 3600)
@@ -317,7 +327,6 @@ func GetTopicExamsByCourse(ctx context.Context, courseID *string) ([]*model.Topi
 }
 
 func GetTopicContentByModule(ctx context.Context, moduleID *string) ([]*model.TopicContent, error) {
-	topicsOut := make([]*model.TopicContent, 0)
 	currentContent := make([]coursez.TopicContent, 0)
 	key := "GetTopicContentByModule" + *moduleID
 	claims, err := helpers.GetClaimsFromContext(ctx)
@@ -352,50 +361,56 @@ func GetTopicContentByModule(ctx context.Context, moduleID *string) ([]*model.To
 			return nil, err
 		}
 	}
-	storageC := bucket.NewStorageHandler()
 	gproject := googleprojectlib.GetGoogleProjectID()
-	urlSub := make([]*model.SubtitleURL, 0)
-	for _, topCon := range currentContent {
+	topicsOut := make([]*model.TopicContent, len(currentContent))
+	var wg sync.WaitGroup
+	for i, topCon := range currentContent {
 		mod := topCon
-		createdAt := strconv.FormatInt(mod.CreatedAt, 10)
-		updatedAt := strconv.FormatInt(mod.UpdatedAt, 10)
-		err = storageC.InitializeStorageClient(ctx, gproject, mod.LspId)
-		if err != nil {
-			log.Errorf("Failed to initialize storage: %v", err.Error())
-			return nil, err
-		}
-		mainBucket := mod.CourseId + "/" + mod.TopicId + "/subtitles/"
-		if mainBucket != "" {
-			urlSub = storageC.GetSignedURLsForObjects(mainBucket)
-		}
+		wg.Add(1)
+		go func(i int, mod coursez.TopicContent) {
+			createdAt := strconv.FormatInt(mod.CreatedAt, 10)
+			updatedAt := strconv.FormatInt(mod.UpdatedAt, 10)
+			storageC := bucket.NewStorageHandler()
+			err = storageC.InitializeStorageClient(ctx, gproject, mod.LspId)
+			if err != nil {
+				log.Errorf("Failed to initialize storage: %v", err.Error())
+			}
+			mainBucket := mod.CourseId + "/" + mod.TopicId + "/subtitles/"
+			urlSub := make([]*model.SubtitleURL, 0)
+			if mainBucket != "" {
+				urlSub = storageC.GetSignedURLsForObjects(mainBucket)
+			}
 
-		urlCon := mod.Url
-		typeCon := strings.ToLower(mod.Type)
-		if mod.TopicContentBucket != "" && (strings.Contains(typeCon, "static") || strings.Contains(typeCon, "scorm") || strings.Contains(typeCon, "tincan") || strings.Contains(typeCon, "cmi5") || strings.Contains(typeCon, "html5")) {
-			urlCon = mod.Url
-		} else if mod.TopicContentBucket != "" {
-			urlCon = storageC.GetSignedURLForObject(mod.TopicContentBucket)
-		}
-		currentModule := &model.TopicContent{
-			ID:                &mod.ID,
-			Language:          &mod.Language,
-			TopicID:           &mod.TopicId,
-			CourseID:          &mod.CourseId,
-			SubtitleURL:       urlSub,
-			ContentURL:        &urlCon,
-			CreatedAt:         &createdAt,
-			UpdatedAt:         &updatedAt,
-			StartTime:         &mod.StartTime,
-			Duration:          &mod.Duration,
-			SkipIntroDuration: &mod.SkipIntroDuration,
-			NextShowTime:      &mod.NextShowtime,
-			FromEndTime:       &mod.FromEndTime,
-			Type:              &mod.Type,
-			IsDefault:         &mod.IsDefault,
-		}
+			urlCon := mod.Url
+			typeCon := strings.ToLower(mod.Type)
+			if mod.TopicContentBucket != "" && (strings.Contains(typeCon, "static") || strings.Contains(typeCon, "scorm") || strings.Contains(typeCon, "tincan") || strings.Contains(typeCon, "cmi5") || strings.Contains(typeCon, "html5")) {
+				urlCon = mod.Url
+			} else if mod.TopicContentBucket != "" {
+				urlCon = storageC.GetSignedURLForObject(mod.TopicContentBucket)
+			}
+			currentModule := &model.TopicContent{
+				ID:                &mod.ID,
+				Language:          &mod.Language,
+				TopicID:           &mod.TopicId,
+				CourseID:          &mod.CourseId,
+				SubtitleURL:       urlSub,
+				ContentURL:        &urlCon,
+				CreatedAt:         &createdAt,
+				UpdatedAt:         &updatedAt,
+				StartTime:         &mod.StartTime,
+				Duration:          &mod.Duration,
+				SkipIntroDuration: &mod.SkipIntroDuration,
+				NextShowTime:      &mod.NextShowtime,
+				FromEndTime:       &mod.FromEndTime,
+				Type:              &mod.Type,
+				IsDefault:         &mod.IsDefault,
+			}
 
-		topicsOut = append(topicsOut, currentModule)
+			topicsOut[i] = currentModule
+			wg.Done()
+		}(i, mod)
 	}
+	wg.Wait()
 	redisBytes, err := json.Marshal(currentContent)
 	if err == nil {
 		redis.SetTTL(key, 3600)

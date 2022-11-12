@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"sync"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/coursez"
@@ -18,7 +19,6 @@ import (
 )
 
 func GetTopicResources(ctx context.Context, topicID *string) ([]*model.TopicResource, error) {
-	topicsRes := make([]*model.TopicResource, 0)
 	currentResources := make([]coursez.Resource, 0)
 	key := "GetTopicResources" + *topicID
 	claims, err := helpers.GetClaimsFromContext(ctx)
@@ -53,37 +53,43 @@ func GetTopicResources(ctx context.Context, topicID *string) ([]*model.TopicReso
 			return nil, err
 		}
 	}
-	storageC := bucket.NewStorageHandler()
 	gproject := googleprojectlib.GetGoogleProjectID()
-
-	for _, topRes := range currentResources {
+	topicsRes := make([]*model.TopicResource, len(currentResources))
+	var wg sync.WaitGroup
+	for i, topRes := range currentResources {
 		mod := topRes
-		createdAt := strconv.FormatInt(mod.CreatedAt, 10)
-		updatedAt := strconv.FormatInt(mod.UpdatedAt, 10)
-		url := mod.Url
-		if mod.BucketPath != "" {
-			err = storageC.InitializeStorageClient(ctx, gproject, mod.LspId)
-			if err != nil {
-				log.Errorf("Failed to initialize storage: %v", err.Error())
-				return nil, err
+		wg.Add(1)
+		go func(i int, mod coursez.Resource) {
+			createdAt := strconv.FormatInt(mod.CreatedAt, 10)
+			updatedAt := strconv.FormatInt(mod.UpdatedAt, 10)
+			url := mod.Url
+			if mod.BucketPath != "" {
+				storageC := bucket.NewStorageHandler()
+				err = storageC.InitializeStorageClient(ctx, gproject, mod.LspId)
+				if err != nil {
+					log.Errorf("Failed to initialize storage: %v", err.Error())
+					return
+				}
+				url = storageC.GetSignedURLForObject(mod.BucketPath)
 			}
-			url = storageC.GetSignedURLForObject(mod.BucketPath)
-		}
-		currentRes := &model.TopicResource{
-			ID:        &mod.ID,
-			Name:      &mod.Name,
-			Type:      &mod.Type,
-			URL:       &url,
-			CreatedAt: &createdAt,
-			UpdatedAt: &updatedAt,
-			CreatedBy: &mod.CreatedBy,
-			TopicID:   &mod.TopicId,
-			CourseID:  &mod.CourseId,
-			UpdatedBy: &mod.UpdatedBy,
-		}
+			currentRes := &model.TopicResource{
+				ID:        &mod.ID,
+				Name:      &mod.Name,
+				Type:      &mod.Type,
+				URL:       &url,
+				CreatedAt: &createdAt,
+				UpdatedAt: &updatedAt,
+				CreatedBy: &mod.CreatedBy,
+				TopicID:   &mod.TopicId,
+				CourseID:  &mod.CourseId,
+				UpdatedBy: &mod.UpdatedBy,
+			}
 
-		topicsRes = append(topicsRes, currentRes)
+			topicsRes[i] = currentRes
+			wg.Done()
+		}(i, mod)
 	}
+	wg.Wait()
 	redisBytes, err := json.Marshal(currentResources)
 	if err == nil {
 		redis.SetTTL(key, 3600)
@@ -93,7 +99,6 @@ func GetTopicResources(ctx context.Context, topicID *string) ([]*model.TopicReso
 }
 
 func GetCourseResources(ctx context.Context, courseID *string) ([]*model.TopicResource, error) {
-	topicsRes := make([]*model.TopicResource, 0)
 	currentResources := make([]coursez.Resource, 0)
 	key := "GetCourseResources" + *courseID
 	claims, err := helpers.GetClaimsFromContext(ctx)
@@ -128,38 +133,42 @@ func GetCourseResources(ctx context.Context, courseID *string) ([]*model.TopicRe
 			return nil, err
 		}
 	}
-	storageC := bucket.NewStorageHandler()
 	gproject := googleprojectlib.GetGoogleProjectID()
-
-	for _, topRes := range currentResources {
+	topicsRes := make([]*model.TopicResource, len(currentResources))
+	var wg sync.WaitGroup
+	for i, topRes := range currentResources {
 		mod := topRes
-		createdAt := strconv.FormatInt(mod.CreatedAt, 10)
-		updatedAt := strconv.FormatInt(mod.UpdatedAt, 10)
-		url := mod.Url
-		if mod.BucketPath != "" {
-			err = storageC.InitializeStorageClient(ctx, gproject, mod.LspId)
-			if err != nil {
-				log.Errorf("Failed to initialize storage: %v", err.Error())
-				return nil, err
+		wg.Add(1)
+		go func(mod coursez.Resource, i int) {
+			createdAt := strconv.FormatInt(mod.CreatedAt, 10)
+			updatedAt := strconv.FormatInt(mod.UpdatedAt, 10)
+			url := mod.Url
+			if mod.BucketPath != "" {
+				storageC := bucket.NewStorageHandler()
+				err = storageC.InitializeStorageClient(ctx, gproject, mod.LspId)
+				if err != nil {
+					log.Errorf("Failed to initialize storage: %v", err.Error())
+				}
+				url = storageC.GetSignedURLForObject(mod.BucketPath)
 			}
-			url = storageC.GetSignedURLForObject(mod.BucketPath)
-		}
-		currentRes := &model.TopicResource{
-			ID:        &mod.ID,
-			Name:      &mod.Name,
-			Type:      &mod.Type,
-			URL:       &url,
-			CreatedAt: &createdAt,
-			UpdatedAt: &updatedAt,
-			CreatedBy: &mod.CreatedBy,
-			TopicID:   &mod.TopicId,
-			CourseID:  &mod.CourseId,
-			UpdatedBy: &mod.UpdatedBy,
-		}
+			currentRes := &model.TopicResource{
+				ID:        &mod.ID,
+				Name:      &mod.Name,
+				Type:      &mod.Type,
+				URL:       &url,
+				CreatedAt: &createdAt,
+				UpdatedAt: &updatedAt,
+				CreatedBy: &mod.CreatedBy,
+				TopicID:   &mod.TopicId,
+				CourseID:  &mod.CourseId,
+				UpdatedBy: &mod.UpdatedBy,
+			}
 
-		topicsRes = append(topicsRes, currentRes)
+			topicsRes[i] = currentRes
+			wg.Done()
+		}(mod, i)
 	}
-
+	wg.Wait()
 	redisBytes, err := json.Marshal(currentResources)
 	if err == nil {
 		redis.SetTTL(key, 3600)
