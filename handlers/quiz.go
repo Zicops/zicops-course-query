@@ -53,29 +53,36 @@ func GetTopicQuizes(ctx context.Context, topicID *string) ([]*model.Quiz, error)
 			return nil, err
 		}
 	}
-	for _, topQuiz := range currentQuizes {
+	topicQuizes = make([]*model.Quiz, len(currentQuizes))
+	var wg sync.WaitGroup
+	for i, topQuiz := range currentQuizes {
 		mod := topQuiz
-		createdAt := strconv.FormatInt(mod.CreatedAt, 10)
-		updatedAt := strconv.FormatInt(mod.UpdatedAt, 10)
-		currentQ := &model.Quiz{
-			ID:          &mod.ID,
-			Name:        &mod.Name,
-			Type:        &mod.Type,
-			CreatedAt:   &createdAt,
-			UpdatedAt:   &updatedAt,
-			IsMandatory: &mod.IsMandatory,
-			Sequence:    &mod.Sequence,
-			TopicID:     &mod.TopicID,
-			CourseID:    &mod.CourseID,
-			QuestionID:  &mod.QuestionID,
-			QbID:        &mod.QbId,
-			Weightage:   &mod.Weightage,
-			Category:    &mod.Category,
-			StartTime:   &mod.StartTime,
-		}
+		wg.Add(1)
+		go func(mod coursez.Quiz, i int) {
+			createdAt := strconv.FormatInt(mod.CreatedAt, 10)
+			updatedAt := strconv.FormatInt(mod.UpdatedAt, 10)
+			currentQ := &model.Quiz{
+				ID:          &mod.ID,
+				Name:        &mod.Name,
+				Type:        &mod.Type,
+				CreatedAt:   &createdAt,
+				UpdatedAt:   &updatedAt,
+				IsMandatory: &mod.IsMandatory,
+				Sequence:    &mod.Sequence,
+				TopicID:     &mod.TopicID,
+				CourseID:    &mod.CourseID,
+				QuestionID:  &mod.QuestionID,
+				QbID:        &mod.QbId,
+				Weightage:   &mod.Weightage,
+				Category:    &mod.Category,
+				StartTime:   &mod.StartTime,
+			}
 
-		topicQuizes = append(topicQuizes, currentQ)
+			topicQuizes[i] = currentQ
+			wg.Done()
+		}(mod, i)
 	}
+	wg.Wait()
 	redisBytes, err := json.Marshal(currentQuizes)
 	if err == nil {
 		redis.SetTTL(key, 3600)
@@ -189,22 +196,28 @@ func GetMCQQuiz(ctx context.Context, quizID *string) ([]*model.QuizMcq, error) {
 	if err != nil {
 		return nil, err
 	}
-	for _, mcq := range currentMCQs {
+	quizMcqs = make([]*model.QuizMcq, len(currentMCQs))
+	var wg sync.WaitGroup
+	for i, mcq := range currentMCQs {
 		mod := mcq
-		options := make([]*string, 0)
-		for _, option := range mod.Options {
-			options = append(options, &option)
-		}
-		currentMcq := &model.QuizMcq{
-			QuizID:        &mod.QuizId,
-			Explanation:   &mod.Explanation,
-			Options:       options,
-			Question:      &mod.Question,
-			CorrectOption: &mod.CorrectOption,
-		}
-
-		quizMcqs = append(quizMcqs, currentMcq)
+		wg.Add(1)
+		go func(mod coursez.QuizMcq, i int) {
+			options := make([]*string, 0)
+			for _, option := range mod.Options {
+				options = append(options, &option)
+			}
+			currentMcq := &model.QuizMcq{
+				QuizID:        &mod.QuizId,
+				Explanation:   &mod.Explanation,
+				Options:       options,
+				Question:      &mod.Question,
+				CorrectOption: &mod.CorrectOption,
+			}
+			quizMcqs[i] = currentMcq
+			wg.Done()
+		}(mod, i)
 	}
+	wg.Wait()
 	redisBytes, err := json.Marshal(quizMcqs)
 	if err == nil {
 		redis.SetTTL(key, 3600)
@@ -245,17 +258,24 @@ func GetQuizDes(ctx context.Context, quizID *string) ([]*model.QuizDescriptive, 
 	if err != nil {
 		return nil, err
 	}
-	for _, mcq := range currentDesQ {
+	quizDes = make([]*model.QuizDescriptive, len(currentDesQ))
+	var wg sync.WaitGroup
+	for i, mcq := range currentDesQ {
 		mod := mcq
-		currentMcq := &model.QuizDescriptive{
-			QuizID:        &mod.QuizId,
-			Explanation:   &mod.Explanation,
-			Question:      &mod.Question,
-			CorrectAnswer: &mod.CorrectAnswer,
-		}
+		wg.Add(1)
+		go func(mod coursez.QuizDescriptive, i int) {
+			currentMcq := &model.QuizDescriptive{
+				QuizID:        &mod.QuizId,
+				Explanation:   &mod.Explanation,
+				Question:      &mod.Question,
+				CorrectAnswer: &mod.CorrectAnswer,
+			}
 
-		quizDes = append(quizDes, currentMcq)
+			quizDes[i] = currentMcq
+			wg.Done()
+		}(mod, i)
 	}
+	wg.Wait()
 	redisBytes, err := json.Marshal(quizDes)
 	if err == nil {
 		redis.SetTTL(key, 3600)

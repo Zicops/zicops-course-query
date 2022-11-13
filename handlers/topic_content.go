@@ -144,22 +144,29 @@ func GetTopicExams(ctx context.Context, topicID *string) ([]*model.TopicExam, er
 	if err != nil {
 		return nil, err
 	}
-	for _, topCon := range currentContent {
+	topicsOut = make([]*model.TopicExam, len(currentContent))
+	var wg sync.WaitGroup
+	for i, topCon := range currentContent {
 		mod := topCon
-		createdAt := strconv.FormatInt(mod.CreatedAt, 10)
-		updatedAt := strconv.FormatInt(mod.UpdatedAt, 10)
-		currentModule := &model.TopicExam{
-			ID:        &mod.ID,
-			Language:  &mod.Language,
-			TopicID:   &mod.TopicId,
-			CourseID:  &mod.CourseId,
-			CreatedAt: &createdAt,
-			UpdatedAt: &updatedAt,
-			ExamID:    &mod.ExamId,
-		}
+		wg.Add(1)
+		go func(i int, mod coursez.TopicExam) {
+			createdAt := strconv.FormatInt(mod.CreatedAt, 10)
+			updatedAt := strconv.FormatInt(mod.UpdatedAt, 10)
+			currentModule := &model.TopicExam{
+				ID:        &mod.ID,
+				Language:  &mod.Language,
+				TopicID:   &mod.TopicId,
+				CourseID:  &mod.CourseId,
+				CreatedAt: &createdAt,
+				UpdatedAt: &updatedAt,
+				ExamID:    &mod.ExamId,
+			}
 
-		topicsOut = append(topicsOut, currentModule)
+			topicsOut[i] = currentModule
+			wg.Done()
+		}(i, mod)
 	}
+	wg.Wait()
 	redisBytes, err := json.Marshal(topicsOut)
 	if err == nil {
 		redis.SetTTL(key, 3600)
@@ -301,23 +308,29 @@ func GetTopicExamsByCourse(ctx context.Context, courseID *string) ([]*model.Topi
 	if err != nil {
 		return nil, err
 	}
-
-	for _, topCon := range currentContent {
+	topicsOut = make([]*model.TopicExam, len(currentContent))
+	var wg sync.WaitGroup
+	for i, topCon := range currentContent {
 		mod := topCon
-		createdAt := strconv.FormatInt(mod.CreatedAt, 10)
-		updatedAt := strconv.FormatInt(mod.UpdatedAt, 10)
-		currentModule := &model.TopicExam{
-			ID:        &mod.ID,
-			Language:  &mod.Language,
-			TopicID:   &mod.TopicId,
-			CourseID:  &mod.CourseId,
-			CreatedAt: &createdAt,
-			UpdatedAt: &updatedAt,
-			ExamID:    &mod.ExamId,
-		}
+		wg.Add(1)
+		go func(i int, mod coursez.TopicExam) {
+			createdAt := strconv.FormatInt(mod.CreatedAt, 10)
+			updatedAt := strconv.FormatInt(mod.UpdatedAt, 10)
+			currentModule := &model.TopicExam{
+				ID:        &mod.ID,
+				Language:  &mod.Language,
+				TopicID:   &mod.TopicId,
+				CourseID:  &mod.CourseId,
+				CreatedAt: &createdAt,
+				UpdatedAt: &updatedAt,
+				ExamID:    &mod.ExamId,
+			}
 
-		topicsOut = append(topicsOut, currentModule)
+			topicsOut[i] = currentModule
+			wg.Done()
+		}(i, mod)
 	}
+	wg.Wait()
 	redisBytes, err := json.Marshal(topicsOut)
 	if err == nil {
 		redis.SetTTL(key, 3600)

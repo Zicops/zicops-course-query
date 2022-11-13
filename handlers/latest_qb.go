@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"sync"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/qbankz"
@@ -202,29 +203,35 @@ func LatestQuestionPapers(ctx context.Context, publishTime *int, pageCursor *str
 
 	}
 	var outputResponse model.PaginatedQuestionPapers
-	allBanks := make([]*model.QuestionPaper, 0)
-	for _, bank := range banks {
+	allBanks := make([]*model.QuestionPaper, len(banks))
+	var wg sync.WaitGroup
+	for i, bank := range banks {
 		copiedBank := bank
-		createdAt := strconv.FormatInt(copiedBank.CreatedAt, 10)
-		updatedAt := strconv.FormatInt(copiedBank.UpdatedAt, 10)
-		currentBank := &model.QuestionPaper{
-			ID:                &copiedBank.ID,
-			Name:              &copiedBank.Name,
-			Category:          &copiedBank.Category,
-			SubCategory:       &copiedBank.SubCategory,
-			SuggestedDuration: &copiedBank.SuggestedDuration,
-			SectionWise:       &copiedBank.SectionWise,
-			DifficultyLevel:   &copiedBank.DifficultyLevel,
-			Description:       &copiedBank.Description,
-			IsActive:          &copiedBank.IsActive,
-			CreatedAt:         &createdAt,
-			UpdatedAt:         &updatedAt,
-			CreatedBy:         &copiedBank.CreatedBy,
-			UpdatedBy:         &copiedBank.UpdatedBy,
-			Status:            &copiedBank.Status,
-		}
-		allBanks = append(allBanks, currentBank)
+		wg.Add(1)
+		go func(i int, copiedBank qbankz.QuestionPaperMain) {
+			createdAt := strconv.FormatInt(copiedBank.CreatedAt, 10)
+			updatedAt := strconv.FormatInt(copiedBank.UpdatedAt, 10)
+			currentBank := &model.QuestionPaper{
+				ID:                &copiedBank.ID,
+				Name:              &copiedBank.Name,
+				Category:          &copiedBank.Category,
+				SubCategory:       &copiedBank.SubCategory,
+				SuggestedDuration: &copiedBank.SuggestedDuration,
+				SectionWise:       &copiedBank.SectionWise,
+				DifficultyLevel:   &copiedBank.DifficultyLevel,
+				Description:       &copiedBank.Description,
+				IsActive:          &copiedBank.IsActive,
+				CreatedAt:         &createdAt,
+				UpdatedAt:         &updatedAt,
+				CreatedBy:         &copiedBank.CreatedBy,
+				UpdatedBy:         &copiedBank.UpdatedBy,
+				Status:            &copiedBank.Status,
+			}
+			allBanks[i] = currentBank
+			wg.Done()
+		}(i, copiedBank)
 	}
+	wg.Wait()
 	outputResponse.QuestionPapers = allBanks
 	outputResponse.PageCursor = &newCursor
 	outputResponse.PageSize = &pageSizeInt
@@ -321,92 +328,12 @@ func GetLatestExams(ctx context.Context, publishTime *int, pageCursor *string, d
 
 	}
 	var outputResponse model.PaginatedExams
-	allExams := make([]*model.Exam, 0)
-	for _, exam := range exams {
+	allExams := make([]*model.Exam, len(exams))
+	var wg sync.WaitGroup
+	for i, exam := range exams {
 		copiedExam := exam
-		createdAt := strconv.FormatInt(copiedExam.CreatedAt, 10)
-		updatedAt := strconv.FormatInt(copiedExam.UpdatedAt, 10)
-		questionIDs := make([]*string, 0)
-		for _, questionID := range copiedExam.QuestionIDs {
-			copiedQId := questionID
-			questionIDs = append(questionIDs, &copiedQId)
-		}
-		currentExam := &model.Exam{
-			ID:           &copiedExam.ID,
-			Name:         &copiedExam.Name,
-			Description:  &copiedExam.Description,
-			Code:         &copiedExam.Code,
-			QpID:         &copiedExam.QPID,
-			CreatedAt:    &createdAt,
-			UpdatedAt:    &updatedAt,
-			CreatedBy:    &copiedExam.CreatedBy,
-			UpdatedBy:    &copiedExam.UpdatedBy,
-			IsActive:     &copiedExam.IsActive,
-			Type:         &copiedExam.Type,
-			ScheduleType: &copiedExam.ScheduleType,
-			Duration:     &copiedExam.Duration,
-			Status:       &copiedExam.Status,
-			Category:     &copiedExam.Category,
-			SubCategory:  &copiedExam.SubCategory,
-			QuestionIds:  questionIDs,
-			TotalCount:   &copiedExam.TotalCount,
-		}
-		allExams = append(allExams, currentExam)
-	}
-	outputResponse.Exams = allExams
-	outputResponse.PageCursor = &newCursor
-	outputResponse.PageSize = &pageSizeInt
-	outputResponse.Direction = direction
-	redisBytes, err := json.Marshal(outputResponse)
-	if err != nil {
-		log.Errorf("Error marshalling redis value: %v", err)
-	} else {
-		redis.SetTTL(key, 3600)
-		err = redis.SetRedisValue(key, string(redisBytes))
-		if err != nil {
-			log.Errorf("Error setting redis value: %v", err)
-		}
-	}
-	return &outputResponse, nil
-}
-
-func GetExamsMeta(ctx context.Context, examIds []*string) ([]*model.Exam, error) {
-	responseMap := make([]*model.Exam, 0)
-	session, err := cassandra.GetCassSession("qbankz")
-	if err != nil {
-		return nil, err
-	}
-	CassSession := session
-	claims, err := helpers.GetClaimsFromContext(ctx)
-	if err != nil {
-		return nil, err
-	}
-	role := strings.ToLower(claims["role"].(string))
-	for _, questionId := range examIds {
-		result, _ := redis.GetRedisValue("GetExamsMeta" + *questionId)
-		if result != "" && role != "admin" {
-			var outputResponse model.Exam
-			err = json.Unmarshal([]byte(result), &outputResponse)
-			if err == nil {
-				responseMap = append(responseMap, &outputResponse)
-				continue
-			}
-		}
-		lspId := claims["lsp_id"].(string)
-
-		qryStr := fmt.Sprintf(`SELECT * from qbankz.exam where id='%s' AND is_active=true AND lsp_id='%s' ALLOW FILTERING`, *questionId, lspId)
-		getPapers := func() (banks []qbankz.Exam, err error) {
-			q := CassSession.Query(qryStr, nil)
-			defer q.Release()
-			iter := q.Iter()
-			return banks, iter.Select(&banks)
-		}
-		banks, err := getPapers()
-		if err != nil {
-			return nil, err
-		}
-		for _, bank := range banks {
-			copiedExam := bank
+		wg.Add(1)
+		go func(i int, copiedExam qbankz.Exam) {
 			createdAt := strconv.FormatInt(copiedExam.CreatedAt, 10)
 			updatedAt := strconv.FormatInt(copiedExam.UpdatedAt, 10)
 			questionIDs := make([]*string, 0)
@@ -434,13 +361,108 @@ func GetExamsMeta(ctx context.Context, examIds []*string) ([]*model.Exam, error)
 				QuestionIds:  questionIDs,
 				TotalCount:   &copiedExam.TotalCount,
 			}
-			responseMap = append(responseMap, currentExam)
-			redisBytes, err := json.Marshal(currentExam)
+			allExams[i] = currentExam
+			wg.Done()
+		}(i, copiedExam)
+	}
+	wg.Wait()
+	outputResponse.Exams = allExams
+	outputResponse.PageCursor = &newCursor
+	outputResponse.PageSize = &pageSizeInt
+	outputResponse.Direction = direction
+	redisBytes, err := json.Marshal(outputResponse)
+	if err != nil {
+		log.Errorf("Error marshalling redis value: %v", err)
+	} else {
+		redis.SetTTL(key, 3600)
+		err = redis.SetRedisValue(key, string(redisBytes))
+		if err != nil {
+			log.Errorf("Error setting redis value: %v", err)
+		}
+	}
+	return &outputResponse, nil
+}
+
+func GetExamsMeta(ctx context.Context, examIds []*string) ([]*model.Exam, error) {
+	session, err := cassandra.GetCassSession("qbankz")
+	if err != nil {
+		return nil, err
+	}
+	CassSession := session
+	claims, err := helpers.GetClaimsFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+	role := strings.ToLower(claims["role"].(string))
+	responseMap := make([]*model.Exam, 0)
+	for _, questionId := range examIds {
+		result, _ := redis.GetRedisValue("GetExamsMeta" + *questionId)
+		if result != "" && role != "admin" {
+			var outputResponse model.Exam
+			err = json.Unmarshal([]byte(result), &outputResponse)
 			if err == nil {
-				redis.SetTTL("GetExamsMeta"+*questionId, 3600)
-				redis.SetRedisValue("GetExamsMeta"+*questionId, string(redisBytes))
+				responseMap = append(responseMap, &outputResponse)
+				continue
 			}
 		}
+
+		lspId := claims["lsp_id"].(string)
+
+		qryStr := fmt.Sprintf(`SELECT * from qbankz.exam where id='%s' AND is_active=true AND lsp_id='%s' ALLOW FILTERING`, *questionId, lspId)
+		getPapers := func() (banks []qbankz.Exam, err error) {
+			q := CassSession.Query(qryStr, nil)
+			defer q.Release()
+			iter := q.Iter()
+			return banks, iter.Select(&banks)
+		}
+		banks, err := getPapers()
+		if err != nil {
+			return nil, err
+		}
+		resExams := make([]*model.Exam, len(banks))
+		var wg sync.WaitGroup
+		for i, bank := range banks {
+			copiedExam := bank
+			wg.Add(1)
+			go func(i int, copiedExam qbankz.Exam) {
+				createdAt := strconv.FormatInt(copiedExam.CreatedAt, 10)
+				updatedAt := strconv.FormatInt(copiedExam.UpdatedAt, 10)
+				questionIDs := make([]*string, 0)
+				for _, questionID := range copiedExam.QuestionIDs {
+					copiedQId := questionID
+					questionIDs = append(questionIDs, &copiedQId)
+				}
+				currentExam := &model.Exam{
+					ID:           &copiedExam.ID,
+					Name:         &copiedExam.Name,
+					Description:  &copiedExam.Description,
+					Code:         &copiedExam.Code,
+					QpID:         &copiedExam.QPID,
+					CreatedAt:    &createdAt,
+					UpdatedAt:    &updatedAt,
+					CreatedBy:    &copiedExam.CreatedBy,
+					UpdatedBy:    &copiedExam.UpdatedBy,
+					IsActive:     &copiedExam.IsActive,
+					Type:         &copiedExam.Type,
+					ScheduleType: &copiedExam.ScheduleType,
+					Duration:     &copiedExam.Duration,
+					Status:       &copiedExam.Status,
+					Category:     &copiedExam.Category,
+					SubCategory:  &copiedExam.SubCategory,
+					QuestionIds:  questionIDs,
+					TotalCount:   &copiedExam.TotalCount,
+				}
+				resExams[i] = currentExam
+				redisBytes, err := json.Marshal(currentExam)
+				if err == nil {
+					redis.SetTTL("GetExamsMeta"+*questionId, 3600)
+					redis.SetRedisValue("GetExamsMeta"+*questionId, string(redisBytes))
+				}
+				wg.Done()
+			}(i, copiedExam)
+		}
+		wg.Wait()
+		responseMap = append(responseMap, resExams...)
 	}
 
 	return responseMap, nil
@@ -482,31 +504,39 @@ func GetQBMeta(ctx context.Context, qbIds []*string) ([]*model.QuestionBank, err
 		if err != nil {
 			return nil, err
 		}
-		for _, bank := range banks {
+		resBanks := make([]*model.QuestionBank, len(banks))
+		var wg sync.WaitGroup
+		for i, bank := range banks {
 			copiedBank := bank
-			createdAt := strconv.FormatInt(copiedBank.CreatedAt, 10)
-			updatedAt := strconv.FormatInt(copiedBank.UpdatedAt, 10)
-			currentBank := &model.QuestionBank{
-				ID:          &copiedBank.ID,
-				Name:        &copiedBank.Name,
-				Description: &copiedBank.Description,
-				Category:    &copiedBank.Category,
-				SubCategory: &copiedBank.SubCategory,
-				Owner:       &copiedBank.Owner,
-				IsActive:    &copiedBank.IsActive,
-				CreatedAt:   &createdAt,
-				UpdatedAt:   &updatedAt,
-				CreatedBy:   &copiedBank.CreatedBy,
-				UpdatedBy:   &copiedBank.UpdatedBy,
-				IsDefault:   &copiedBank.IsDefault,
-			}
-			responseMap = append(responseMap, currentBank)
-			redisBytes, err := json.Marshal(currentBank)
-			if err == nil {
-				redis.SetTTL("GetQBMeta"+*qbId, 3600)
-				redis.SetRedisValue("GetQBMeta"+*qbId, string(redisBytes))
-			}
+			wg.Add(1)
+			go func(i int, copiedBank qbankz.QuestionBankMain) {
+				createdAt := strconv.FormatInt(copiedBank.CreatedAt, 10)
+				updatedAt := strconv.FormatInt(copiedBank.UpdatedAt, 10)
+				currentBank := &model.QuestionBank{
+					ID:          &copiedBank.ID,
+					Name:        &copiedBank.Name,
+					Description: &copiedBank.Description,
+					Category:    &copiedBank.Category,
+					SubCategory: &copiedBank.SubCategory,
+					Owner:       &copiedBank.Owner,
+					IsActive:    &copiedBank.IsActive,
+					CreatedAt:   &createdAt,
+					UpdatedAt:   &updatedAt,
+					CreatedBy:   &copiedBank.CreatedBy,
+					UpdatedBy:   &copiedBank.UpdatedBy,
+					IsDefault:   &copiedBank.IsDefault,
+				}
+				resBanks[i] = currentBank
+				redisBytes, err := json.Marshal(currentBank)
+				if err == nil {
+					redis.SetTTL("GetQBMeta"+*qbId, 3600)
+					redis.SetRedisValue("GetQBMeta"+*qbId, string(redisBytes))
+				}
+				wg.Done()
+			}(i, copiedBank)
 		}
+		wg.Wait()
+		responseMap = append(responseMap, resBanks...)
 	}
 	return responseMap, nil
 }
