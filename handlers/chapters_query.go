@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"sync"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/coursez"
@@ -36,8 +37,6 @@ func GetChaptersCourseByID(ctx context.Context, courseID *string) ([]*model.Chap
 	}
 	if len(chapters) > 0 && role != "admin" {
 		return chapters, nil
-	} else {
-		chapters = make([]*model.Chapter, 0)
 	}
 	session, err := cassandra.GetCassSession("coursez")
 	if err != nil {
@@ -55,22 +54,29 @@ func GetChaptersCourseByID(ctx context.Context, courseID *string) ([]*model.Chap
 	if err != nil {
 		return nil, err
 	}
-	for _, copiedMod := range currentChapters {
+	chapters = make([]*model.Chapter, len(currentChapters))
+	var wg sync.WaitGroup
+	for i, copiedMod := range currentChapters {
 		mod := copiedMod
-		createdAt := strconv.FormatInt(mod.CreatedAt, 10)
-		updatedAt := strconv.FormatInt(mod.UpdatedAt, 10)
-		currentChapter := &model.Chapter{
-			ID:          &mod.ID,
-			CourseID:    &mod.CourseID,
-			Description: &mod.Description,
-			ModuleID:    &mod.ModuleID,
-			Name:        &mod.Name,
-			CreatedAt:   &createdAt,
-			UpdatedAt:   &updatedAt,
-			Sequence:    &mod.Sequence,
-		}
-		chapters = append(chapters, currentChapter)
+		wg.Add(1)
+		go func(i int, mod coursez.Chapter) {
+			createdAt := strconv.FormatInt(mod.CreatedAt, 10)
+			updatedAt := strconv.FormatInt(mod.UpdatedAt, 10)
+			currentChapter := &model.Chapter{
+				ID:          &mod.ID,
+				CourseID:    &mod.CourseID,
+				Description: &mod.Description,
+				ModuleID:    &mod.ModuleID,
+				Name:        &mod.Name,
+				CreatedAt:   &createdAt,
+				UpdatedAt:   &updatedAt,
+				Sequence:    &mod.Sequence,
+			}
+			chapters[i] = currentChapter
+			wg.Done()
+		}(i, mod)
 	}
+	wg.Wait()
 	chaptersBytes, err := json.Marshal(chapters)
 	if err != nil {
 		log.Errorf("GetChaptersCourseByID: %v", err)
