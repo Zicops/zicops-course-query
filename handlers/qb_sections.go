@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/zicops/contracts/qbankz"
 	"github.com/zicops/zicops-cass-pool/cassandra"
@@ -47,26 +48,33 @@ func GetQuestionBankSections(ctx context.Context, questionPaperID *string) ([]*m
 	if err != nil {
 		return nil, err
 	}
-	for _, bank := range banks {
+	allSections = make([]*model.QuestionPaperSection, len(banks))
+	var wg sync.WaitGroup
+	for i, bank := range banks {
 		copiedQuestion := bank
-		createdAt := strconv.FormatInt(copiedQuestion.CreatedAt, 10)
-		updatedAt := strconv.FormatInt(copiedQuestion.UpdatedAt, 10)
-		currentQuestion := &model.QuestionPaperSection{
-			ID:              &copiedQuestion.ID,
-			Description:     &copiedQuestion.Description,
-			Type:            &copiedQuestion.Type,
-			CreatedBy:       &copiedQuestion.CreatedBy,
-			CreatedAt:       &createdAt,
-			UpdatedBy:       &copiedQuestion.UpdatedBy,
-			UpdatedAt:       &updatedAt,
-			Name:            &copiedQuestion.Name,
-			DifficultyLevel: &copiedQuestion.DifficultyLevel,
-			TotalQuestions:  &copiedQuestion.TotalQuestions,
-			IsActive:        &copiedQuestion.IsActive,
-			QpID:            &copiedQuestion.QPID,
-		}
-		allSections = append(allSections, currentQuestion)
+		wg.Add(1)
+		go func(i int, copiedQuestion qbankz.SectionMain) {
+			createdAt := strconv.FormatInt(copiedQuestion.CreatedAt, 10)
+			updatedAt := strconv.FormatInt(copiedQuestion.UpdatedAt, 10)
+			currentQuestion := &model.QuestionPaperSection{
+				ID:              &copiedQuestion.ID,
+				Description:     &copiedQuestion.Description,
+				Type:            &copiedQuestion.Type,
+				CreatedBy:       &copiedQuestion.CreatedBy,
+				CreatedAt:       &createdAt,
+				UpdatedBy:       &copiedQuestion.UpdatedBy,
+				UpdatedAt:       &updatedAt,
+				Name:            &copiedQuestion.Name,
+				DifficultyLevel: &copiedQuestion.DifficultyLevel,
+				TotalQuestions:  &copiedQuestion.TotalQuestions,
+				IsActive:        &copiedQuestion.IsActive,
+				QpID:            &copiedQuestion.QPID,
+			}
+			allSections[i] = currentQuestion
+			wg.Done()
+		}(i, copiedQuestion)
 	}
+	wg.Wait()
 	redisBytes, err := json.Marshal(allSections)
 	if err == nil {
 		redis.SetTTL(key, 3600)
@@ -108,28 +116,34 @@ func GetQPBankMappingByQPId(ctx context.Context, questionPaperID *string) ([]*mo
 	if err != nil {
 		return nil, err
 	}
-	allSectionsMap := make([]*model.SectionQBMapping, 0)
-	for _, bank := range banks {
+	allSectionsMap := make([]*model.SectionQBMapping, len(banks))
+	var wg sync.WaitGroup
+	for i, bank := range banks {
 		copiedQuestion := bank
-		createdAt := strconv.FormatInt(copiedQuestion.CreatedAt, 10)
-		updatedAt := strconv.FormatInt(copiedQuestion.UpdatedAt, 10)
-		currentQuestion := &model.SectionQBMapping{
-			ID:              &copiedQuestion.ID,
-			SectionID:       &copiedQuestion.SectionID,
-			QbID:            &copiedQuestion.QBId,
-			CreatedBy:       &copiedQuestion.CreatedBy,
-			CreatedAt:       &createdAt,
-			UpdatedBy:       &copiedQuestion.UpdatedBy,
-			UpdatedAt:       &updatedAt,
-			DifficultyLevel: &copiedQuestion.DifficultyLevel,
-			TotalQuestions:  &copiedQuestion.TotalQuestions,
-			IsActive:        &copiedQuestion.IsActive,
-			QuestionMarks:   &copiedQuestion.QuestionMarks,
-			QuestionType:    &copiedQuestion.QuestionType,
-			RetrieveType:    &copiedQuestion.RetrievalType,
-		}
-		allSectionsMap = append(allSectionsMap, currentQuestion)
+		wg.Add(1)
+		go func(i int, copiedQuestion qbankz.SectionQBMapping) {
+			createdAt := strconv.FormatInt(copiedQuestion.CreatedAt, 10)
+			updatedAt := strconv.FormatInt(copiedQuestion.UpdatedAt, 10)
+			currentQuestion := &model.SectionQBMapping{
+				ID:              &copiedQuestion.ID,
+				SectionID:       &copiedQuestion.SectionID,
+				QbID:            &copiedQuestion.QBId,
+				CreatedBy:       &copiedQuestion.CreatedBy,
+				CreatedAt:       &createdAt,
+				UpdatedBy:       &copiedQuestion.UpdatedBy,
+				UpdatedAt:       &updatedAt,
+				DifficultyLevel: &copiedQuestion.DifficultyLevel,
+				TotalQuestions:  &copiedQuestion.TotalQuestions,
+				IsActive:        &copiedQuestion.IsActive,
+				QuestionMarks:   &copiedQuestion.QuestionMarks,
+				QuestionType:    &copiedQuestion.QuestionType,
+				RetrieveType:    &copiedQuestion.RetrievalType,
+			}
+			allSectionsMap[i] = currentQuestion
+			wg.Done()
+		}(i, copiedQuestion)
 	}
+	wg.Wait()
 	redisBytes, err := json.Marshal(allSectionsMap)
 	if err == nil {
 		redis.SetTTL(key, 3600)
@@ -171,28 +185,34 @@ func GetQPBankMappingBySectionID(ctx context.Context, sectionID *string) ([]*mod
 	if err != nil {
 		return nil, err
 	}
-	allSectionsMap := make([]*model.SectionQBMapping, 0)
-	for _, bank := range banks {
+	allSectionsMap := make([]*model.SectionQBMapping, len(banks))
+	var wg sync.WaitGroup
+	for i, bank := range banks {
 		copiedQuestion := bank
-		createdAt := strconv.FormatInt(copiedQuestion.CreatedAt, 10)
-		updatedAt := strconv.FormatInt(copiedQuestion.UpdatedAt, 10)
-		currentQuestion := &model.SectionQBMapping{
-			ID:              &copiedQuestion.ID,
-			SectionID:       &copiedQuestion.SectionID,
-			QbID:            &copiedQuestion.QBId,
-			CreatedBy:       &copiedQuestion.CreatedBy,
-			CreatedAt:       &createdAt,
-			UpdatedBy:       &copiedQuestion.UpdatedBy,
-			UpdatedAt:       &updatedAt,
-			DifficultyLevel: &copiedQuestion.DifficultyLevel,
-			TotalQuestions:  &copiedQuestion.TotalQuestions,
-			IsActive:        &copiedQuestion.IsActive,
-			QuestionMarks:   &copiedQuestion.QuestionMarks,
-			QuestionType:    &copiedQuestion.QuestionType,
-			RetrieveType:    &copiedQuestion.RetrievalType,
-		}
-		allSectionsMap = append(allSectionsMap, currentQuestion)
+		wg.Add(1)
+		go func(i int, copiedQuestion qbankz.SectionQBMapping) {
+			createdAt := strconv.FormatInt(copiedQuestion.CreatedAt, 10)
+			updatedAt := strconv.FormatInt(copiedQuestion.UpdatedAt, 10)
+			currentQuestion := &model.SectionQBMapping{
+				ID:              &copiedQuestion.ID,
+				SectionID:       &copiedQuestion.SectionID,
+				QbID:            &copiedQuestion.QBId,
+				CreatedBy:       &copiedQuestion.CreatedBy,
+				CreatedAt:       &createdAt,
+				UpdatedBy:       &copiedQuestion.UpdatedBy,
+				UpdatedAt:       &updatedAt,
+				DifficultyLevel: &copiedQuestion.DifficultyLevel,
+				TotalQuestions:  &copiedQuestion.TotalQuestions,
+				IsActive:        &copiedQuestion.IsActive,
+				QuestionMarks:   &copiedQuestion.QuestionMarks,
+				QuestionType:    &copiedQuestion.QuestionType,
+				RetrieveType:    &copiedQuestion.RetrievalType,
+			}
+			allSectionsMap[i] = currentQuestion
+			wg.Done()
+		}(i, copiedQuestion)
 	}
+	wg.Wait()
 	redisBytes, err := json.Marshal(allSectionsMap)
 	if err == nil {
 		redis.SetTTL(key, 3600)
@@ -234,23 +254,29 @@ func GetSectionFixedQuestions(ctx context.Context, sectionID *string) ([]*model.
 	if err != nil {
 		return nil, err
 	}
-	allSectionsMap := make([]*model.SectionFixedQuestions, 0)
-	for _, bank := range banks {
+	allSectionsMap := make([]*model.SectionFixedQuestions, len(banks))
+	var wg sync.WaitGroup
+	for i, bank := range banks {
 		copiedQuestion := bank
-		createdAt := strconv.FormatInt(copiedQuestion.CreatedAt, 10)
-		updatedAt := strconv.FormatInt(copiedQuestion.UpdatedAt, 10)
-		currentQuestion := &model.SectionFixedQuestions{
-			ID:         &copiedQuestion.ID,
-			SqbID:      &copiedQuestion.SQBId,
-			QuestionID: &copiedQuestion.QuestionID,
-			CreatedBy:  &copiedQuestion.CreatedBy,
-			CreatedAt:  &createdAt,
-			UpdatedBy:  &copiedQuestion.UpdatedBy,
-			UpdatedAt:  &updatedAt,
-			IsActive:   &copiedQuestion.IsActive,
-		}
-		allSectionsMap = append(allSectionsMap, currentQuestion)
+		wg.Add(1)
+		go func(i int, copiedQuestion qbankz.SectionFixedQuestions) {
+			createdAt := strconv.FormatInt(copiedQuestion.CreatedAt, 10)
+			updatedAt := strconv.FormatInt(copiedQuestion.UpdatedAt, 10)
+			currentQuestion := &model.SectionFixedQuestions{
+				ID:         &copiedQuestion.ID,
+				SqbID:      &copiedQuestion.SQBId,
+				QuestionID: &copiedQuestion.QuestionID,
+				CreatedBy:  &copiedQuestion.CreatedBy,
+				CreatedAt:  &createdAt,
+				UpdatedBy:  &copiedQuestion.UpdatedBy,
+				UpdatedAt:  &updatedAt,
+				IsActive:   &copiedQuestion.IsActive,
+			}
+			allSectionsMap[i] = currentQuestion
+			wg.Done()
+		}(i, copiedQuestion)
 	}
+	wg.Wait()
 	redisBytes, err := json.Marshal(allSectionsMap)
 	if err == nil {
 		redis.SetTTL(key, 3600)

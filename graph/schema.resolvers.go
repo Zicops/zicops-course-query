@@ -210,6 +210,15 @@ func (r *queryResolver) GetTopicContentByCourseID(ctx context.Context, courseID 
 	return resp, nil
 }
 
+func (r *queryResolver) GetTopicContentByModuleID(ctx context.Context, moduleID *string) ([]*model.TopicContent, error) {
+	resp, err := handlers.GetTopicContentByModule(ctx, moduleID)
+	if err != nil {
+		log.Errorf("error getting topic content: %v", err)
+		return nil, err
+	}
+	return resp, nil
+}
+
 func (r *queryResolver) GetTopicExamsByCourseID(ctx context.Context, courseID *string) ([]*model.TopicExam, error) {
 	resp, err := handlers.GetTopicExamsByCourse(ctx, courseID)
 	if err != nil {

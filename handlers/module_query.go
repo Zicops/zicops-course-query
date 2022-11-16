@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/zicops/contracts/coursez"
 	"github.com/zicops/zicops-cass-pool/cassandra"
@@ -52,26 +53,33 @@ func GetModulesCourseByID(ctx context.Context, courseID *string) ([]*model.Modul
 	if err != nil {
 		return nil, err
 	}
-	for _, copiedMod := range currentModules {
+	modules = make([]*model.Module, len(currentModules))
+	var wg sync.WaitGroup
+	for i, copiedMod := range currentModules {
 		mod := copiedMod
-		createdAt := strconv.FormatInt(mod.CreatedAt, 10)
-		updatedAt := strconv.FormatInt(mod.UpdatedAt, 10)
-		currentModule := &model.Module{
-			ID:          &mod.ID,
-			CourseID:    &mod.CourseID,
-			IsChapter:   &mod.IsChapter,
-			Name:        &mod.Name,
-			Description: &mod.Description,
-			CreatedAt:   &createdAt,
-			UpdatedAt:   &updatedAt,
-			Level:       &mod.Level,
-			Owner:       &mod.Owner,
-			Sequence:    &mod.Sequence,
-			SetGlobal:   &mod.SetGlobal,
-			Duration:    &mod.Duration,
-		}
-		modules = append(modules, currentModule)
+		wg.Add(1)
+		go func(i int, mod coursez.Module) {
+			createdAt := strconv.FormatInt(mod.CreatedAt, 10)
+			updatedAt := strconv.FormatInt(mod.UpdatedAt, 10)
+			currentModule := &model.Module{
+				ID:          &mod.ID,
+				CourseID:    &mod.CourseID,
+				IsChapter:   &mod.IsChapter,
+				Name:        &mod.Name,
+				Description: &mod.Description,
+				CreatedAt:   &createdAt,
+				UpdatedAt:   &updatedAt,
+				Level:       &mod.Level,
+				Owner:       &mod.Owner,
+				Sequence:    &mod.Sequence,
+				SetGlobal:   &mod.SetGlobal,
+				Duration:    &mod.Duration,
+			}
+			modules[i] = currentModule
+			wg.Done()
+		}(i, mod)
 	}
+	wg.Wait()
 	redisBtres, err := json.Marshal(modules)
 	if err == nil {
 		redis.SetTTL(key, 3600)
@@ -113,26 +121,33 @@ func GetModuleByID(ctx context.Context, moduleID *string) (*model.Module, error)
 	if err != nil {
 		return nil, err
 	}
-	for _, copiedMod := range currentModules {
+	modules = make([]*model.Module, len(currentModules))
+	var wg sync.WaitGroup
+	for i, copiedMod := range currentModules {
 		mod := copiedMod
-		createdAt := strconv.FormatInt(mod.CreatedAt, 10)
-		updatedAt := strconv.FormatInt(mod.UpdatedAt, 10)
-		currentModule := &model.Module{
-			ID:          &mod.ID,
-			CourseID:    &mod.CourseID,
-			IsChapter:   &mod.IsChapter,
-			Name:        &mod.Name,
-			Description: &mod.Description,
-			CreatedAt:   &createdAt,
-			UpdatedAt:   &updatedAt,
-			Level:       &mod.Level,
-			Owner:       &mod.Owner,
-			Sequence:    &mod.Sequence,
-			SetGlobal:   &mod.SetGlobal,
-			Duration:    &mod.Duration,
-		}
-		modules = append(modules, currentModule)
+		wg.Add(1)
+		go func(i int, mod coursez.Module) {
+			createdAt := strconv.FormatInt(mod.CreatedAt, 10)
+			updatedAt := strconv.FormatInt(mod.UpdatedAt, 10)
+			currentModule := &model.Module{
+				ID:          &mod.ID,
+				CourseID:    &mod.CourseID,
+				IsChapter:   &mod.IsChapter,
+				Name:        &mod.Name,
+				Description: &mod.Description,
+				CreatedAt:   &createdAt,
+				UpdatedAt:   &updatedAt,
+				Level:       &mod.Level,
+				Owner:       &mod.Owner,
+				Sequence:    &mod.Sequence,
+				SetGlobal:   &mod.SetGlobal,
+				Duration:    &mod.Duration,
+			}
+			modules[i] = currentModule
+			wg.Done()
+		}(i, mod)
 	}
+	wg.Wait()
 	redisBtres, err := json.Marshal(modules)
 	if err == nil {
 		redis.SetTTL(key, 3600)

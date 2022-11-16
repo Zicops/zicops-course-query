@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/zicops/contracts/qbankz"
 	"github.com/zicops/zicops-cass-pool/cassandra"
@@ -47,38 +48,44 @@ func GetExamsByQPId(ctx context.Context, questionPaperID *string) ([]*model.Exam
 	if err != nil {
 		return nil, err
 	}
-	allSections := make([]*model.Exam, 0)
-	for _, bank := range banks {
+	allSections := make([]*model.Exam, len(banks))
+	var wg sync.WaitGroup
+	for i, bank := range banks {
 		copiedQuestion := bank
-		createdAt := strconv.FormatInt(copiedQuestion.CreatedAt, 10)
-		updatedAt := strconv.FormatInt(copiedQuestion.UpdatedAt, 10)
-		questionIDs := make([]*string, 0)
-		for _, questionID := range copiedQuestion.QuestionIDs {
-			copiedQId := questionID
-			questionIDs = append(questionIDs, &copiedQId)
-		}
-		currentQuestion := &model.Exam{
-			ID:           &copiedQuestion.ID,
-			Description:  &copiedQuestion.Description,
-			Type:         &copiedQuestion.Type,
-			CreatedBy:    &copiedQuestion.CreatedBy,
-			CreatedAt:    &createdAt,
-			UpdatedBy:    &copiedQuestion.UpdatedBy,
-			UpdatedAt:    &updatedAt,
-			Name:         &copiedQuestion.Name,
-			Code:         &copiedQuestion.Code,
-			Category:     &copiedQuestion.Category,
-			ScheduleType: &copiedQuestion.ScheduleType,
-			SubCategory:  &copiedQuestion.SubCategory,
-			Duration:     &copiedQuestion.Duration,
-			Status:       &copiedQuestion.Status,
-			IsActive:     &copiedQuestion.IsActive,
-			QpID:         &copiedQuestion.QPID,
-			QuestionIds:  questionIDs,
-			TotalCount:   &copiedQuestion.TotalCount,
-		}
-		allSections = append(allSections, currentQuestion)
+		wg.Add(1)
+		go func(i int, copiedQuestion qbankz.Exam) {
+			createdAt := strconv.FormatInt(copiedQuestion.CreatedAt, 10)
+			updatedAt := strconv.FormatInt(copiedQuestion.UpdatedAt, 10)
+			questionIDs := make([]*string, 0)
+			for _, questionID := range copiedQuestion.QuestionIDs {
+				copiedQId := questionID
+				questionIDs = append(questionIDs, &copiedQId)
+			}
+			currentQuestion := &model.Exam{
+				ID:           &copiedQuestion.ID,
+				Description:  &copiedQuestion.Description,
+				Type:         &copiedQuestion.Type,
+				CreatedBy:    &copiedQuestion.CreatedBy,
+				CreatedAt:    &createdAt,
+				UpdatedBy:    &copiedQuestion.UpdatedBy,
+				UpdatedAt:    &updatedAt,
+				Name:         &copiedQuestion.Name,
+				Code:         &copiedQuestion.Code,
+				Category:     &copiedQuestion.Category,
+				ScheduleType: &copiedQuestion.ScheduleType,
+				SubCategory:  &copiedQuestion.SubCategory,
+				Duration:     &copiedQuestion.Duration,
+				Status:       &copiedQuestion.Status,
+				IsActive:     &copiedQuestion.IsActive,
+				QpID:         &copiedQuestion.QPID,
+				QuestionIds:  questionIDs,
+				TotalCount:   &copiedQuestion.TotalCount,
+			}
+			allSections[i] = currentQuestion
+			wg.Done()
+		}(i, copiedQuestion)
 	}
+	wg.Wait()
 	output, err := json.Marshal(allSections)
 	if err == nil {
 		redis.SetTTL(key, 3600)
@@ -120,28 +127,34 @@ func GetExamSchedule(ctx context.Context, examID *string) ([]*model.ExamSchedule
 	if err != nil {
 		return nil, err
 	}
-	allSections := make([]*model.ExamSchedule, 0)
-	for _, bank := range banks {
+	allSections := make([]*model.ExamSchedule, len(banks))
+	var wg sync.WaitGroup
+	for i, bank := range banks {
 		copiedQuestion := bank
-		createdAt := strconv.FormatInt(copiedQuestion.CreatedAt, 10)
-		updatedAt := strconv.FormatInt(copiedQuestion.UpdatedAt, 10)
-		bufferTimeInt := strconv.Itoa(copiedQuestion.BufferTime)
-		startInt := strconv.FormatInt(copiedQuestion.Start, 10)
-		endInt := strconv.FormatInt(copiedQuestion.End, 10)
-		currentQuestion := &model.ExamSchedule{
-			ID:         &copiedQuestion.ID,
-			CreatedBy:  &copiedQuestion.CreatedBy,
-			CreatedAt:  &createdAt,
-			UpdatedBy:  &copiedQuestion.UpdatedBy,
-			UpdatedAt:  &updatedAt,
-			ExamID:     &copiedQuestion.ExamID,
-			BufferTime: &bufferTimeInt,
-			Start:      &startInt,
-			End:        &endInt,
-			IsActive:   &copiedQuestion.IsActive,
-		}
-		allSections = append(allSections, currentQuestion)
+		wg.Add(1)
+		go func(i int, copiedQuestion qbankz.ExamSchedule) {
+			createdAt := strconv.FormatInt(copiedQuestion.CreatedAt, 10)
+			updatedAt := strconv.FormatInt(copiedQuestion.UpdatedAt, 10)
+			bufferTimeInt := strconv.Itoa(copiedQuestion.BufferTime)
+			startInt := strconv.FormatInt(copiedQuestion.Start, 10)
+			endInt := strconv.FormatInt(copiedQuestion.End, 10)
+			currentQuestion := &model.ExamSchedule{
+				ID:         &copiedQuestion.ID,
+				CreatedBy:  &copiedQuestion.CreatedBy,
+				CreatedAt:  &createdAt,
+				UpdatedBy:  &copiedQuestion.UpdatedBy,
+				UpdatedAt:  &updatedAt,
+				ExamID:     &copiedQuestion.ExamID,
+				BufferTime: &bufferTimeInt,
+				Start:      &startInt,
+				End:        &endInt,
+				IsActive:   &copiedQuestion.IsActive,
+			}
+			allSections[i] = currentQuestion
+			wg.Done()
+		}(i, copiedQuestion)
 	}
+	wg.Wait()
 	output, err := json.Marshal(allSections)
 	if err == nil {
 		redis.SetTTL(key, 3600)
@@ -183,27 +196,33 @@ func GetExamInstruction(ctx context.Context, examID *string) ([]*model.ExamInstr
 	if err != nil {
 		return nil, err
 	}
-	allSections := make([]*model.ExamInstruction, 0)
-	for _, bank := range banks {
+	allSections := make([]*model.ExamInstruction, len(banks))
+	var wg sync.WaitGroup
+	for i, bank := range banks {
 		copiedQuestion := bank
-		createdAt := strconv.FormatInt(copiedQuestion.CreatedAt, 10)
-		updatedAt := strconv.FormatInt(copiedQuestion.UpdatedAt, 10)
-		attempts := strconv.Itoa(copiedQuestion.NoAttempts)
-		currentQuestion := &model.ExamInstruction{
-			ID:              &copiedQuestion.ID,
-			Instructions:    &copiedQuestion.Instructions,
-			CreatedBy:       &copiedQuestion.CreatedBy,
-			CreatedAt:       &createdAt,
-			UpdatedBy:       &copiedQuestion.UpdatedBy,
-			UpdatedAt:       &updatedAt,
-			ExamID:          &copiedQuestion.ExamID,
-			IsActive:        &copiedQuestion.IsActive,
-			PassingCriteria: &copiedQuestion.PassingCriteria,
-			AccessType:      &copiedQuestion.AccessType,
-			NoAttempts:      &attempts,
-		}
-		allSections = append(allSections, currentQuestion)
+		wg.Add(1)
+		go func(i int, copiedQuestion qbankz.ExamInstructions) {
+			createdAt := strconv.FormatInt(copiedQuestion.CreatedAt, 10)
+			updatedAt := strconv.FormatInt(copiedQuestion.UpdatedAt, 10)
+			attempts := strconv.Itoa(copiedQuestion.NoAttempts)
+			currentQuestion := &model.ExamInstruction{
+				ID:              &copiedQuestion.ID,
+				Instructions:    &copiedQuestion.Instructions,
+				CreatedBy:       &copiedQuestion.CreatedBy,
+				CreatedAt:       &createdAt,
+				UpdatedBy:       &copiedQuestion.UpdatedBy,
+				UpdatedAt:       &updatedAt,
+				ExamID:          &copiedQuestion.ExamID,
+				IsActive:        &copiedQuestion.IsActive,
+				PassingCriteria: &copiedQuestion.PassingCriteria,
+				AccessType:      &copiedQuestion.AccessType,
+				NoAttempts:      &attempts,
+			}
+			allSections[i] = currentQuestion
+			wg.Done()
+		}(i, copiedQuestion)
 	}
+	wg.Wait()
 	output, err := json.Marshal(allSections)
 	if err == nil {
 		redis.SetTTL(key, 3600)
@@ -245,23 +264,29 @@ func GetExamCohort(ctx context.Context, examID *string) ([]*model.ExamCohort, er
 	if err != nil {
 		return nil, err
 	}
-	allSections := make([]*model.ExamCohort, 0)
-	for _, bank := range banks {
+	allSections := make([]*model.ExamCohort, len(banks))
+	var wg sync.WaitGroup
+	for i, bank := range banks {
 		copiedQuestion := bank
-		createdAt := strconv.FormatInt(copiedQuestion.CreatedAt, 10)
-		updatedAt := strconv.FormatInt(copiedQuestion.UpdatedAt, 10)
-		currentQuestion := &model.ExamCohort{
-			ID:        &copiedQuestion.ID,
-			CreatedBy: &copiedQuestion.CreatedBy,
-			CreatedAt: &createdAt,
-			UpdatedBy: &copiedQuestion.UpdatedBy,
-			UpdatedAt: &updatedAt,
-			ExamID:    &copiedQuestion.ExamID,
-			IsActive:  &copiedQuestion.IsActive,
-			CohortID:  &copiedQuestion.CohortID,
-		}
-		allSections = append(allSections, currentQuestion)
+		wg.Add(1)
+		go func(i int, copiedQuestion qbankz.ExamCohort) {
+			createdAt := strconv.FormatInt(copiedQuestion.CreatedAt, 10)
+			updatedAt := strconv.FormatInt(copiedQuestion.UpdatedAt, 10)
+			currentQuestion := &model.ExamCohort{
+				ID:        &copiedQuestion.ID,
+				CreatedBy: &copiedQuestion.CreatedBy,
+				CreatedAt: &createdAt,
+				UpdatedBy: &copiedQuestion.UpdatedBy,
+				UpdatedAt: &updatedAt,
+				ExamID:    &copiedQuestion.ExamID,
+				IsActive:  &copiedQuestion.IsActive,
+				CohortID:  &copiedQuestion.CohortID,
+			}
+			allSections[i] = currentQuestion
+			wg.Done()
+		}(i, copiedQuestion)
 	}
+	wg.Wait()
 	output, err := json.Marshal(allSections)
 	if err == nil {
 		redis.SetTTL(key, 3600)
@@ -303,26 +328,32 @@ func GetExamConfiguration(ctx context.Context, examID *string) ([]*model.ExamCon
 	if err != nil {
 		return nil, err
 	}
-	allSections := make([]*model.ExamConfiguration, 0)
-	for _, bank := range banks {
+	allSections := make([]*model.ExamConfiguration, len(banks))
+	var wg sync.WaitGroup
+	for i, bank := range banks {
 		copiedQuestion := bank
-		createdAt := strconv.FormatInt(copiedQuestion.CreatedAt, 10)
-		updatedAt := strconv.FormatInt(copiedQuestion.UpdatedAt, 10)
-		currentQuestion := &model.ExamConfiguration{
-			ID:           &copiedQuestion.ID,
-			CreatedBy:    &copiedQuestion.CreatedBy,
-			CreatedAt:    &createdAt,
-			UpdatedBy:    &copiedQuestion.UpdatedBy,
-			UpdatedAt:    &updatedAt,
-			ExamID:       &copiedQuestion.ExamID,
-			IsActive:     &copiedQuestion.IsActive,
-			Shuffle:      &copiedQuestion.Shuffle,
-			DisplayHints: &copiedQuestion.DisplayHints,
-			ShowAnswer:   &copiedQuestion.ShowAnswer,
-			ShowResult:   &copiedQuestion.ShowResult,
-		}
-		allSections = append(allSections, currentQuestion)
+		wg.Add(1)
+		go func(i int, copiedQuestion qbankz.ExamConfig) {
+			createdAt := strconv.FormatInt(copiedQuestion.CreatedAt, 10)
+			updatedAt := strconv.FormatInt(copiedQuestion.UpdatedAt, 10)
+			currentQuestion := &model.ExamConfiguration{
+				ID:           &copiedQuestion.ID,
+				CreatedBy:    &copiedQuestion.CreatedBy,
+				CreatedAt:    &createdAt,
+				UpdatedBy:    &copiedQuestion.UpdatedBy,
+				UpdatedAt:    &updatedAt,
+				ExamID:       &copiedQuestion.ExamID,
+				IsActive:     &copiedQuestion.IsActive,
+				Shuffle:      &copiedQuestion.Shuffle,
+				DisplayHints: &copiedQuestion.DisplayHints,
+				ShowAnswer:   &copiedQuestion.ShowAnswer,
+				ShowResult:   &copiedQuestion.ShowResult,
+			}
+			allSections[i] = currentQuestion
+			wg.Done()
+		}(i, copiedQuestion)
 	}
+	wg.Wait()
 	output, err := json.Marshal(allSections)
 	if err == nil {
 		redis.SetTTL(key, 3600)
@@ -355,8 +386,6 @@ func GetQPMeta(ctx context.Context, questionPapersIds []*string) ([]*model.Quest
 				continue
 			}
 		}
-		currentMap := &model.QuestionPaper{}
-		currentMap.ID = questionId
 
 		qryStr := fmt.Sprintf(`SELECT * from qbankz.question_paper_main where id='%s'  AND is_active=true  ALLOW FILTERING`, *questionId)
 		getPapers := func() (banks []qbankz.QuestionPaperMain, err error) {
@@ -369,33 +398,41 @@ func GetQPMeta(ctx context.Context, questionPapersIds []*string) ([]*model.Quest
 		if err != nil {
 			return nil, err
 		}
-		for _, bank := range banks {
+		resCurrent := make([]*model.QuestionPaper, len(banks))
+		var wg sync.WaitGroup
+		for i, bank := range banks {
 			copiedBank := bank
-			createdAt := strconv.FormatInt(copiedBank.CreatedAt, 10)
-			updatedAt := strconv.FormatInt(copiedBank.UpdatedAt, 10)
-			currentBank := &model.QuestionPaper{
-				ID:                &copiedBank.ID,
-				Name:              &copiedBank.Name,
-				Category:          &copiedBank.Category,
-				SubCategory:       &copiedBank.SubCategory,
-				SuggestedDuration: &copiedBank.SuggestedDuration,
-				SectionWise:       &copiedBank.SectionWise,
-				DifficultyLevel:   &copiedBank.DifficultyLevel,
-				Description:       &copiedBank.Description,
-				IsActive:          &copiedBank.IsActive,
-				CreatedAt:         &createdAt,
-				UpdatedAt:         &updatedAt,
-				CreatedBy:         &copiedBank.CreatedBy,
-				UpdatedBy:         &copiedBank.UpdatedBy,
-				Status:            &copiedBank.Status,
-			}
-			responseMap = append(responseMap, currentBank)
-			output, err := json.Marshal(currentBank)
-			if err == nil {
-				redis.SetTTL(key, 3600)
-				redis.SetRedisValue(key, string(output))
-			}
+			wg.Add(1)
+			go func(i int, copiedBank qbankz.QuestionPaperMain) {
+				createdAt := strconv.FormatInt(copiedBank.CreatedAt, 10)
+				updatedAt := strconv.FormatInt(copiedBank.UpdatedAt, 10)
+				currentBank := &model.QuestionPaper{
+					ID:                &copiedBank.ID,
+					Name:              &copiedBank.Name,
+					Category:          &copiedBank.Category,
+					SubCategory:       &copiedBank.SubCategory,
+					SuggestedDuration: &copiedBank.SuggestedDuration,
+					SectionWise:       &copiedBank.SectionWise,
+					DifficultyLevel:   &copiedBank.DifficultyLevel,
+					Description:       &copiedBank.Description,
+					IsActive:          &copiedBank.IsActive,
+					CreatedAt:         &createdAt,
+					UpdatedAt:         &updatedAt,
+					CreatedBy:         &copiedBank.CreatedBy,
+					UpdatedBy:         &copiedBank.UpdatedBy,
+					Status:            &copiedBank.Status,
+				}
+				resCurrent[i] = currentBank
+				output, err := json.Marshal(currentBank)
+				if err == nil {
+					redis.SetTTL(key, 3600)
+					redis.SetRedisValue(key, string(output))
+				}
+				wg.Done()
+			}(i, copiedBank)
 		}
+		wg.Wait()
+		responseMap = append(responseMap, resCurrent...)
 	}
 
 	return responseMap, nil
