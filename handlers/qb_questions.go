@@ -164,8 +164,8 @@ func GetQuestionsByID(ctx context.Context, questionIds []*string) ([]*model.Ques
 			}
 		}
 		var wg sync.WaitGroup
-		collectQs := make([]*model.QuestionBankQuestion, len(banks))
 		for i, bank := range banks {
+			collectQs := make([]*model.QuestionBankQuestion, len(banks))
 			copiedQuestion := bank
 			wg.Add(1)
 			go func(i int, bank qbankz.QuestionMain) {
@@ -201,9 +201,9 @@ func GetQuestionsByID(ctx context.Context, questionIds []*string) ([]*model.Ques
 				collectQs[i] = currentQuestion
 				wg.Done()
 			}(i, bank)
+			wg.Wait()
 			allQuestions = append(allQuestions, collectQs...)
 		}
-		wg.Wait()
 		redisBytes, err := json.Marshal(banks)
 		if err == nil {
 			redis.SetTTL(key, 3600)
