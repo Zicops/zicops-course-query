@@ -11,7 +11,7 @@ spec:
   rules:
     - http:
         paths:
-          - path: /release/cq/?(.*)
+          - path: /cq/?(.*)
             pathType: Prefix  
             backend:
               service:
