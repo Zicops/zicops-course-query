@@ -88,8 +88,7 @@ func checkAndInitCassandraSession() error {
 		for key := range cassandra.GlobalSession {
 			_, err := cassandra.GetCassSession(key)
 			if err != nil {
-				//delete session
-				delete(cassandra.GlobalSession, key)
+				cassandra.GlobalSession[key] = nil
 				_, err := cassandra.GetCassSession(key)
 				if err != nil {
 					log.Fatal("Error connecting to cassandra: %v ", err)
