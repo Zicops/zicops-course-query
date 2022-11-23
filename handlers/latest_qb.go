@@ -174,11 +174,7 @@ func LatestQuestionPapers(ctx context.Context, publishTime *int, pageCursor *str
 	lspId := claims["lsp_id"].(string)
 	whereClause := ""
 	if searchText != nil && *searchText != "" {
-		searchTextLower := strings.ToLower(*searchText)
-		words := strings.Split(searchTextLower, " ")
-		for _, word := range words {
-			whereClause = whereClause + " AND  words CONTAINS '" + word + "'"
-		}
+		whereClause = whereClause + " AND  name CONTAINS '" + *searchText + "'"
 	}
 	qryStr := fmt.Sprintf(`SELECT * from qbankz.question_paper_main where created_at <= %d AND lsp_id = '%s' AND is_active=true %s ALLOW FILTERING`, *publishTime, lspId, whereClause)
 	getBanks := func(page []byte) (banks []qbankz.QuestionPaperMain, nextPage []byte, err error) {
