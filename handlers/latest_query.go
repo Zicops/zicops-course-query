@@ -143,9 +143,9 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 	start = stopwatch.Start()
 	var wg sync.WaitGroup
 	for i, cCourse := range dbCourses {
-		course := cCourse
+		copiedCourse := cCourse
 		wg.Add(1)
-		go func(copiedCourse coursez.Course, i int) {
+		go func(course coursez.Course, i int) {
 			gproject := googleprojectlib.GetGoogleProjectID()
 			storageC := bucket.NewStorageHandler()
 			err = storageC.InitializeStorageClient(ctx, gproject, course.LspId)
@@ -261,7 +261,7 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 			}
 			allCourses[i] = &currentCourse
 			wg.Done()
-		}(course, i)
+		}(copiedCourse, i)
 	}
 	wg.Wait()
 	outputResponse.Courses = allCourses
