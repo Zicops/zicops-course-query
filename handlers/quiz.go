@@ -54,6 +54,9 @@ func GetTopicQuizes(ctx context.Context, topicID *string) ([]*model.Quiz, error)
 		}
 	}
 	topicQuizes = make([]*model.Quiz, len(currentQuizes))
+	if len(currentQuizes) <= 0 {
+		return topicQuizes, nil
+	}
 	var wg sync.WaitGroup
 	for i, topQuiz := range currentQuizes {
 		mod := topQuiz
@@ -128,6 +131,9 @@ func GetQuizFiles(ctx context.Context, quizID *string) ([]*model.QuizFile, error
 	}
 	gproject := googleprojectlib.GetGoogleProjectID()
 	quizFiles := make([]*model.QuizFile, len(currentFiles))
+	if len(currentFiles) <= 0 {
+		return quizFiles, nil
+	}
 	var wg sync.WaitGroup
 	for i, file := range currentFiles {
 		mod := file
@@ -197,6 +203,9 @@ func GetMCQQuiz(ctx context.Context, quizID *string) ([]*model.QuizMcq, error) {
 		return nil, err
 	}
 	quizMcqs = make([]*model.QuizMcq, len(currentMCQs))
+	if len(currentMCQs) <= 0 {
+		return quizMcqs, nil
+	}
 	var wg sync.WaitGroup
 	for i, mcq := range currentMCQs {
 		mod := mcq
@@ -259,6 +268,9 @@ func GetQuizDes(ctx context.Context, quizID *string) ([]*model.QuizDescriptive, 
 		return nil, err
 	}
 	quizDes = make([]*model.QuizDescriptive, len(currentDesQ))
+	if len(currentDesQ) <= 0 {
+		return quizDes, nil
+	}
 	var wg sync.WaitGroup
 	for i, mcq := range currentDesQ {
 		mod := mcq
