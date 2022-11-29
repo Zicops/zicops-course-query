@@ -137,6 +137,9 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 	log.Infof("Time taken to encrypt cursor: %v", end)
 	var outputResponse model.PaginatedCourse
 	allCourses := make([]*model.Course, len(dbCourses))
+	if len(dbCourses) <= 0 {
+		return &outputResponse, nil
+	}
 	start = stopwatch.Start()
 	var wg sync.WaitGroup
 	for i, copiedCourse := range dbCourses {
