@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"cloud.google.com/go/storage"
+	"github.com/sirupsen/logrus"
 	"github.com/zicops/zicops-course-query/constants"
 	"github.com/zicops/zicops-course-query/graph/model"
 	"github.com/zicops/zicops-course-query/helpers"
@@ -46,7 +47,10 @@ func (sc *Client) InitializeStorageClient(ctx context.Context, projectID string,
 	}
 	sc.client = *client
 	sc.projectID = projectID
-	bClient, _ := sc.CreateBucket(ctx, lspId)
+	bClient, err := sc.CreateBucket(ctx, lspId)
+	if err != nil {
+		logrus.Error(err)
+	}
 	sc.bucket = *bClient
 	return nil
 }
