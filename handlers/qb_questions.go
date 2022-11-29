@@ -82,6 +82,9 @@ func GetQuestionBankQuestions(ctx context.Context, questionBankID *string, filte
 		shuffledBanks = shuffledBanks[:totalQuestions]
 	}
 	allQuestions := make([]*model.QuestionBankQuestion, len(shuffledBanks))
+	if len(shuffledBanks) <= 0 {
+		return allQuestions, nil
+	}
 	var wg sync.WaitGroup
 	for i, bank := range shuffledBanks {
 		wg.Add(1)
