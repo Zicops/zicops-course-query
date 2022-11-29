@@ -163,6 +163,9 @@ func AllCatMain(ctx context.Context, lspIds []*string, searchText *string) ([]*m
 		}
 	}
 	resultOutput := make([]*model.CatMain, len(cats))
+	if len(cats) <= 0 {
+		return resultOutput, nil
+	}
 	var wg sync.WaitGroup
 	for i, cat := range cats {
 		copiedCat := cat
@@ -282,6 +285,9 @@ func AllSubCatMain(ctx context.Context, lspIds []*string, searchText *string) ([
 		}
 	}
 	resultOutput := make([]*model.SubCatMain, len(cats))
+	if len(cats) <= 0 {
+		return resultOutput, nil
+	}
 	var wg sync.WaitGroup
 	for i, cat := range cats {
 		copiedCat := cat
@@ -369,6 +375,9 @@ func AllSubCatByCatID(ctx context.Context, catID *string) ([]*model.SubCatMain, 
 		}
 	}
 	resultOutput := make([]*model.SubCatMain, len(cats))
+	if len(cats) <= 0 {
+		return resultOutput, nil
+	}
 	var wg sync.WaitGroup
 	for i, cat := range cats {
 		copiedCat := cat

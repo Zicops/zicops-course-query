@@ -55,6 +55,9 @@ func GetTopicContent(ctx context.Context, topicID *string) ([]*model.TopicConten
 	}
 	gproject := googleprojectlib.GetGoogleProjectID()
 	topicsOut := make([]*model.TopicContent, len(currentContent))
+	if len(currentContent) <= 0 {
+		return topicsOut, nil
+	}
 	urlSub := make([]*model.SubtitleURL, 0)
 	var wg sync.WaitGroup
 	for i, topCon := range currentContent {
@@ -145,6 +148,9 @@ func GetTopicExams(ctx context.Context, topicID *string) ([]*model.TopicExam, er
 		return nil, err
 	}
 	topicsOut = make([]*model.TopicExam, len(currentContent))
+	if len(currentContent) <= 0 {
+		return topicsOut, nil
+	}
 	var wg sync.WaitGroup
 	for i, topCon := range currentContent {
 		mod := topCon
@@ -216,6 +222,9 @@ func GetTopicContentByCourse(ctx context.Context, courseID *string) ([]*model.To
 	gproject := googleprojectlib.GetGoogleProjectID()
 	urlSub := make([]*model.SubtitleURL, 0)
 	topicsOut := make([]*model.TopicContent, len(currentContent))
+	if len(currentContent) <= 0 {
+		return topicsOut, nil
+	}
 	var wg sync.WaitGroup
 	for i, topCon := range currentContent {
 		mod := topCon
@@ -309,6 +318,9 @@ func GetTopicExamsByCourse(ctx context.Context, courseID *string) ([]*model.Topi
 		return nil, err
 	}
 	topicsOut = make([]*model.TopicExam, len(currentContent))
+	if len(currentContent) <= 0 {
+		return topicsOut, nil
+	}
 	var wg sync.WaitGroup
 	for i, topCon := range currentContent {
 		mod := topCon
@@ -376,6 +388,9 @@ func GetTopicContentByModule(ctx context.Context, moduleID *string) ([]*model.To
 	}
 	gproject := googleprojectlib.GetGoogleProjectID()
 	topicsOut := make([]*model.TopicContent, len(currentContent))
+	if len(currentContent) <= 0 {
+		return topicsOut, nil
+	}
 	var wg sync.WaitGroup
 	for i, topCon := range currentContent {
 		mod := topCon

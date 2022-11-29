@@ -49,6 +49,9 @@ func GetExamsByQPId(ctx context.Context, questionPaperID *string) ([]*model.Exam
 		return nil, err
 	}
 	allSections := make([]*model.Exam, len(banks))
+	if len(banks) <= 0 {
+		return allSections, nil
+	}
 	var wg sync.WaitGroup
 	for i, bank := range banks {
 		copiedQuestion := bank
@@ -128,6 +131,9 @@ func GetExamSchedule(ctx context.Context, examID *string) ([]*model.ExamSchedule
 		return nil, err
 	}
 	allSections := make([]*model.ExamSchedule, len(banks))
+	if len(banks) <= 0 {
+		return allSections, nil
+	}
 	var wg sync.WaitGroup
 	for i, bank := range banks {
 		copiedQuestion := bank
@@ -197,6 +203,9 @@ func GetExamInstruction(ctx context.Context, examID *string) ([]*model.ExamInstr
 		return nil, err
 	}
 	allSections := make([]*model.ExamInstruction, len(banks))
+	if len(banks) <= 0 {
+		return allSections, nil
+	}
 	var wg sync.WaitGroup
 	for i, bank := range banks {
 		copiedQuestion := bank
@@ -265,6 +274,9 @@ func GetExamCohort(ctx context.Context, examID *string) ([]*model.ExamCohort, er
 		return nil, err
 	}
 	allSections := make([]*model.ExamCohort, len(banks))
+	if len(banks) <= 0 {
+		return allSections, nil
+	}
 	var wg sync.WaitGroup
 	for i, bank := range banks {
 		copiedQuestion := bank
@@ -329,6 +341,9 @@ func GetExamConfiguration(ctx context.Context, examID *string) ([]*model.ExamCon
 		return nil, err
 	}
 	allSections := make([]*model.ExamConfiguration, len(banks))
+	if len(banks) <= 0 {
+		return allSections, nil
+	}
 	var wg sync.WaitGroup
 	for i, bank := range banks {
 		copiedQuestion := bank
@@ -399,6 +414,9 @@ func GetQPMeta(ctx context.Context, questionPapersIds []*string) ([]*model.Quest
 			return nil, err
 		}
 		resCurrent := make([]*model.QuestionPaper, len(banks))
+		if len(banks) <= 0 {
+			continue
+		}
 		var wg sync.WaitGroup
 		for i, bank := range banks {
 			copiedBank := bank

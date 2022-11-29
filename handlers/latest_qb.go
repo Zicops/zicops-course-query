@@ -199,6 +199,9 @@ func LatestQuestionPapers(ctx context.Context, publishTime *int, pageCursor *str
 
 	}
 	var outputResponse model.PaginatedQuestionPapers
+	if len(banks) <= 0 {
+		return &outputResponse, nil
+	}
 	allBanks := make([]*model.QuestionPaper, len(banks))
 	var wg sync.WaitGroup
 	for i, bank := range banks {
@@ -325,6 +328,9 @@ func GetLatestExams(ctx context.Context, publishTime *int, pageCursor *string, d
 	}
 	var outputResponse model.PaginatedExams
 	allExams := make([]*model.Exam, len(exams))
+	if len(exams) <= 0 {
+		return &outputResponse, nil
+	}
 	var wg sync.WaitGroup
 	for i, exam := range exams {
 		copiedExam := exam
@@ -415,6 +421,9 @@ func GetExamsMeta(ctx context.Context, examIds []*string) ([]*model.Exam, error)
 		if err != nil {
 			return nil, err
 		}
+		if len(banks) <= 0 {
+			continue
+		}
 		resExams := make([]*model.Exam, len(banks))
 		var wg sync.WaitGroup
 		for i, bank := range banks {
@@ -501,6 +510,9 @@ func GetQBMeta(ctx context.Context, qbIds []*string) ([]*model.QuestionBank, err
 			return nil, err
 		}
 		resBanks := make([]*model.QuestionBank, len(banks))
+		if len(banks) <= 0 {
+			continue
+		}
 		var wg sync.WaitGroup
 		for i, bank := range banks {
 			copiedBank := bank

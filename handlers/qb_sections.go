@@ -49,6 +49,9 @@ func GetQuestionBankSections(ctx context.Context, questionPaperID *string) ([]*m
 		return nil, err
 	}
 	allSections = make([]*model.QuestionPaperSection, len(banks))
+	if len(banks) <= 0 {
+		return allSections, nil
+	}
 	var wg sync.WaitGroup
 	for i, bank := range banks {
 		copiedQuestion := bank
@@ -117,6 +120,9 @@ func GetQPBankMappingByQPId(ctx context.Context, questionPaperID *string) ([]*mo
 		return nil, err
 	}
 	allSectionsMap := make([]*model.SectionQBMapping, len(banks))
+	if len(banks) <= 0 {
+		return allSectionsMap, nil
+	}
 	var wg sync.WaitGroup
 	for i, bank := range banks {
 		copiedQuestion := bank
@@ -186,6 +192,9 @@ func GetQPBankMappingBySectionID(ctx context.Context, sectionID *string) ([]*mod
 		return nil, err
 	}
 	allSectionsMap := make([]*model.SectionQBMapping, len(banks))
+	if len(banks) <= 0 {
+		return allSectionsMap, nil
+	}
 	var wg sync.WaitGroup
 	for i, bank := range banks {
 		copiedQuestion := bank
@@ -255,6 +264,9 @@ func GetSectionFixedQuestions(ctx context.Context, sectionID *string) ([]*model.
 		return nil, err
 	}
 	allSectionsMap := make([]*model.SectionFixedQuestions, len(banks))
+	if len(banks) <= 0 {
+		return allSectionsMap, nil
+	}
 	var wg sync.WaitGroup
 	for i, bank := range banks {
 		copiedQuestion := bank

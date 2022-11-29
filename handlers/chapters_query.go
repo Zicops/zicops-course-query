@@ -55,6 +55,9 @@ func GetChaptersCourseByID(ctx context.Context, courseID *string) ([]*model.Chap
 		return nil, err
 	}
 	chapters = make([]*model.Chapter, len(currentChapters))
+	if len(currentChapters) <= 0 {
+		return chapters, nil
+	}
 	var wg sync.WaitGroup
 	for i, copiedMod := range currentChapters {
 		mod := copiedMod
