@@ -55,6 +55,9 @@ func GetTopicResources(ctx context.Context, topicID *string) ([]*model.TopicReso
 	}
 	gproject := googleprojectlib.GetGoogleProjectID()
 	topicsRes := make([]*model.TopicResource, len(currentResources))
+	if len(currentResources) <= 0 {
+		return topicsRes, nil
+	}
 	var wg sync.WaitGroup
 	for i, topRes := range currentResources {
 		mod := topRes
@@ -135,6 +138,9 @@ func GetCourseResources(ctx context.Context, courseID *string) ([]*model.TopicRe
 	}
 	gproject := googleprojectlib.GetGoogleProjectID()
 	topicsRes := make([]*model.TopicResource, len(currentResources))
+	if len(currentResources) <= 0 {
+		return topicsRes, nil
+	}
 	var wg sync.WaitGroup
 	for i, topRes := range currentResources {
 		mod := topRes

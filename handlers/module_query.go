@@ -53,6 +53,9 @@ func GetModulesCourseByID(ctx context.Context, courseID *string) ([]*model.Modul
 	if err != nil {
 		return nil, err
 	}
+	if len(currentModules) <= 0 {
+		return modules, nil
+	}
 	modules = make([]*model.Module, len(currentModules))
 	var wg sync.WaitGroup
 	for i, copiedMod := range currentModules {
@@ -122,6 +125,9 @@ func GetModuleByID(ctx context.Context, moduleID *string) (*model.Module, error)
 		return nil, err
 	}
 	modules = make([]*model.Module, len(currentModules))
+	if len(currentModules) <= 0 {
+		return nil, nil
+	}
 	var wg sync.WaitGroup
 	for i, copiedMod := range currentModules {
 		mod := copiedMod

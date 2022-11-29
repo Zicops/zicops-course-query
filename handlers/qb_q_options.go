@@ -57,6 +57,11 @@ func GetOptionsForQuestions(ctx context.Context, questionIds []*string) ([]*mode
 			}
 		}
 		allSections := make([]*model.QuestionOption, len(banks))
+		if len(banks) <= 0 {
+			currentMap.Options = allSections
+			responseMap = append(responseMap, currentMap)
+			continue
+		}
 		var wg sync.WaitGroup
 		for i, bank := range banks {
 			copiedQuestion := bank

@@ -59,6 +59,9 @@ func GetTopicsCourseByID(ctx context.Context, courseID *string) ([]*model.Topic,
 	}
 	gproject := googleprojectlib.GetGoogleProjectID()
 	topicsOut := make([]*model.Topic, len(currentTopics))
+	if len(currentTopics) <= 0 {
+		return topicsOut, nil
+	}
 	var wg sync.WaitGroup
 	for i, topCopied := range currentTopics {
 		mod := topCopied
@@ -140,6 +143,9 @@ func GetTopicByID(ctx context.Context, topicID *string) (*model.Topic, error) {
 	}
 	gproject := googleprojectlib.GetGoogleProjectID()
 	topics := make([]*model.Topic, len(currentTopics))
+	if len(currentTopics) <= 0 {
+		return nil, nil
+	}
 	var wg sync.WaitGroup
 	for i, copiedTop := range currentTopics {
 		top := copiedTop

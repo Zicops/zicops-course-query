@@ -166,6 +166,9 @@ func GetQuestionsByID(ctx context.Context, questionIds []*string) ([]*model.Ques
 				return nil, err
 			}
 		}
+		if len(banks) <= 0 {
+			continue
+		}
 		var wg sync.WaitGroup
 		for i, bank := range banks {
 			collectQs := make([]*model.QuestionBankQuestion, len(banks))
