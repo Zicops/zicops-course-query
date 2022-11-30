@@ -138,14 +138,15 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 	var outputResponse model.PaginatedCourse
 	allCourses := make([]*model.Course, len(dbCourses))
 	if len(dbCourses) <= 0 {
+		outputResponse.Courses = allCourses
 		return &outputResponse, nil
 	}
 	start = stopwatch.Start()
 	var wg sync.WaitGroup
-	for i, copiedCourse := range dbCourses {
+	for i, cCourse := range dbCourses {
+		copiedCourse := cCourse
 		wg.Add(1)
-		go func(copiedCourse coursez.Course, i int) {
-			course := copiedCourse
+		go func(course coursez.Course, i int) {
 			gproject := googleprojectlib.GetGoogleProjectID()
 			storageC := bucket.NewStorageHandler()
 			err = storageC.InitializeStorageClient(ctx, gproject, course.LspId)
