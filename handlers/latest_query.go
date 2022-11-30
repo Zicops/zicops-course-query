@@ -138,6 +138,7 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 	var outputResponse model.PaginatedCourse
 	allCourses := make([]*model.Course, len(dbCourses))
 	if len(dbCourses) <= 0 {
+		outputResponse.Courses = allCourses
 		return &outputResponse, nil
 	}
 	start = stopwatch.Start()
