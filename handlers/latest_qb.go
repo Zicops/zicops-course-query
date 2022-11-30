@@ -199,10 +199,11 @@ func LatestQuestionPapers(ctx context.Context, publishTime *int, pageCursor *str
 
 	}
 	var outputResponse model.PaginatedQuestionPapers
+	allBanks := make([]*model.QuestionPaper, len(banks))
 	if len(banks) <= 0 {
+		outputResponse.QuestionPapers = allBanks
 		return &outputResponse, nil
 	}
-	allBanks := make([]*model.QuestionPaper, len(banks))
 	var wg sync.WaitGroup
 	for i, bank := range banks {
 		copiedBank := bank
@@ -329,6 +330,7 @@ func GetLatestExams(ctx context.Context, publishTime *int, pageCursor *string, d
 	var outputResponse model.PaginatedExams
 	allExams := make([]*model.Exam, len(exams))
 	if len(exams) <= 0 {
+		outputResponse.Exams = allExams
 		return &outputResponse, nil
 	}
 	var wg sync.WaitGroup
