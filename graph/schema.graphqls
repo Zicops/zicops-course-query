@@ -426,6 +426,7 @@ type CatMain {
     CreatedBy: String
     UpdatedBy: String
     IsActive : Boolean
+    LspId: String
 }
 
 type SubCatMain {
@@ -440,6 +441,7 @@ type SubCatMain {
     CreatedBy: String
     UpdatedBy: String
     IsActive : Boolean
+    LspId: String
 }
 
 input CoursesFilters {

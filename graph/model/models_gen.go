@@ -19,6 +19,7 @@ type CatMain struct {
 	CreatedBy   *string `json:"CreatedBy"`
 	UpdatedBy   *string `json:"UpdatedBy"`
 	IsActive    *bool   `json:"IsActive"`
+	LspID       *string `json:"LspId"`
 }
 
 type Chapter struct {
@@ -384,6 +385,7 @@ type SubCatMain struct {
 	CreatedBy   *string `json:"CreatedBy"`
 	UpdatedBy   *string `json:"UpdatedBy"`
 	IsActive    *bool   `json:"IsActive"`
+	LspID       *string `json:"LspId"`
 }
 
 type SubtitleURL struct {
