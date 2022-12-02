@@ -91,7 +91,7 @@ func checkAndInitCassandraSession() error {
 				cassandra.GlobalSession[key] = nil
 				_, err := cassandra.GetCassSession(key)
 				if err != nil {
-					log.Errorf(err.Error())
+					cassandra.GlobalSession["userz"], _ = cassandra.GetCassSession("userz")
 				}
 			}
 		}
