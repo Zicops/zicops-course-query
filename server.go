@@ -86,12 +86,25 @@ func checkAndInitCassandraSession() error {
 	}
 	for {
 		for key := range cassandra.GlobalSession {
-			_, err := cassandra.GetCassSession(key)
-			if err != nil {
+			session, err := cassandra.GetCassSession(key)
+			restart := false
+			if session != nil {
+				qX := session.Query("select now() from system.local", nil)
+				if qX != nil {
+					err = qX.Exec()
+					if err != nil {
+						restart = true
+					}
+				}
+			} else {
+				restart = true
+			}
+
+			if err != nil || restart {
 				cassandra.GlobalSession[key] = nil
-				_, err := cassandra.GetCassSession(key)
-				if err != nil {
-					log.Errorf(err.Error())
+				session, err := cassandra.GetCassSession(key)
+				if err == nil && session != nil {
+					cassandra.GlobalSession[key] = nil
 				}
 			}
 		}
