@@ -23,8 +23,6 @@ import (
 	cry "github.com/zicops/zicops-course-query/lib/crypto"
 )
 
-const defaultPort = "8080"
-
 func main() {
 	//os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", "zicops-cc.json")
 	log.Infof("Starting zicops course query service")
@@ -49,7 +47,7 @@ func main() {
 	controller.CCBackendController(ctx, port, bootUPErrors)
 	err = <-bootUPErrors
 	if err != nil {
-		log.Errorf("There is an issue starting backend server for course query: %v", err.Error())
+		log.Errorf("there is an issue starting backend server for course query: %v", err.Error())
 		global.WaitGroupServer.Wait()
 		os.Exit(1)
 	}
@@ -63,7 +61,7 @@ func monitorSystem(cancel context.CancelFunc, errorChannel chan error) {
 	<-holdSignal
 	cancel()
 	// send error to channel
-	errorChannel <- fmt.Errorf("System termination signal received")
+	errorChannel <- fmt.Errorf("system termination signal received")
 }
 
 func checkAndInitCassandraSession() error {
