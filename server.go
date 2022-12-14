@@ -68,6 +68,12 @@ func checkAndInitCassandraSession() error {
 	// get user session every 1 minute
 	// if session is nil then create new session
 	//test cassandra connection
+	_, err := redis.Initialize()
+	if err != nil {
+		log.Errorf("Error connecting to redis: %v", err)
+	} else {
+		log.Infof("Redis connection successful")
+	}
 	_, err1 := cassandra.GetCassSession("coursez")
 	_, err2 := cassandra.GetCassSession("qbankz")
 	_, err3 := cassandra.GetCassSession("userz")
@@ -75,12 +81,6 @@ func checkAndInitCassandraSession() error {
 		log.Errorf("Error connecting to cassandra: %v and %v ", err1, err2, err3)
 	} else {
 		log.Infof("Cassandra connection successful")
-	}
-	_, err := redis.Initialize()
-	if err != nil {
-		log.Errorf("Error connecting to redis: %v", err)
-	} else {
-		log.Infof("Redis connection successful")
 	}
 	for {
 		for key := range cassandra.GlobalSession {
@@ -106,6 +106,6 @@ func checkAndInitCassandraSession() error {
 				}
 			}
 		}
-		time.Sleep(5 * time.Minute)
+		time.Sleep(20 * time.Minute)
 	}
 }
