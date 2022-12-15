@@ -113,6 +113,7 @@ func AllCatMain(ctx context.Context, lspIds []*string, searchText *string) ([]*m
 		}
 	}
 	if len(cats) <= 0 || role == "admin" {
+		cats = make([]coursez.CatMain, 0)
 		session, err := cassandra.GetCassSession("coursez")
 		if err != nil {
 			return nil, err
@@ -237,6 +238,7 @@ func AllSubCatMain(ctx context.Context, lspIds []*string, searchText *string) ([
 		}
 	}
 	if len(cats) <= 0 || role == "admin" {
+		cats = make([]coursez.SubCatMain, 0)
 		session, err := cassandra.GetCassSession("coursez")
 		if err != nil {
 			return nil, err
