@@ -127,7 +127,7 @@ func AllCatMain(ctx context.Context, lspIds []*string, searchText *string) ([]*m
 				if lspId == nil || *lspId == "" {
 					continue
 				}
-				if i == 0 {
+				if i == 0 || whereClause == "WHERE " {
 					whereClause = whereClause + " lsps CONTAINS '" + *lspId + "'"
 				} else {
 					whereClause = whereClause + " AND lsps CONTAINS '" + *lspId + "'"
@@ -252,7 +252,7 @@ func AllSubCatMain(ctx context.Context, lspIds []*string, searchText *string) ([
 				if lspId == nil || *lspId == "" {
 					continue
 				}
-				if i == 0 {
+				if i == 0 || whereClause == "WHERE " {
 					whereClause = whereClause + " lsps CONTAINS '" + *lspId + "'"
 				} else {
 					whereClause = whereClause + " AND lsps CONTAINS '" + *lspId + "'"

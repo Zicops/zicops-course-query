@@ -70,6 +70,7 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 		statusNew = *status
 	}
 	if len(dbCourses) <= 0 || role == "admin" {
+		dbCourses = make([]coursez.Course, 0)
 		session, err := cassandra.GetCassSession("coursez")
 		if err != nil {
 			return nil, err
@@ -145,6 +146,9 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 	var wg sync.WaitGroup
 	for i, cCourse := range dbCourses {
 		copiedCourse := cCourse
+		if copiedCourse.ID == "" {
+			continue
+		}
 		wg.Add(1)
 		go func(course coursez.Course, i int) {
 			gproject := googleprojectlib.GetGoogleProjectID()
