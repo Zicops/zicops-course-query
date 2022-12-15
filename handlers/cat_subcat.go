@@ -119,9 +119,8 @@ func AllCatMain(ctx context.Context, lspIds []*string, searchText *string) ([]*m
 			return nil, err
 		}
 		CassSession := session
-		whereClause := ""
+		whereClause := "WHERE "
 		if len(lspIds) > 0 {
-			whereClause = "WHERE "
 			// cassandra contains clauses using lspIds
 			for i, lspId := range lspIds {
 				if lspId == nil || *lspId == "" {
@@ -244,10 +243,9 @@ func AllSubCatMain(ctx context.Context, lspIds []*string, searchText *string) ([
 			return nil, err
 		}
 		CassSession := session
-		whereClause := ""
+		whereClause := "WHERE "
 		if len(lspIds) > 0 {
 			// cassandra contains clauses using lspIds
-			whereClause = "WHERE "
 			for i, lspId := range lspIds {
 				if lspId == nil || *lspId == "" {
 					continue
@@ -270,7 +268,6 @@ func AllSubCatMain(ctx context.Context, lspIds []*string, searchText *string) ([
 			if searchText != nil && *searchText != "" {
 				searchTextLower := strings.ToLower(*searchText)
 				words := strings.Split(searchTextLower, " ")
-				whereClause = "WHERE "
 				for i, word := range words {
 					if i == 0 {
 						whereClause = whereClause + "words CONTAINS '" + word + "'"
