@@ -113,6 +113,7 @@ func AllCatMain(ctx context.Context, lspIds []*string, searchText *string) ([]*m
 		}
 	}
 	if len(cats) <= 0 || role == "admin" {
+		cats = make([]coursez.CatMain, 0)
 		session, err := cassandra.GetCassSession("coursez")
 		if err != nil {
 			return nil, err
@@ -123,7 +124,10 @@ func AllCatMain(ctx context.Context, lspIds []*string, searchText *string) ([]*m
 			whereClause = "WHERE "
 			// cassandra contains clauses using lspIds
 			for i, lspId := range lspIds {
-				if i == 0 {
+				if lspId == nil || *lspId == "" {
+					continue
+				}
+				if i == 0 || whereClause == "WHERE " {
 					whereClause = whereClause + " lsps CONTAINS '" + *lspId + "'"
 				} else {
 					whereClause = whereClause + " AND lsps CONTAINS '" + *lspId + "'"
@@ -168,9 +172,9 @@ func AllCatMain(ctx context.Context, lspIds []*string, searchText *string) ([]*m
 	}
 	var wg sync.WaitGroup
 	for i, cat := range cats {
-		copiedCat := cat
+		copiedCat1 := cat
 		wg.Add(1)
-		go func(i int, cat coursez.CatMain) {
+		go func(i int, copiedCat coursez.CatMain) {
 			createdAt := strconv.FormatInt(copiedCat.CreatedAt, 10)
 			updatedAt := strconv.FormatInt(copiedCat.UpdatedAt, 10)
 			imageUrl := copiedCat.ImageURL
@@ -198,7 +202,7 @@ func AllCatMain(ctx context.Context, lspIds []*string, searchText *string) ([]*m
 			}
 			resultOutput[i] = &currentCat
 			wg.Done()
-		}(i, cat)
+		}(i, copiedCat1)
 
 	}
 	wg.Wait()
@@ -234,6 +238,7 @@ func AllSubCatMain(ctx context.Context, lspIds []*string, searchText *string) ([
 		}
 	}
 	if len(cats) <= 0 || role == "admin" {
+		cats = make([]coursez.SubCatMain, 0)
 		session, err := cassandra.GetCassSession("coursez")
 		if err != nil {
 			return nil, err
@@ -244,7 +249,10 @@ func AllSubCatMain(ctx context.Context, lspIds []*string, searchText *string) ([
 			// cassandra contains clauses using lspIds
 			whereClause = "WHERE "
 			for i, lspId := range lspIds {
-				if i == 0 {
+				if lspId == nil || *lspId == "" {
+					continue
+				}
+				if i == 0 || whereClause == "WHERE " {
 					whereClause = whereClause + " lsps CONTAINS '" + *lspId + "'"
 				} else {
 					whereClause = whereClause + " AND lsps CONTAINS '" + *lspId + "'"
@@ -290,9 +298,9 @@ func AllSubCatMain(ctx context.Context, lspIds []*string, searchText *string) ([
 	}
 	var wg sync.WaitGroup
 	for i, cat := range cats {
-		copiedCat := cat
+		copiedCat1 := cat
 		wg.Add(1)
-		go func(i int, cat coursez.SubCatMain) {
+		go func(i int, copiedCat coursez.SubCatMain) {
 			createdAt := strconv.FormatInt(copiedCat.CreatedAt, 10)
 			updatedAt := strconv.FormatInt(copiedCat.UpdatedAt, 10)
 			imageUrl := copiedCat.ImageURL
@@ -321,7 +329,7 @@ func AllSubCatMain(ctx context.Context, lspIds []*string, searchText *string) ([
 			}
 			resultOutput[i] = &currentCat
 			wg.Done()
-		}(i, cat)
+		}(i, copiedCat1)
 
 	}
 	wg.Wait()
