@@ -39,33 +39,10 @@ func main() {
 		port = 8091
 	}
 	gin.SetMode(gin.ReleaseMode)
-	_, err1 := cassandra.GetCassSession("coursez")
-	if err1 != nil {
-		log.Errorf("Error connecting to cassandra: %v", err1)
-	} else {
-		log.Infof("Cassandra connection successful")
-	}
-	_, err2 := cassandra.GetCassSession("qbankz")
-	if err2 != nil {
-		log.Errorf("Error connecting to cassandra: %v", err2)
-	} else {
-		log.Infof("Cassandra connection successful")
-	}
-	_, err3 := cassandra.GetCassSession("userz")
-	if err3 != nil {
-		log.Errorf("Error connecting to cassandra: %v", err3)
-	} else {
-		log.Infof("Cassandra connection successful")
-	}
-	_, err4 := redis.Initialize()
-	if err4 != nil {
-		log.Errorf("Error connecting to redis: %v", err4)
-	} else {
-		log.Infof("Redis connection successful")
-	}
 
 	bootUPErrors := make(chan error, 1)
 	go monitorSystem(cancel, bootUPErrors)
+	go checkAndInitCassandraSession()
 	controller.CCBackendController(ctx, port, bootUPErrors)
 	err = <-bootUPErrors
 	if err != nil {
@@ -84,4 +61,23 @@ func monitorSystem(cancel context.CancelFunc, errorChannel chan error) {
 	cancel()
 	// send error to channel
 	errorChannel <- fmt.Errorf("system termination signal received")
+}
+
+func checkAndInitCassandraSession() {
+	// get user session every 1 minute
+	// if session is nil then create new session
+	//test cassandra connection
+	_, err := redis.Initialize()
+	if err != nil {
+		log.Errorf("Error connecting to redis: %v", err)
+	} else {
+		log.Infof("Redis connection successful")
+	}
+	_, err1 := cassandra.GetCassSession("coursez")
+	_, err2 := cassandra.GetCassSession("qbankz")
+	if err1 != nil || err2 != nil {
+		log.Errorf("Error connecting to cassandra: %v and %v ", err1, err2)
+	} else {
+		log.Infof("Cassandra connection successful")
+	}
 }
