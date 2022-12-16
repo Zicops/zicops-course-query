@@ -97,7 +97,7 @@ spec:
           - name: GOOGLE_APPLICATION_CREDENTIALS
             value: {{ $zcbcred }}
           - name: CASSANDRA_HOST
-            value: "10.160.0.19"
+            value: "32d390ef-f0ad-4103-9d63-97ac0790b466-asia-south1.db.astra.datastax.com"
           - name: CASSANDRA_PORT
             value: "29042"
           - name: CASSANDRA_USERNAME
