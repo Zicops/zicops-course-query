@@ -1,6 +1,7 @@
 name: ZICOPS CQ-CICD
 
 on:
+  workflow_dispatch:
   push:
     branches: [ staging ]
   pull_request:
