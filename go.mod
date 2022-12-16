@@ -3,7 +3,7 @@ module github.com/zicops/zicops-course-query
 go 1.17
 
 require (
-	cloud.google.com/go/compute/metadata v0.2.2
+	cloud.google.com/go/compute/metadata v0.2.3
 	cloud.google.com/go/storage v1.28.1
 	github.com/99designs/gqlgen v0.17.22
 	github.com/bradhe/stopwatch v0.0.0-20190618212248-a58cccc508ea
@@ -13,7 +13,7 @@ require (
 	github.com/sirupsen/logrus v1.9.0
 	github.com/vektah/gqlparser/v2 v2.5.1
 	github.com/zicops/contracts v0.0.0-20221124163851-9ae3fa6f2741
-	github.com/zicops/zicops-cass-pool v0.0.0-20221215180831-8ddbd56b7a59
+	github.com/zicops/zicops-cass-pool v0.0.0-20221216001309-0cbe9d1900ea
 	golang.org/x/oauth2 v0.3.0
 	google.golang.org/api v0.105.0
 	gopkg.in/tylerb/graceful.v1 v1.2.15
@@ -22,7 +22,7 @@ require (
 require (
 	cloud.google.com/go v0.107.0 // indirect
 	cloud.google.com/go/compute v1.14.0 // indirect
-	cloud.google.com/go/iam v0.8.0 // indirect
+	cloud.google.com/go/iam v0.9.0 // indirect
 	github.com/agnivade/levenshtein v1.1.1 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
