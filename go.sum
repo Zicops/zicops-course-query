@@ -121,6 +121,8 @@ cloud.google.com/go/compute/metadata v0.2.1 h1:efOwf5ymceDhK6PKMnnrTHP4pppY5L22m
 cloud.google.com/go/compute/metadata v0.2.1/go.mod h1:jgHgmJd2RKBGzXqF5LR2EZMGxBkeanZ9wwa75XHJgOM=
 cloud.google.com/go/compute/metadata v0.2.2 h1:aWKAjYaBaOSrpKl57+jnS/3fJRQnxL7TvR/u1VVbt6k=
 cloud.google.com/go/compute/metadata v0.2.2/go.mod h1:jgHgmJd2RKBGzXqF5LR2EZMGxBkeanZ9wwa75XHJgOM=
+cloud.google.com/go/compute/metadata v0.2.3 h1:mg4jlk7mCAj6xXp9UJ4fjI9VUI5rubuGBW5aJ7UnBMY=
+cloud.google.com/go/compute/metadata v0.2.3/go.mod h1:VAV5nSsACxMJvgaAuX6Pk2AawlZn8kiOGuCv6gTkwuA=
 cloud.google.com/go/contactcenterinsights v1.3.0/go.mod h1:Eu2oemoePuEFc/xKFPjbTuPSj0fYJcPls9TFlPNnHHY=
 cloud.google.com/go/contactcenterinsights v1.4.0/go.mod h1:L2YzkGbPsv+vMQMCADxJoT9YiTTnSEd6fEvCeHTYVck=
 cloud.google.com/go/container v1.6.0/go.mod h1:Xazp7GjJSeUYo688S+6J5V+n/t+G5sKBTFkKNudGRxg=
@@ -202,6 +204,8 @@ cloud.google.com/go/iam v0.7.0 h1:k4MuwOsS7zGJJ+QfZ5vBK8SgHBAvYN/23BWsiihJ1vs=
 cloud.google.com/go/iam v0.7.0/go.mod h1:H5Br8wRaDGNc8XP3keLc4unfUUZeyH3Sfl9XpQEYOeg=
 cloud.google.com/go/iam v0.8.0 h1:E2osAkZzxI/+8pZcxVLcDtAQx/u+hZXVryUaYQ5O0Kk=
 cloud.google.com/go/iam v0.8.0/go.mod h1:lga0/y3iH6CX7sYqypWJ33hf7kkfXJag67naqGESjkE=
+cloud.google.com/go/iam v0.9.0 h1:bK6Or6mxhuL8lnj1i9j0yMo2wE/IeTO2cWlfUrf/TZs=
+cloud.google.com/go/iam v0.9.0/go.mod h1:nXAECrMt2qHpF6RZUZseteD6QyanL68reN4OXPw0UWM=
 cloud.google.com/go/iap v1.4.0/go.mod h1:RGFwRJdihTINIe4wZ2iCP0zF/qu18ZwyKxrhMhygBEc=
 cloud.google.com/go/iap v1.5.0/go.mod h1:UH/CGgKd4KyohZL5Pt0jSKE4m3FR51qg6FKQ/z/Ix9A=
 cloud.google.com/go/ids v1.1.0/go.mod h1:WIuwCaYVOzHIj2OhN9HAwvW+DBdmUAdcWlFxRl+KubM=
@@ -688,6 +692,8 @@ github.com/zicops/zicops-cass-pool v0.0.0-20221214165348-71567426e65d h1:txIWcM0
 github.com/zicops/zicops-cass-pool v0.0.0-20221214165348-71567426e65d/go.mod h1:bW5bH9mkxPgP144lng0NWSgxhH/er0+NJJ1OQa6GVrw=
 github.com/zicops/zicops-cass-pool v0.0.0-20221215180831-8ddbd56b7a59 h1:F8AWhYPLqnKP42RMzXUwo+NOaRUEnBPJhlDYn5hQVqU=
 github.com/zicops/zicops-cass-pool v0.0.0-20221215180831-8ddbd56b7a59/go.mod h1:bW5bH9mkxPgP144lng0NWSgxhH/er0+NJJ1OQa6GVrw=
+github.com/zicops/zicops-cass-pool v0.0.0-20221216001309-0cbe9d1900ea h1:bIhtlzku9fsmWu9Nu44Zvsnl1oqsADa1VubNWEQvaTU=
+github.com/zicops/zicops-cass-pool v0.0.0-20221216001309-0cbe9d1900ea/go.mod h1:bW5bH9mkxPgP144lng0NWSgxhH/er0+NJJ1OQa6GVrw=
 go.opencensus.io v0.21.0/go.mod h1:mSImk1erAIZhrmZN+AvHh14ztQfjbGwt4TtuofqLduU=
 go.opencensus.io v0.22.0/go.mod h1:+kGneAE2xo2IficOXnaByMWTGM9T73dGwxeWcUqIpI8=
 go.opencensus.io v0.22.2/go.mod h1:yxeiOL68Rb0Xd1ddK5vPZ/oVn4vY4Ynel7k9FzqtOIw=
