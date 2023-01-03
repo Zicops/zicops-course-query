@@ -65,7 +65,7 @@ func GetCourseByID(ctx context.Context, courseID *string) (*model.Course, error)
 		return nil, err
 	}
 	role := strings.ToLower(claims["role"].(string))
-	lspID := claims["lsp_id"].(string)
+	//lspID := claims["lsp_id"].(string)
 	result, err := redis.GetRedisValue(key)
 	if err != nil {
 		log.Error("Error in getting redis value for key: ", key)
@@ -82,7 +82,7 @@ func GetCourseByID(ctx context.Context, courseID *string) (*model.Course, error)
 			return nil, err
 		}
 		CassSession := session
-		qryStr := fmt.Sprintf(`SELECT * from coursez.course where id='%s' AND lsp_id='%s' ALLOW FILTERING`, *courseID, lspID)
+		qryStr := fmt.Sprintf(`SELECT * from coursez.course where id='%s' ALLOW FILTERING`, *courseID)
 		getCourse := func() (courses []coursez.Course, err error) {
 			q := CassSession.Query(qryStr, nil)
 			defer q.Release()
