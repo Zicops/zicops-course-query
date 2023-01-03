@@ -17,7 +17,7 @@ import (
 	"github.com/zicops/zicops-course-query/helpers"
 )
 
-func LatestQuestionBanks(ctx context.Context, publishTime *int, pageCursor *string, direction *string, pageSize *int, searchText *string) (*model.PaginatedQuestionBank, error) {
+func LatestQuestionBanks(ctx context.Context, publishTime *int, pageCursor *string, direction *string, pageSize *int, searchText *string, lspID *string) (*model.PaginatedQuestionBank, error) {
 	var newPage []byte
 	//var pageDirection string
 	var pageSizeInt int
@@ -59,7 +59,7 @@ func LatestQuestionBanks(ctx context.Context, publishTime *int, pageCursor *stri
 		return nil, err
 	}
 	CassSession := session
-	lspId := claims["lsp_id"].(string)
+	lspIdFromClaims := claims["lsp_id"].(string)
 	whereClause := ""
 	if searchText != nil && *searchText != "" {
 		searchTextLower := strings.ToLower(*searchText)
@@ -68,7 +68,11 @@ func LatestQuestionBanks(ctx context.Context, publishTime *int, pageCursor *stri
 			whereClause += " AND words CONTAINS '" + word + "'"
 		}
 	}
-	qryStr := fmt.Sprintf(`SELECT * from qbankz.question_bank_main where created_at <= %d AND lsp_id='%s' AND is_active=true %s ALLOW FILTERING`, *publishTime, lspId, whereClause)
+	//log.Println(lspIdFromClaims == *lspID)
+	if lspID != nil && *lspID != "" {
+		lspIdFromClaims = *lspID
+	}
+	qryStr := fmt.Sprintf(`SELECT * from qbankz.question_bank_main where created_at <= %d AND lsp_id='%s' AND is_active=true %s ALLOW FILTERING`, *publishTime, lspIdFromClaims, whereClause)
 	getBanks := func(page []byte) (banks []qbankz.QuestionBankMain, nextPage []byte, err error) {
 		q := CassSession.Query(qryStr, nil)
 		defer q.Release()
