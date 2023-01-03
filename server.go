@@ -13,8 +13,6 @@ import (
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 
-	//"github.com/zicops/zicops-cass-pool/cassandra"
-	//"github.com/zicops/zicops-cass-pool/redis"
 	"github.com/zicops/zicops-cass-pool/cassandra"
 	"github.com/zicops/zicops-cass-pool/redis"
 	"github.com/zicops/zicops-course-query/controller"

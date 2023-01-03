@@ -231,6 +231,7 @@ type QBFilters struct {
 type QuestionBank struct {
 	ID          *string `json:"id"`
 	Name        *string `json:"name"`
+	LspID       *string `json:"lspId"`
 	Description *string `json:"description"`
 	Category    *string `json:"category"`
 	SubCategory *string `json:"sub_category"`
