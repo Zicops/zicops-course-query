@@ -180,6 +180,7 @@ type Quiz {
 type QuestionBank {
     id: ID
     name: String
+    lspId: String
     description: String
     category: String
     sub_category: String
@@ -479,7 +480,7 @@ type Query{
   getTopicContentByModuleId(module_id: String): [TopicContent]
   getTopicExamsByCourseId(course_id: String): [TopicExam]
   getResourcesByCourseId(course_id: String): [TopicResource]
-  getLatestQuestionBank(publish_time: Int, pageCursor: String, Direction: String, pageSize:Int, searchText: String): PaginatedQuestionBank
+  getLatestQuestionBank(publish_time: Int, pageCursor: String, Direction: String, pageSize:Int, searchText: String, LspId: String): PaginatedQuestionBank
   getQBMeta(qb_ids:[String]): [QuestionBank]
   getQuestionBankQuestions(question_bank_id: String, filters: QBFilters): [QuestionBankQuestion]
   getLatestQuestionPapers(publish_time: Int, pageCursor: String, Direction: String, pageSize:Int, searchText: String): PaginatedQuestionPapers
