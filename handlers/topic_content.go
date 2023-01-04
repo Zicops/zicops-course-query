@@ -359,7 +359,9 @@ func GetTopicContentByModule(ctx context.Context, moduleID *string) ([]*model.To
 		return nil, err
 	}
 	role := strings.ToLower(claims["role"].(string))
-	lspID := claims["lsp_id"].(string)
+	/*
+		lspID := claims["lsp_id"].(string)
+	*/
 	result, err := redis.GetRedisValue(key)
 	if err == nil && role != "admin" {
 		err = json.Unmarshal([]byte(result), &currentContent)
@@ -374,7 +376,8 @@ func GetTopicContentByModule(ctx context.Context, moduleID *string) ([]*model.To
 		}
 		CassSession := session
 
-		qryStr := fmt.Sprintf(`SELECT * from coursez.topic_content where moduleid='%s' AND is_active=true  AND lsp_id ='%s' ALLOW FILTERING`, *moduleID, lspID)
+		//qryStr := fmt.Sprintf(`SELECT * from coursez.topic_content where moduleid='%s' AND is_active=true  AND lsp_id ='%s' ALLOW FILTERING`, *moduleID, lspID)
+		qryStr := fmt.Sprintf(`SELECT * from coursez.topic_content where moduleid='%s' AND is_active=true ALLOW FILTERING`, *moduleID)
 		getTopicContent := func() (content []coursez.TopicContent, err error) {
 			q := CassSession.Query(qryStr, nil)
 			defer q.Release()
