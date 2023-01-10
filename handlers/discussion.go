@@ -23,7 +23,7 @@ func GetCourseDiscussion(ctx context.Context, courseID string, discussionID *str
 	CassSession := session
 	qryStr := fmt.Sprintf(`SELECT * from coursez.discussion where course_id='%s' `, courseID)
 	if discussionID == nil && *discussionID == "" {
-		qryStr = qryStr + `ALLOW FILTERING`
+		qryStr = qryStr + fmt.Sprintf(`ALLOW FILTERING`)
 	} else {
 		qryStr = qryStr + fmt.Sprintf(`and discussion_id='%s' ALLOW FILTERING`, *discussionID)
 	}
