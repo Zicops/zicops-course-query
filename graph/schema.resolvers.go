@@ -452,6 +452,15 @@ func (r *queryResolver) GetCohortCourseMaps(ctx context.Context, cohortID *strin
 	return resp, nil
 }
 
+// GetCourseDiscussion is the resolver for the getCourseDiscussion field.
+func (r *queryResolver) GetCourseDiscussion(ctx context.Context, courseID string, discussionID *string) ([]*model.Discussion, error) {
+	resp, err := handlers.GetCourseDiscussion(ctx, courseID, discussionID)
+	if err != nil {
+		log.Errorf("error getting course discussion %v", err)
+	}
+	return resp, err
+}
+
 // Query returns generated.QueryResolver implementation.
 func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 

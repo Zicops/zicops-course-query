@@ -454,6 +454,30 @@ input CoursesFilters {
     SearchText: String
 }
 
+
+type Discussion {
+	DiscussionId: String
+	CourseId: String 
+	ReplyId: String 
+	UserId: String 
+	Time: Int 
+	Content: String 
+	Module: String 
+	Chapter: String 
+	Topic: String 
+	Likes: [Int]
+	Dislike: [Int]
+	IsAnonymous: Boolean   
+	IsPinned: Boolean
+	IsAnnouncement: Boolean
+	ReplyCount: Int
+	CreatedBy: String
+	Created_at: String
+	Updated_by: String 
+	Updated_at: String 
+	Status: String 
+}
+
 type Query{
   allCatMain(lsp_ids: [String], searchText: String): [CatMain]
   allSubCatMain(lsp_ids: [String], searchText: String): [SubCatMain]
@@ -499,4 +523,5 @@ type Query{
   getExamConfiguration(exam_id: String): [ExamConfiguration]
   getQuestionsById(question_ids: [String]): [QuestionBankQuestion]
   getCohortCourseMaps(cohort_id: String): [CourseCohort]
+  getCourseDiscussion(course_id:String!, discussion_id:String): [Discussion]
 }
