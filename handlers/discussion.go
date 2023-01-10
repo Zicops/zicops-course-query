@@ -46,11 +46,11 @@ func GetCourseDiscussion(ctx context.Context, courseID string, discussionID *str
 
 	for _, v := range data {
 
-		var likesArray []*int
+		var likesArray []*string
 		for _, l := range v.Likes {
 			likesArray = append(likesArray, &l)
 		}
-		var dislikesArray []*int
+		var dislikesArray []*string
 		for _, d := range v.Dislike {
 			dislikesArray = append(dislikesArray, &d)
 		}
