@@ -472,9 +472,9 @@ type Discussion {
 	IsAnnouncement: Boolean
 	ReplyCount: Int
 	CreatedBy: String
-	Created_at: String
+	Created_at: Int
 	Updated_by: String 
-	Updated_at: String 
+	Updated_at: Int
 	Status: String 
 }
 

@@ -472,9 +472,9 @@ type Discussion {
 	IsAnnouncement: Boolean
 	ReplyCount: Int
 	CreatedBy: String
-	Created_at: String
+	Created_at: Int
 	Updated_by: String 
-	Updated_at: String 
+	Updated_at: Int
 	Status: String 
 }
 
@@ -523,5 +523,5 @@ type Query{
   getExamConfiguration(exam_id: String): [ExamConfiguration]
   getQuestionsById(question_ids: [String]): [QuestionBankQuestion]
   getCohortCourseMaps(cohort_id: String): [CourseCohort]
-  getCourseDiscussion(course_id:String!, discussion_id:String!): [Discussion]
+  getCourseDiscussion(course_id:String!, discussion_id:String): [Discussion]
 }

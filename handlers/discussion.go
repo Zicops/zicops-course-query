@@ -55,6 +55,8 @@ func GetCourseDiscussion(ctx context.Context, courseID string, discussionID *str
 			dislikesArray = append(dislikesArray, &d)
 		}
 		t := int(v.Time)
+		ca := int(v.CreatedAt)
+		ua := int(v.UpdatedAt)
 		temp := &model.Discussion{
 			DiscussionID:   &v.DiscussionId,
 			CourseID:       &v.CourseId,
@@ -72,9 +74,9 @@ func GetCourseDiscussion(ctx context.Context, courseID string, discussionID *str
 			IsAnnouncement: &v.IsAnnouncement,
 			ReplyCount:     &v.ReplyCount,
 			CreatedBy:      &v.CreatedBy,
-			CreatedAt:      &v.CreatedAt,
+			CreatedAt:      &ca,
 			UpdatedBy:      &v.UpdatedBy,
-			UpdatedAt:      &v.UpdatedAt,
+			UpdatedAt:      &ua,
 			Status:         &v.Status,
 		}
 		result = append(result, temp)
