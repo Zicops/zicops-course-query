@@ -22,7 +22,7 @@ func GetCourseDiscussion(ctx context.Context, courseID string, discussionID *str
 	}
 	CassSession := session
 	qryStr := fmt.Sprintf(`SELECT * from coursez.discussion where course_id='%s' `, courseID)
-	if discussionID == nil && *discussionID == "" {
+	if discussionID == nil {
 		qryStr = qryStr + fmt.Sprintf(`ALLOW FILTERING`)
 	} else {
 		qryStr = qryStr + fmt.Sprintf(`and discussion_id='%s' ALLOW FILTERING`, *discussionID)
@@ -85,3 +85,8 @@ func GetCourseDiscussion(ctx context.Context, courseID string, discussionID *str
 	}
 	return result, nil
 }
+
+/*
+editable
+Content,time, likes, dislikes, isanonymous, ispinned, isannouncement, replycount, status
+*/
