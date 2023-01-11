@@ -22,10 +22,8 @@ func GetCourseDiscussion(ctx context.Context, courseID string, discussionID *str
 	}
 	CassSession := session
 	qryStr := fmt.Sprintf(`SELECT * from coursez.discussion where course_id='%s' `, courseID)
-	if discussionID == nil {
-		qryStr = qryStr + fmt.Sprintf(`ALLOW FILTERING`)
-	} else {
-		qryStr = qryStr + fmt.Sprintf(`and discussion_id='%s' ALLOW FILTERING`, *discussionID)
+	if discussionID != nil {
+		qryStr = qryStr + fmt.Sprintf(`and discussion_id='%s' `, *discussionID)
 	}
 	getDiscussions := func() (modules []coursez.Discussion, err error) {
 		q := CassSession.Query(qryStr, nil)
