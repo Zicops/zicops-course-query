@@ -41,8 +41,9 @@ func GetCourseDiscussion(ctx context.Context, courseID string, discussionID *str
 
 	result := make([]*model.Discussion, len(data))
 
-	for k, v := range data {
+	for k, vv := range data {
 
+		v := vv
 		var likesArray []*string
 		for _, l := range v.Likes {
 			tmp := &l
