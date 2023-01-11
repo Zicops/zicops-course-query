@@ -40,9 +40,9 @@ func GetCourseDiscussion(ctx context.Context, courseID string, discussionID *str
 		return nil, nil
 	}
 
-	var result []*model.Discussion
+	result := make([]*model.Discussion, len(data))
 
-	for _, v := range data {
+	for k, v := range data {
 
 		var likesArray []*string
 		for _, l := range v.Likes {
@@ -79,7 +79,7 @@ func GetCourseDiscussion(ctx context.Context, courseID string, discussionID *str
 			UpdatedAt:      &ua,
 			Status:         &v.Status,
 		}
-		result = append(result, temp)
+		result[k] = temp
 	}
 	return result, nil
 }
