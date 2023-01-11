@@ -31,7 +31,6 @@ func GetCourseDiscussion(ctx context.Context, courseID string, discussionID *str
 		iter := q.Iter()
 		return modules, iter.Select(&modules)
 	}
-
 	data, err := getDiscussions()
 	if err != nil {
 		return nil, err
@@ -42,7 +41,8 @@ func GetCourseDiscussion(ctx context.Context, courseID string, discussionID *str
 
 	result := make([]*model.Discussion, len(data))
 
-	for k, v := range data {
+	i := 0
+	for _, v := range data {
 
 		var likesArray []*string
 		for _, l := range v.Likes {
@@ -79,7 +79,8 @@ func GetCourseDiscussion(ctx context.Context, courseID string, discussionID *str
 			UpdatedAt:      &ua,
 			Status:         &v.Status,
 		}
-		result[k] = temp
+		result[i] = temp
+		i = i + 1
 	}
 	return result, nil
 }
