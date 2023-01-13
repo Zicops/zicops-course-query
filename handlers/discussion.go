@@ -21,9 +21,13 @@ func GetCourseDiscussion(ctx context.Context, courseID string, discussionID *str
 		return nil, err
 	}
 	CassSession := session
-	qryStr := fmt.Sprintf(`SELECT * from coursez.discussion where course_id='%s' `, courseID)
+	var qryStr string
+	// if there is no reply_id in table, only take them first, like reply id == ""
+	qryStr = fmt.Sprintf(`SELECT * from coursez.discussion where course_id='%s' `, courseID)
 	if discussionID != nil {
-		qryStr = qryStr + fmt.Sprintf(`and reply_id='%s' ALLOW FILTERING`, *discussionID)
+		qryStr = fmt.Sprintf(`SELECT * from coursez.discussion where course_id='%s' and reply_id='%s' ALLOW FILTERING`, courseID, *discussionID)
+	} else {
+		qryStr = fmt.Sprintf(`SELECT * from coursez.discussion where course_id='%s' and reply_id='' ALLOW FILTERING`, courseID)
 	}
 	getDiscussions := func() (modules []coursez.Discussion, err error) {
 		q := CassSession.Query(qryStr, nil)
@@ -86,5 +90,5 @@ func GetCourseDiscussion(ctx context.Context, courseID string, discussionID *str
 
 /*
 editable
-Content,time, likes, dislikes, isanonymous, ispinned, isannouncement, replycount, status
+Content,time, likes, dislikes, isanonymous, ispinned, isannouncement, status
 */
