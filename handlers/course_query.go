@@ -253,6 +253,7 @@ func GetCourseByID(ctx context.Context, courseID []*string) ([]*model.Course, er
 				res[i] = &currentCourse
 				wg.Done()
 			}(v, i)
+			wg.Wait()
 		}
 	}
 
