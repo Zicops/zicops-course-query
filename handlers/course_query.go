@@ -90,12 +90,13 @@ func GetCourseByID(ctx context.Context, courseID []*string) ([]*model.Course, er
 
 		//iterate through each courseId value and store it in res variable
 		for i, vv := range courseID {
+			//this is to avoid pointers overlapping
 			v := vv
 
 			wg.Add(1)
 			//send each value to different go routines and store the result
-			go func(v string, i int) {
-				qryStr := fmt.Sprintf(`SELECT * from coursez.course where id='%s' ALLOW FILTERING`, v)
+			go func(v *string, i int) {
+				qryStr := fmt.Sprintf(`SELECT * from coursez.course where id='%s' ALLOW FILTERING`, *v)
 				getCourse := func() (courses []coursez.Course, err error) {
 					q := CassSession.Query(qryStr, nil)
 					defer q.Release()
@@ -251,7 +252,7 @@ func GetCourseByID(ctx context.Context, courseID []*string) ([]*model.Course, er
 				}
 				res[i] = &currentCourse
 				wg.Done()
-			}(*v, i)
+			}(v, i)
 		}
 	}
 
