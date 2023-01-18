@@ -83,7 +83,7 @@ func (r *queryResolver) LatestCourses(ctx context.Context, publishTime *int, pag
 }
 
 // GetCourse is the resolver for the getCourse field.
-func (r *queryResolver) GetCourse(ctx context.Context, courseID *string) (*model.Course, error) {
+func (r *queryResolver) GetCourse(ctx context.Context, courseID []*string) ([]*model.Course, error) {
 	resp, err := handlers.GetCourseByID(ctx, courseID)
 	if err != nil {
 		log.Errorf("error getting course: %v", err)

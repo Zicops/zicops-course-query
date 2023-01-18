@@ -460,7 +460,7 @@ type Discussion {
 	CourseId: String 
 	ReplyId: String 
 	UserId: String 
-	Time: Int 
+	Time: String 
 	Content: String 
 	Module: String 
 	Chapter: String 
@@ -486,7 +486,7 @@ type Query{
   allSubCategories: [String]
   allSubCatsByCat(category: String): [String]
   latestCourses(publish_time: Int, pageCursor: String, Direction: String, pageSize:Int, status:Status, filters:CoursesFilters): PaginatedCourse
-  getCourse(course_id: String): Course
+  getCourse(course_id: [String]): [Course]
   getCourseModules(course_id: String): [Module]
   getModuleById(module_id: String): Module
   getCourseChapters(course_id: String): [Chapter]

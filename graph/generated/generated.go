@@ -276,7 +276,7 @@ type ComplexityRoot struct {
 		AllSubCatsByCat             func(childComplexity int, category *string) int
 		GetChapterByID              func(childComplexity int, chapterID *string) int
 		GetCohortCourseMaps         func(childComplexity int, cohortID *string) int
-		GetCourse                   func(childComplexity int, courseID *string) int
+		GetCourse                   func(childComplexity int, courseID []*string) int
 		GetCourseChapters           func(childComplexity int, courseID *string) int
 		GetCourseDiscussion         func(childComplexity int, courseID string, discussionID *string) int
 		GetCourseModules            func(childComplexity int, courseID *string) int
@@ -550,7 +550,7 @@ type QueryResolver interface {
 	AllSubCategories(ctx context.Context) ([]*string, error)
 	AllSubCatsByCat(ctx context.Context, category *string) ([]*string, error)
 	LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, direction *string, pageSize *int, status *model.Status, filters *model.CoursesFilters) (*model.PaginatedCourse, error)
-	GetCourse(ctx context.Context, courseID *string) (*model.Course, error)
+	GetCourse(ctx context.Context, courseID []*string) ([]*model.Course, error)
 	GetCourseModules(ctx context.Context, courseID *string) ([]*model.Module, error)
 	GetModuleByID(ctx context.Context, moduleID *string) (*model.Module, error)
 	GetCourseChapters(ctx context.Context, courseID *string) ([]*model.Chapter, error)
@@ -1940,7 +1940,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.GetCourse(childComplexity, args["course_id"].(*string)), true
+		return e.complexity.Query.GetCourse(childComplexity, args["course_id"].([]*string)), true
 
 	case "Query.getCourseChapters":
 		if e.complexity.Query.GetCourseChapters == nil {
@@ -4095,7 +4095,7 @@ type Discussion {
 	CourseId: String 
 	ReplyId: String 
 	UserId: String 
-	Time: Int 
+	Time: String 
 	Content: String 
 	Module: String 
 	Chapter: String 
@@ -4121,7 +4121,7 @@ type Query{
   allSubCategories: [String]
   allSubCatsByCat(category: String): [String]
   latestCourses(publish_time: Int, pageCursor: String, Direction: String, pageSize:Int, status:Status, filters:CoursesFilters): PaginatedCourse
-  getCourse(course_id: String): Course
+  getCourse(course_id: [String]): [Course]
   getCourseModules(course_id: String): [Module]
   getModuleById(module_id: String): Module
   getCourseChapters(course_id: String): [Chapter]
@@ -4348,10 +4348,10 @@ func (ec *executionContext) field_Query_getCourseModules_args(ctx context.Contex
 func (ec *executionContext) field_Query_getCourse_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *string
+	var arg0 []*string
 	if tmp, ok := rawArgs["course_id"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("course_id"))
-		arg0, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		arg0, err = ec.unmarshalOString2ᚕᚖstring(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -8086,9 +8086,9 @@ func (ec *executionContext) _Discussion_Time(ctx context.Context, field graphql.
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*int)
+	res := resTmp.(*string)
 	fc.Result = res
-	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Discussion_Time(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -8098,7 +8098,7 @@ func (ec *executionContext) fieldContext_Discussion_Time(ctx context.Context, fi
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -12957,7 +12957,7 @@ func (ec *executionContext) _Query_getCourse(ctx context.Context, field graphql.
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetCourse(rctx, fc.Args["course_id"].(*string))
+		return ec.resolvers.Query().GetCourse(rctx, fc.Args["course_id"].([]*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -12966,9 +12966,9 @@ func (ec *executionContext) _Query_getCourse(ctx context.Context, field graphql.
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*model.Course)
+	res := resTmp.([]*model.Course)
 	fc.Result = res
-	return ec.marshalOCourse2ᚖgithubᚗcomᚋzicopsᚋzicopsᚑcourseᚑqueryᚋgraphᚋmodelᚐCourse(ctx, field.Selections, res)
+	return ec.marshalOCourse2ᚕᚖgithubᚗcomᚋzicopsᚋzicopsᚑcourseᚑqueryᚋgraphᚋmodelᚐCourse(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_getCourse(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {

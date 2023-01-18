@@ -196,10 +196,11 @@ func GetTopicContentByCourse(ctx context.Context, courseID *string) ([]*model.To
 			log.Errorf("Error in unmarshalling redis value for key %s", key)
 		}
 	}
-	course, err := GetCourseByID(ctx, courseID)
+	courses, err := GetCourseByID(ctx, []*string{courseID})
 	if err != nil {
 		return nil, err
 	}
+	course := courses[0]
 	if len(currentContent) <= 0 {
 		session, err := cassandra.GetCassSession("coursez")
 		if err != nil {
@@ -302,10 +303,11 @@ func GetTopicExamsByCourse(ctx context.Context, courseID *string) ([]*model.Topi
 	}
 	CassSession := session
 
-	course, err := GetCourseByID(ctx, courseID)
+	courses, err := GetCourseByID(ctx, []*string{courseID})
 	if err != nil {
 		return nil, err
 	}
+	course := courses[0]
 	qryStr := fmt.Sprintf(`SELECT * from coursez.topic_exam where courseid='%s' AND is_active=true  AND lsp_id='%s' ALLOW FILTERING`, *courseID, *course.LspID)
 	getTopicContent := func() (content []coursez.TopicExam, err error) {
 		q := CassSession.Query(qryStr, nil)
