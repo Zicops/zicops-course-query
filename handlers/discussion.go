@@ -60,15 +60,6 @@ func GetCourseDiscussion(ctx context.Context, courseID string, discussionID *str
 		}
 		t := int(v.Time)
 		//here convert time to string in format of minutes:seconds and return
-		seconds := t % 60
-		minutes := t / 60
-		hours := minutes / 60
-		var videoTime string
-		if hours > 0 {
-			videoTime = fmt.Sprintf("%d:%d:%d", hours, minutes, seconds)
-		} else {
-			videoTime = fmt.Sprintf("%d:%d", minutes, seconds)
-		}
 		ca := int(v.CreatedAt)
 		ua := int(v.UpdatedAt)
 		temp := model.Discussion{
@@ -76,7 +67,7 @@ func GetCourseDiscussion(ctx context.Context, courseID string, discussionID *str
 			CourseID:       &v.CourseId,
 			ReplyID:        &v.ReplyId,
 			UserID:         &v.UserId,
-			Time:           &videoTime,
+			Time:           &t,
 			Content:        &v.Content,
 			Module:         &v.Module,
 			Chapter:        &v.Chapter,

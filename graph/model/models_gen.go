@@ -105,7 +105,7 @@ type Discussion struct {
 	CourseID       *string   `json:"CourseId"`
 	ReplyID        *string   `json:"ReplyId"`
 	UserID         *string   `json:"UserId"`
-	Time           *string   `json:"Time"`
+	Time           *int      `json:"Time"`
 	Content        *string   `json:"Content"`
 	Module         *string   `json:"Module"`
 	Chapter        *string   `json:"Chapter"`
