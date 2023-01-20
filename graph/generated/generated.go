@@ -4095,7 +4095,7 @@ type Discussion {
 	CourseId: String 
 	ReplyId: String 
 	UserId: String 
-	Time: Int 
+	Time: String
 	Content: String 
 	Module: String 
 	Chapter: String 
@@ -8086,9 +8086,9 @@ func (ec *executionContext) _Discussion_Time(ctx context.Context, field graphql.
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*int)
+	res := resTmp.(*string)
 	fc.Result = res
-	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Discussion_Time(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -8098,7 +8098,7 @@ func (ec *executionContext) fieldContext_Discussion_Time(ctx context.Context, fi
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil

@@ -59,6 +59,19 @@ func GetCourseDiscussion(ctx context.Context, courseID string, discussionID *str
 			dislikesArray = append(dislikesArray, tmp)
 		}
 		t := int(v.Time)
+		seconds := t % 60
+		minutes := t / 60
+		hours := 0
+		if minutes >= 60 {
+			minutes = minutes % 60
+			hours = minutes / 60
+		}
+		var video_time string
+		if hours > 0 {
+			video_time = fmt.Sprintf("%d:%d:%d", hours, minutes, seconds)
+		} else {
+			video_time = fmt.Sprintf("%d:%d", minutes, seconds)
+		}
 		//here convert time to string in format of minutes:seconds and return
 		ca := int(v.CreatedAt)
 		ua := int(v.UpdatedAt)
@@ -67,7 +80,7 @@ func GetCourseDiscussion(ctx context.Context, courseID string, discussionID *str
 			CourseID:       &v.CourseId,
 			ReplyID:        &v.ReplyId,
 			UserID:         &v.UserId,
-			Time:           &t,
+			Time:           &video_time,
 			Content:        &v.Content,
 			Module:         &v.Module,
 			Chapter:        &v.Chapter,
