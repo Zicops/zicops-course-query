@@ -414,9 +414,9 @@ func GetExamsMeta(ctx context.Context, examIds []*string) ([]*model.Exam, error)
 			}
 		}
 
-		lspId := claims["lsp_id"].(string)
+		//lspId := claims["lsp_id"].(string)
 
-		qryStr := fmt.Sprintf(`SELECT * from qbankz.exam where id='%s' AND is_active=true AND lsp_id='%s' ALLOW FILTERING`, *questionId, lspId)
+		qryStr := fmt.Sprintf(`SELECT * from qbankz.exam where id='%s' AND is_active=true ALLOW FILTERING`, *questionId)
 		getPapers := func() (banks []qbankz.Exam, err error) {
 			q := CassSession.Query(qryStr, nil)
 			defer q.Release()

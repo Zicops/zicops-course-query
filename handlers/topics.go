@@ -33,10 +33,11 @@ func GetTopicsCourseByID(ctx context.Context, courseID *string) ([]*model.Topic,
 			log.Errorf("Failed to unmarshal topics: %v", err.Error())
 		}
 	}
-	course, err := GetCourseByID(ctx, courseID)
+	courses, err := GetCourseByID(ctx, []*string{courseID})
 	if err != nil {
 		return nil, err
 	}
+	course := courses[0]
 
 	if len(currentTopics) <= 0 {
 		session, err := cassandra.GetCassSession("coursez")

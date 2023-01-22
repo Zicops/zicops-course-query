@@ -36,10 +36,11 @@ func GetModulesCourseByID(ctx context.Context, courseID *string) ([]*model.Modul
 		return nil, err
 	}
 	CassSession := session
-	course, err := GetCourseByID(ctx, courseID)
+	courses, err := GetCourseByID(ctx, []*string{courseID})
 	if err != nil {
 		return nil, err
 	}
+	course := courses[0]
 	lspId := course.LspID
 
 	qryStr := fmt.Sprintf(`SELECT * from coursez.module where courseid='%s' AND lsp_id='%s' AND is_active=true ALLOW FILTERING`, *courseID, *lspId)

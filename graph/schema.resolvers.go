@@ -83,7 +83,7 @@ func (r *queryResolver) LatestCourses(ctx context.Context, publishTime *int, pag
 }
 
 // GetCourse is the resolver for the getCourse field.
-func (r *queryResolver) GetCourse(ctx context.Context, courseID *string) (*model.Course, error) {
+func (r *queryResolver) GetCourse(ctx context.Context, courseID []*string) ([]*model.Course, error) {
 	resp, err := handlers.GetCourseByID(ctx, courseID)
 	if err != nil {
 		log.Errorf("error getting course: %v", err)
@@ -450,6 +450,15 @@ func (r *queryResolver) GetCohortCourseMaps(ctx context.Context, cohortID *strin
 		return nil, err
 	}
 	return resp, nil
+}
+
+// GetCourseDiscussion is the resolver for the getCourseDiscussion field.
+func (r *queryResolver) GetCourseDiscussion(ctx context.Context, courseID string, discussionID *string) ([]*model.Discussion, error) {
+	resp, err := handlers.GetCourseDiscussion(ctx, courseID, discussionID)
+	if err != nil {
+		log.Errorf("error getting course discussion %v", err)
+	}
+	return resp, err
 }
 
 // Query returns generated.QueryResolver implementation.

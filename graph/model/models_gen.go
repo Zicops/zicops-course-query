@@ -100,6 +100,29 @@ type CoursesFilters struct {
 	SearchText  *string `json:"SearchText"`
 }
 
+type Discussion struct {
+	DiscussionID   *string   `json:"DiscussionId"`
+	CourseID       *string   `json:"CourseId"`
+	ReplyID        *string   `json:"ReplyId"`
+	UserID         *string   `json:"UserId"`
+	Time           *string   `json:"Time"`
+	Content        *string   `json:"Content"`
+	Module         *string   `json:"Module"`
+	Chapter        *string   `json:"Chapter"`
+	Topic          *string   `json:"Topic"`
+	Likes          []*string `json:"Likes"`
+	Dislike        []*string `json:"Dislike"`
+	IsAnonymous    *bool     `json:"IsAnonymous"`
+	IsPinned       *bool     `json:"IsPinned"`
+	IsAnnouncement *bool     `json:"IsAnnouncement"`
+	ReplyCount     *int      `json:"ReplyCount"`
+	CreatedBy      *string   `json:"CreatedBy"`
+	CreatedAt      *int      `json:"Created_at"`
+	UpdatedBy      *string   `json:"Updated_by"`
+	UpdatedAt      *int      `json:"Updated_at"`
+	Status         *string   `json:"Status"`
+}
+
 type Exam struct {
 	ID           *string   `json:"id"`
 	Name         *string   `json:"Name"`
