@@ -294,7 +294,7 @@ func GetBasicCourseStats(ctx context.Context, input *model.BasicCourseStatsInput
 		for _, v := range input.Categories {
 			copiedCat := *v
 			whereClause = fmt.Sprintf("%s AND category = '%s' ", whereClause, copiedCat)
-			query := fmt.Sprintf("SELECT COUNT(*) FROM course %s", whereClause)
+			query := fmt.Sprintf("SELECT COUNT(*) FROM coursez.course %s", whereClause)
 			iter := CassUserSession.Query(query, nil).Iter()
 			var count int
 			iter.Scan(&count)
@@ -310,7 +310,7 @@ func GetBasicCourseStats(ctx context.Context, input *model.BasicCourseStatsInput
 		for _, v := range input.SubCategories {
 			copiedSubCat := *v
 			whereClause = fmt.Sprintf("%s AND sub_category = '%s' ", whereClause, copiedSubCat)
-			query := fmt.Sprintf("SELECT COUNT(*) FROM course %s", whereClause)
+			query := fmt.Sprintf("SELECT COUNT(*) FROM coursez.course %s", whereClause)
 			iter := CassUserSession.Query(query, nil).Iter()
 			var count int
 			iter.Scan(&count)
@@ -326,7 +326,7 @@ func GetBasicCourseStats(ctx context.Context, input *model.BasicCourseStatsInput
 		for _, v := range input.ExpertiseLevel {
 			copiedExpertise := *v
 			whereClause = fmt.Sprintf("%s AND expertise_level = '%s' ", whereClause, copiedExpertise)
-			query := fmt.Sprintf("SELECT COUNT(*) FROM course %s", whereClause)
+			query := fmt.Sprintf("SELECT COUNT(*) FROM coursez.course %s", whereClause)
 			iter := CassUserSession.Query(query, nil).Iter()
 			var count int
 			iter.Scan(&count)
@@ -342,7 +342,7 @@ func GetBasicCourseStats(ctx context.Context, input *model.BasicCourseStatsInput
 		for _, v := range input.Languages {
 			copiedLanguage := *v
 			whereClause = fmt.Sprintf("%s AND language = '%s' ", whereClause, copiedLanguage)
-			query := fmt.Sprintf("SELECT COUNT(*) FROM course %s", whereClause)
+			query := fmt.Sprintf("SELECT COUNT(*) FROM coursez.course %s", whereClause)
 			iter := CassUserSession.Query(query, nil).Iter()
 			var count int
 			iter.Scan(&count)
