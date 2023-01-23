@@ -478,6 +478,28 @@ type Discussion {
 	Status: String 
 }
 
+type Count {
+  name: String
+  count: Int
+}
+
+
+input BasicCourseStatsInput {
+    lsp_id: String!
+    categories: [String]
+    sub_categories: [String]
+    languages: [String]
+    expertise_level: [String]
+}
+
+type BasicCourseStats {
+    lsp_id: String!
+    categories: [Count]
+    sub_categories: [Count]
+    languages: [Count]
+    expertise_level: [Count]
+}
+
 type Query{
   allCatMain(lsp_ids: [String], searchText: String): [CatMain]
   allSubCatMain(lsp_ids: [String], searchText: String): [SubCatMain]
@@ -524,4 +546,5 @@ type Query{
   getQuestionsById(question_ids: [String]): [QuestionBankQuestion]
   getCohortCourseMaps(cohort_id: String): [CourseCohort]
   getCourseDiscussion(course_id:String!, discussion_id:String): [Discussion]
+  getBasicCourseStats(input: BasicCourseStatsInput): BasicCourseStats
 }

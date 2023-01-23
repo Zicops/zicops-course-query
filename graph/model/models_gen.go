@@ -8,6 +8,28 @@ import (
 	"strconv"
 )
 
+type BasicCourseStats struct {
+	LspID          string   `json:"lsp_id"`
+	CourseStatus   *string  `json:"course_status"`
+	Duration       *int     `json:"duration"`
+	Owner          *string  `json:"owner"`
+	Categories     []*Count `json:"categories"`
+	SubCategories  []*Count `json:"sub_categories"`
+	Languages      []*Count `json:"languages"`
+	ExpertiseLevel []*Count `json:"expertise_level"`
+}
+
+type BasicCourseStatsInput struct {
+	LspID          string    `json:"lsp_id"`
+	CourseStatus   *string   `json:"course_status"`
+	Duration       *int      `json:"duration"`
+	Owner          *string   `json:"owner"`
+	Categories     []*string `json:"categories"`
+	SubCategories  []*string `json:"sub_categories"`
+	Languages      []*string `json:"languages"`
+	ExpertiseLevel []*string `json:"expertise_level"`
+}
+
 type CatMain struct {
 	ID          *string `json:"id"`
 	Name        *string `json:"Name"`
@@ -30,6 +52,11 @@ type Chapter struct {
 	CreatedAt   *string `json:"created_at"`
 	UpdatedAt   *string `json:"updated_at"`
 	Sequence    *int    `json:"sequence"`
+}
+
+type Count struct {
+	Name  *string `json:"name"`
+	Count *int    `json:"count"`
 }
 
 type Course struct {

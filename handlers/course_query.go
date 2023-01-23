@@ -259,3 +259,7 @@ func GetCourseByID(ctx context.Context, courseID []*string) ([]*model.Course, er
 
 	return res, nil
 }
+
+func GetBasicCourseStats(ctx context.Context, input *model.BasicCourseStatsInput) (*model.BasicCourseStats, error) {
+	return nil, nil
+}
