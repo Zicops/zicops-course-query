@@ -44,6 +44,8 @@ type ComplexityRoot struct {
 	BasicCourseStats struct {
 		Categories     func(childComplexity int) int
 		CourseStatus   func(childComplexity int) int
+		CourseType     func(childComplexity int) int
+		CreatedBy      func(childComplexity int) int
 		Duration       func(childComplexity int) int
 		ExpertiseLevel func(childComplexity int) int
 		Languages      func(childComplexity int) int
@@ -635,6 +637,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.BasicCourseStats.CourseStatus(childComplexity), true
+
+	case "BasicCourseStats.course_type":
+		if e.complexity.BasicCourseStats.CourseType == nil {
+			break
+		}
+
+		return e.complexity.BasicCourseStats.CourseType(childComplexity), true
+
+	case "BasicCourseStats.created_by":
+		if e.complexity.BasicCourseStats.CreatedBy == nil {
+			break
+		}
+
+		return e.complexity.BasicCourseStats.CreatedBy(childComplexity), true
 
 	case "BasicCourseStats.duration":
 		if e.complexity.BasicCourseStats.Duration == nil {
@@ -4218,6 +4234,8 @@ input BasicCourseStatsInput {
     course_status: String
     duration: Int
     owner: String
+    created_by: String  
+    course_type: String
     categories: [String]
     sub_categories: [String]
     languages: [String]
@@ -4229,6 +4247,8 @@ type BasicCourseStats {
     course_status: String
     duration: Int
     owner: String
+    created_by: String
+    course_type: String
     categories: [Count]
     sub_categories: [Count]
     languages: [Count]
@@ -5320,6 +5340,70 @@ func (ec *executionContext) _BasicCourseStats_owner(ctx context.Context, field g
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Owner, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _BasicCourseStats_created_by(ctx context.Context, field graphql.CollectedField, obj *model.BasicCourseStats) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "BasicCourseStats",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedBy, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _BasicCourseStats_course_type(ctx context.Context, field graphql.CollectedField, obj *model.BasicCourseStats) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "BasicCourseStats",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CourseType, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -19771,6 +19855,22 @@ func (ec *executionContext) unmarshalInputBasicCourseStatsInput(ctx context.Cont
 			if err != nil {
 				return it, err
 			}
+		case "created_by":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("created_by"))
+			it.CreatedBy, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "course_type":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("course_type"))
+			it.CourseType, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		case "categories":
 			var err error
 
@@ -19980,6 +20080,20 @@ func (ec *executionContext) _BasicCourseStats(ctx context.Context, sel ast.Selec
 		case "owner":
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._BasicCourseStats_owner(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+		case "created_by":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._BasicCourseStats_created_by(ctx, field, obj)
+			}
+
+			out.Values[i] = innerFunc(ctx)
+
+		case "course_type":
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._BasicCourseStats_course_type(ctx, field, obj)
 			}
 
 			out.Values[i] = innerFunc(ctx)

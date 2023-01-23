@@ -13,6 +13,8 @@ type BasicCourseStats struct {
 	CourseStatus   *string  `json:"course_status"`
 	Duration       *int     `json:"duration"`
 	Owner          *string  `json:"owner"`
+	CreatedBy      *string  `json:"created_by"`
+	CourseType     *string  `json:"course_type"`
 	Categories     []*Count `json:"categories"`
 	SubCategories  []*Count `json:"sub_categories"`
 	Languages      []*Count `json:"languages"`
@@ -24,6 +26,8 @@ type BasicCourseStatsInput struct {
 	CourseStatus   *string   `json:"course_status"`
 	Duration       *int      `json:"duration"`
 	Owner          *string   `json:"owner"`
+	CreatedBy      *string   `json:"created_by"`
+	CourseType     *string   `json:"course_type"`
 	Categories     []*string `json:"categories"`
 	SubCategories  []*string `json:"sub_categories"`
 	Languages      []*string `json:"languages"`

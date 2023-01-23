@@ -486,6 +486,11 @@ type Count {
 
 input BasicCourseStatsInput {
     lsp_id: String!
+    course_status: String
+    duration: Int
+    owner: String
+    created_by: String  
+    course_type: String
     categories: [String]
     sub_categories: [String]
     languages: [String]
@@ -494,6 +499,11 @@ input BasicCourseStatsInput {
 
 type BasicCourseStats {
     lsp_id: String!
+    course_status: String
+    duration: Int
+    owner: String
+    created_by: String
+    course_type: String
     categories: [Count]
     sub_categories: [Count]
     languages: [Count]
