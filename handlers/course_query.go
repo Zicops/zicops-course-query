@@ -259,3 +259,133 @@ func GetCourseByID(ctx context.Context, courseID []*string) ([]*model.Course, er
 
 	return res, nil
 }
+
+func GetBasicCourseStats(ctx context.Context, input *model.BasicCourseStatsInput) (*model.BasicCourseStats, error) {
+	_, err := helpers.GetClaimsFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+	session, err := cassandra.GetCassSession("coursez")
+	if err != nil {
+		return nil, err
+	}
+	CassUserSession := session
+	if input.Categories != nil && input.SubCategories != nil && input.ExpertiseLevel != nil && input.Languages != nil {
+		return nil, fmt.Errorf("only one of the following can be provided: Categories, SubCategories, ExpertiseLevel, Languages")
+	}
+	whereClause := fmt.Sprintf(" WHERE lsp_id = '%s' ", input.LspID)
+	if input.CourseStatus != nil {
+		whereClause = fmt.Sprintf("%s AND status = '%s' ", whereClause, *input.CourseStatus)
+	}
+	if input.CourseType != nil {
+		whereClause = fmt.Sprintf("%s AND type = '%s' ", whereClause, *input.CourseType)
+	}
+	if input.Duration != nil {
+		whereClause = fmt.Sprintf("%s AND duration <= %d ", whereClause, *input.Duration)
+	}
+	if input.Owner != nil {
+		whereClause = fmt.Sprintf("%s AND owner = '%s' ", whereClause, *input.Owner)
+	}
+	if input.CreatedBy != nil {
+		whereClause = fmt.Sprintf("%s AND created_by = '%s' ", whereClause, *input.CreatedBy)
+	}
+	catStats := make([]*model.Count, 0)
+	var wg sync.WaitGroup
+	if input.Categories != nil {
+		catStats = make([]*model.Count, len(input.Categories))
+		for i, v := range input.Categories {
+			wg.Add(1)
+			go func(v *string, i int) {
+				copiedCat := *v
+				whereClause = fmt.Sprintf("%s AND category = '%s' ", whereClause, copiedCat)
+				query := fmt.Sprintf("SELECT COUNT(*) FROM coursez.course %s ALLOW FILTERING", whereClause)
+				iter := CassUserSession.Query(query, nil).Iter()
+				var count int
+				iter.Scan(&count)
+				currentStat := model.Count{
+					Name:  &copiedCat,
+					Count: &count,
+				}
+				catStats[i] = &currentStat
+				wg.Done()
+			}(v, i)
+		}
+	}
+	subCatStats := make([]*model.Count, 0)
+	if input.SubCategories != nil {
+		subCatStats = make([]*model.Count, len(input.SubCategories))
+		for i, v := range input.SubCategories {
+			wg.Add(1)
+			go func(v *string, i int) {
+				copiedSubCat := *v
+				whereClause = fmt.Sprintf("%s AND sub_category = '%s' ", whereClause, copiedSubCat)
+				query := fmt.Sprintf("SELECT COUNT(*) FROM coursez.course %s ALLOW FILTERING", whereClause)
+				iter := CassUserSession.Query(query, nil).Iter()
+				var count int
+				iter.Scan(&count)
+				currentStat := model.Count{
+					Name:  &copiedSubCat,
+					Count: &count,
+				}
+				subCatStats[i] = &currentStat
+				wg.Done()
+			}(v, i)
+		}
+	}
+	expertiseStats := make([]*model.Count, 0)
+	if input.ExpertiseLevel != nil {
+		expertiseStats = make([]*model.Count, len(input.ExpertiseLevel))
+		for i, v := range input.ExpertiseLevel {
+			wg.Add(1)
+			go func(v *string, i int) {
+				copiedExpertise := *v
+				whereClause = fmt.Sprintf("%s AND expertise_level = '%s' ", whereClause, copiedExpertise)
+				query := fmt.Sprintf("SELECT COUNT(*) FROM coursez.course %s ALLOW FILTERING", whereClause)
+				iter := CassUserSession.Query(query, nil).Iter()
+				var count int
+				iter.Scan(&count)
+				currentStat := model.Count{
+					Name:  &copiedExpertise,
+					Count: &count,
+				}
+				expertiseStats[i] = &currentStat
+				wg.Done()
+			}(v, i)
+		}
+	}
+	languageStats := make([]*model.Count, 0)
+	if input.Languages != nil {
+		languageStats = make([]*model.Count, len(input.Languages))
+		for i, v := range input.Languages {
+			wg.Add(1)
+			go func(v *string, i int) {
+				copiedLanguage := *v
+				whereClause = fmt.Sprintf("%s AND language CONTAINS '%s' ", whereClause, copiedLanguage)
+				query := fmt.Sprintf("SELECT COUNT(*) FROM coursez.course %s ALLOW FILTERING", whereClause)
+				iter := CassUserSession.Query(query, nil).Iter()
+				var count int
+				iter.Scan(&count)
+				currentStat := model.Count{
+					Name:  &copiedLanguage,
+					Count: &count,
+				}
+				languageStats[i] = &currentStat
+				wg.Done()
+			}(v, i)
+		}
+	}
+	wg.Wait()
+	res := model.BasicCourseStats{
+		CourseStatus:   input.CourseStatus,
+		CourseType:     input.CourseType,
+		Duration:       input.Duration,
+		Owner:          input.Owner,
+		CreatedBy:      input.CreatedBy,
+		LspID:          input.LspID,
+		Categories:     catStats,
+		SubCategories:  subCatStats,
+		ExpertiseLevel: expertiseStats,
+		Languages:      languageStats,
+	}
+	return &res, nil
+}
