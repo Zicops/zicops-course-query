@@ -300,11 +300,11 @@ func GetBasicCourseStats(ctx context.Context, input *model.BasicCourseStatsInput
 				whereClause = fmt.Sprintf("%s AND category = '%s' ", whereClause, copiedCat)
 				query := fmt.Sprintf("SELECT COUNT(*) FROM coursez.course %s ALLOW FILTERING", whereClause)
 				iter := CassUserSession.Query(query, nil).Iter()
-				var count int
+				count := 0
 				iter.Scan(&count)
 				currentStat := model.Count{
-					Name:  &copiedCat,
-					Count: &count,
+					Name:  copiedCat,
+					Count: count,
 				}
 				catStats[i] = &currentStat
 				wg.Done()
@@ -321,11 +321,11 @@ func GetBasicCourseStats(ctx context.Context, input *model.BasicCourseStatsInput
 				whereClause = fmt.Sprintf("%s AND sub_category = '%s' ", whereClause, copiedSubCat)
 				query := fmt.Sprintf("SELECT COUNT(*) FROM coursez.course %s ALLOW FILTERING", whereClause)
 				iter := CassUserSession.Query(query, nil).Iter()
-				var count int
+				count := 0
 				iter.Scan(&count)
 				currentStat := model.Count{
-					Name:  &copiedSubCat,
-					Count: &count,
+					Name:  copiedSubCat,
+					Count: count,
 				}
 				subCatStats[i] = &currentStat
 				wg.Done()
@@ -342,11 +342,11 @@ func GetBasicCourseStats(ctx context.Context, input *model.BasicCourseStatsInput
 				whereClause = fmt.Sprintf("%s AND expertise_level = '%s' ", whereClause, copiedExpertise)
 				query := fmt.Sprintf("SELECT COUNT(*) FROM coursez.course %s ALLOW FILTERING", whereClause)
 				iter := CassUserSession.Query(query, nil).Iter()
-				var count int
+				count:=0
 				iter.Scan(&count)
 				currentStat := model.Count{
-					Name:  &copiedExpertise,
-					Count: &count,
+					Name:  copiedExpertise,
+					Count: count,
 				}
 				expertiseStats[i] = &currentStat
 				wg.Done()
@@ -363,11 +363,11 @@ func GetBasicCourseStats(ctx context.Context, input *model.BasicCourseStatsInput
 				whereClause = fmt.Sprintf("%s AND language CONTAINS '%s' ", whereClause, copiedLanguage)
 				query := fmt.Sprintf("SELECT COUNT(*) FROM coursez.course %s ALLOW FILTERING", whereClause)
 				iter := CassUserSession.Query(query, nil).Iter()
-				var count int
+				count := 0
 				iter.Scan(&count)
 				currentStat := model.Count{
-					Name:  &copiedLanguage,
-					Count: &count,
+					Name:  copiedLanguage,
+					Count: count,
 				}
 				languageStats[i] = &currentStat
 				wg.Done()

@@ -479,10 +479,9 @@ type Discussion {
 }
 
 type Count {
-  name: String
-  count: Int
+  name: String!
+  count: Int!
 }
-
 
 input BasicCourseStatsInput {
     lsp_id: String!
