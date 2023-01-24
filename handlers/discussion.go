@@ -60,6 +60,7 @@ func GetCourseDiscussion(ctx context.Context, courseID string, discussionID *str
 			tmp := &d
 			dislikesArray = append(dislikesArray, tmp)
 		}
+
 		t := int(v.Time)
 		seconds := t % 60
 		minutes := t / 60
