@@ -343,6 +343,7 @@ func GetBasicCourseStats(ctx context.Context, input *model.BasicCourseStatsInput
 			copiedLanguage := *v
 			whereClause = fmt.Sprintf("%s AND language CONTAINS '%s' ", whereClause, copiedLanguage)
 			query := fmt.Sprintf("SELECT COUNT(*) FROM coursez.course %s", whereClause)
+			log.Infof("query: %s", query)
 			iter := CassUserSession.Query(query, nil).Iter()
 			var count int
 			iter.Scan(&count)
