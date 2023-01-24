@@ -303,8 +303,8 @@ func GetBasicCourseStats(ctx context.Context, input *model.BasicCourseStatsInput
 				var count int
 				iter.Scan(&count)
 				currentStat := model.Count{
-					Name:  &copiedCat,
-					Count: &count,
+					Name:  copiedCat,
+					Count: count,
 				}
 				catStats[i] = &currentStat
 				wg.Done()
@@ -324,8 +324,8 @@ func GetBasicCourseStats(ctx context.Context, input *model.BasicCourseStatsInput
 				var count int
 				iter.Scan(&count)
 				currentStat := model.Count{
-					Name:  &copiedSubCat,
-					Count: &count,
+					Name:  copiedSubCat,
+					Count: count,
 				}
 				subCatStats[i] = &currentStat
 				wg.Done()
@@ -345,8 +345,8 @@ func GetBasicCourseStats(ctx context.Context, input *model.BasicCourseStatsInput
 				var count int
 				iter.Scan(&count)
 				currentStat := model.Count{
-					Name:  &copiedExpertise,
-					Count: &count,
+					Name:  copiedExpertise,
+					Count: count,
 				}
 				expertiseStats[i] = &currentStat
 				wg.Done()
@@ -366,8 +366,8 @@ func GetBasicCourseStats(ctx context.Context, input *model.BasicCourseStatsInput
 				var count int
 				iter.Scan(&count)
 				currentStat := model.Count{
-					Name:  &copiedLanguage,
-					Count: &count,
+					Name:  copiedLanguage,
+					Count: count,
 				}
 				languageStats[i] = &currentStat
 				wg.Done()

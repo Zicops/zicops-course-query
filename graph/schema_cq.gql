@@ -1,523 +1,528 @@
 # Queries for coursez
 enum Status {
-    SAVED
-    APPROVAL_PENDING
-    ON_HOLD
-    APPROVED
-    PUBLISHED
-    REJECTED
+  SAVED
+  APPROVAL_PENDING
+  ON_HOLD
+  APPROVED
+  PUBLISHED
+  REJECTED
 }
 
 type sub_categories {
-    name: String
-    rank: Int
+  name: String
+  rank: Int
 }
 
 # define course type
-type Course{
-    id: ID
-    name: String
-    lspId: String
-    publisher: String
-    description: String
-    summary: String
-    instructor: String
-    image: String
-    previewVideo: String
-    tileImage: String
-    owner: String
-    duration: Int
-    expertise_level: String
-    language: [String]
-    benefits: [String]
-    outcomes: [String]
-    created_at: String
-    updated_at: String
-    type: String
-    prequisites: [String]
-    goodFor: [String]
-    mustFor: [String]
-    related_skills: [String]
-    publish_date: String
-    expiry_date: String
-    expected_completion: String
-    qa_required: Boolean
-    approvers: [String]
-    created_by: String
-    updated_by: String
-    status: Status
-    is_display: Boolean
-    category: String
-    sub_category: String
-    sub_categories: [sub_categories]
-    is_active: Boolean
+type Course {
+  id: ID
+  name: String
+  lspId: String
+  publisher: String
+  description: String
+  summary: String
+  instructor: String
+  image: String
+  previewVideo: String
+  tileImage: String
+  owner: String
+  duration: Int
+  expertise_level: String
+  language: [String]
+  benefits: [String]
+  outcomes: [String]
+  created_at: String
+  updated_at: String
+  type: String
+  prequisites: [String]
+  goodFor: [String]
+  mustFor: [String]
+  related_skills: [String]
+  publish_date: String
+  expiry_date: String
+  expected_completion: String
+  qa_required: Boolean
+  approvers: [String]
+  created_by: String
+  updated_by: String
+  status: Status
+  is_display: Boolean
+  category: String
+  sub_category: String
+  sub_categories: [sub_categories]
+  is_active: Boolean
 }
 
 type PaginatedCourse {
-    courses: [Course]
-    pageCursor: String
-    direction: String
-    pageSize: Int
+  courses: [Course]
+  pageCursor: String
+  direction: String
+  pageSize: Int
 }
 
-type Module{
-    id: ID
-    name: String
-    isChapter: Boolean
-    description: String
-    courseId: String
-    owner: String
-    duration: Int
-    created_at: String
-    updated_at: String
-    level : String
-    sequence: Int
-    setGlobal: Boolean
+type Module {
+  id: ID
+  name: String
+  isChapter: Boolean
+  description: String
+  courseId: String
+  owner: String
+  duration: Int
+  created_at: String
+  updated_at: String
+  level: String
+  sequence: Int
+  setGlobal: Boolean
 }
 
 type Chapter {
-    id: ID
-    name: String
-    description: String
-    moduleId: String
-    courseId: String
-    created_at: String
-    updated_at: String
-    sequence: Int
+  id: ID
+  name: String
+  description: String
+  moduleId: String
+  courseId: String
+  created_at: String
+  updated_at: String
+  sequence: Int
 }
 
 type Topic {
-    id: ID
-    name: String
-    description: String
-    type : String
-    moduleId: String
-    chapterId: String
-    courseId: String
-    created_at: String
-    updated_at: String
-    sequence: Int
-    created_by: String
-    updated_by: String
-    image: String
+  id: ID
+  name: String
+  description: String
+  type: String
+  moduleId: String
+  chapterId: String
+  courseId: String
+  created_at: String
+  updated_at: String
+  sequence: Int
+  created_by: String
+  updated_by: String
+  image: String
 }
 
 type SubtitleUrl {
-    url : String
-    language : String
+  url: String
+  language: String
 }
 
 type TopicContent {
-    id: ID
-    language: String
-    topicId: String
-    courseId: String
-    startTime: Int
-    duration: Int
-    skipIntroDuration: Int
-    nextShowTime: Int
-    fromEndTime: Int
-    created_at: String
-    updated_at: String
-    type: String
-    contentUrl: String
-    subtitleUrl: [SubtitleUrl]
-    is_default: Boolean
+  id: ID
+  language: String
+  topicId: String
+  courseId: String
+  startTime: Int
+  duration: Int
+  skipIntroDuration: Int
+  nextShowTime: Int
+  fromEndTime: Int
+  created_at: String
+  updated_at: String
+  type: String
+  contentUrl: String
+  subtitleUrl: [SubtitleUrl]
+  is_default: Boolean
 }
 
 type QuizFile {
-    quizId: String
-    type: String
-    name: String
-    fileUrl: String
+  quizId: String
+  type: String
+  name: String
+  fileUrl: String
 }
 
 type QuizMcq {
-    quizId: String
-    question: String
-    options: [String]
-    correctOption: String
-    explanation: String
+  quizId: String
+  question: String
+  options: [String]
+  correctOption: String
+  explanation: String
 }
 
 type QuizDescriptive {
-    quizId: String
-    question: String
-    correctAnswer: String
-    explanation: String
+  quizId: String
+  question: String
+  correctAnswer: String
+  explanation: String
 }
 
-type TopicResource{
-    id: ID
-    name: String
-    type: String
-    topicId: String
-    courseId: String
-    created_at: String
-    updated_at: String
-    created_by: String
-    updated_by: String
-    url: String
+type TopicResource {
+  id: ID
+  name: String
+  type: String
+  topicId: String
+  courseId: String
+  created_at: String
+  updated_at: String
+  created_by: String
+  updated_by: String
+  url: String
 }
 
 type Quiz {
-    id: ID
-    name: String
-    category: String
-    type: String
-    isMandatory: Boolean
-    created_at: String
-    updated_at: String
-    topicId: String
-    courseId: String
-    questionId: String
-    qbId: String
-    weightage: Int
-    sequence: Int
-    startTime: Int
+  id: ID
+  name: String
+  category: String
+  type: String
+  isMandatory: Boolean
+  created_at: String
+  updated_at: String
+  topicId: String
+  courseId: String
+  questionId: String
+  qbId: String
+  weightage: Int
+  sequence: Int
+  startTime: Int
 }
 
 type QuestionBank {
-    id: ID
-    name: String
-    lspId: String
-    description: String
-    category: String
-    sub_category: String
-    created_at: String
-    updated_at: String
-    created_by: String
-    updated_by: String
-    is_active: Boolean
-    is_default: Boolean
-    owner: String
+  id: ID
+  name: String
+  lspId: String
+  description: String
+  category: String
+  sub_category: String
+  created_at: String
+  updated_at: String
+  created_by: String
+  updated_by: String
+  is_active: Boolean
+  is_default: Boolean
+  owner: String
 }
 
-type PaginatedQuestionBank{
-    questionBanks: [QuestionBank]
-    pageCursor: String
-    direction: String
-    pageSize: Int
+type PaginatedQuestionBank {
+  questionBanks: [QuestionBank]
+  pageCursor: String
+  direction: String
+  pageSize: Int
 }
 
 type QuestionBankQuestion {
-    id: ID
-    Name: String
-    Description: String
-    Type: String
-    Difficulty: Int
-    Attachment: String
-    AttachmentType: String
-    Hint : String
-    QbmId: String
-    Status: String
-    CreatedAt: String
-    UpdatedAt: String
-    CreatedBy: String
-    UpdatedBy: String
+  id: ID
+  Name: String
+  Description: String
+  Type: String
+  Difficulty: Int
+  Attachment: String
+  AttachmentType: String
+  Hint: String
+  QbmId: String
+  Status: String
+  CreatedAt: String
+  UpdatedAt: String
+  CreatedBy: String
+  UpdatedBy: String
 }
 
 type QuestionOption {
-    id: ID
-    QmId: String
-    Description: String
-    IsCorrect: Boolean
-    CreatedAt: String
-    UpdatedAt: String
-    CreatedBy: String
-    UpdatedBy: String
-    AttachmentType: String
-    Attachment: String
-    IsActive : Boolean
+  id: ID
+  QmId: String
+  Description: String
+  IsCorrect: Boolean
+  CreatedAt: String
+  UpdatedAt: String
+  CreatedBy: String
+  UpdatedBy: String
+  AttachmentType: String
+  Attachment: String
+  IsActive: Boolean
 }
 
 type QuestionPaper {
-    id: ID
-    name: String
-    Category: String
-    SubCategory: String
-    CreatedAt: String
-    UpdatedAt: String
-    CreatedBy: String
-    UpdatedBy: String
-    IsActive : Boolean
-    DifficultyLevel: String
-    SectionWise: Boolean
-    Description: String
-    SuggestedDuration: String
-    Status: String
+  id: ID
+  name: String
+  Category: String
+  SubCategory: String
+  CreatedAt: String
+  UpdatedAt: String
+  CreatedBy: String
+  UpdatedBy: String
+  IsActive: Boolean
+  DifficultyLevel: String
+  SectionWise: Boolean
+  Description: String
+  SuggestedDuration: String
+  Status: String
 }
 
-type PaginatedQuestionPapers{
-    questionPapers: [QuestionPaper]
-    pageCursor: String
-    direction: String
-    pageSize: Int
+type PaginatedQuestionPapers {
+  questionPapers: [QuestionPaper]
+  pageCursor: String
+  direction: String
+  pageSize: Int
 }
 
 type QuestionPaperSection {
-    id: ID
-    QpId: String
-    Name: String
-    Description: String
-    CreatedAt: String
-    UpdatedAt: String
-    CreatedBy: String
-    UpdatedBy: String
-    IsActive : Boolean
-    Type: String
-    DifficultyLevel: String
-    TotalQuestions: Int
+  id: ID
+  QpId: String
+  Name: String
+  Description: String
+  CreatedAt: String
+  UpdatedAt: String
+  CreatedBy: String
+  UpdatedBy: String
+  IsActive: Boolean
+  Type: String
+  DifficultyLevel: String
+  TotalQuestions: Int
 }
 
 type SectionQBMapping {
-    id: ID
-    QbId: String
-    SectionId: String
-    DifficultyLevel: String
-    TotalQuestions: Int
-    QuestionMarks: String
-    QuestionType: String
-    RetrieveType: String
-    CreatedAt: String
-    UpdatedAt: String
-    CreatedBy: String
-    UpdatedBy: String
-    IsActive : Boolean
+  id: ID
+  QbId: String
+  SectionId: String
+  DifficultyLevel: String
+  TotalQuestions: Int
+  QuestionMarks: String
+  QuestionType: String
+  RetrieveType: String
+  CreatedAt: String
+  UpdatedAt: String
+  CreatedBy: String
+  UpdatedBy: String
+  IsActive: Boolean
 }
 
 type SectionFixedQuestions {
-    id: ID
-    SqbId: String
-    QuestionId: String
-    CreatedAt: String
-    UpdatedAt: String
-    CreatedBy: String
-    UpdatedBy: String
-    IsActive : Boolean
+  id: ID
+  SqbId: String
+  QuestionId: String
+  CreatedAt: String
+  UpdatedAt: String
+  CreatedBy: String
+  UpdatedBy: String
+  IsActive: Boolean
 }
 
-type MapQuestionWithOption{
-    question_id: String
-    options:[QuestionOption]
+type MapQuestionWithOption {
+  question_id: String
+  options: [QuestionOption]
 }
 
 type Exam {
-    id: ID
-    Name: String
-    Description: String
-    Code : String
-    QpId: String
-    QuestionIds: [String]
-    CreatedAt: String
-    UpdatedAt: String
-    CreatedBy: String
-    UpdatedBy: String
-    IsActive : Boolean
-    Type: String
-    ScheduleType: String
-    Duration: Int
-    Status: String
-    Category: String
-    SubCategory: String
-    TotalCount: Int
+  id: ID
+  Name: String
+  Description: String
+  Code: String
+  QpId: String
+  QuestionIds: [String]
+  CreatedAt: String
+  UpdatedAt: String
+  CreatedBy: String
+  UpdatedBy: String
+  IsActive: Boolean
+  Type: String
+  ScheduleType: String
+  Duration: Int
+  Status: String
+  Category: String
+  SubCategory: String
+  TotalCount: Int
 }
 
-type PaginatedExams{
-    exams: [Exam]
-    pageCursor: String
-    direction: String
-    pageSize: Int
+type PaginatedExams {
+  exams: [Exam]
+  pageCursor: String
+  direction: String
+  pageSize: Int
 }
 
 type ExamSchedule {
-    id: ID
-    ExamId: String
-    Start: String
-    End: String
-    BufferTime: String
-    CreatedAt: String
-    UpdatedAt: String
-    CreatedBy: String
-    UpdatedBy: String
-    IsActive : Boolean
+  id: ID
+  ExamId: String
+  Start: String
+  End: String
+  BufferTime: String
+  CreatedAt: String
+  UpdatedAt: String
+  CreatedBy: String
+  UpdatedBy: String
+  IsActive: Boolean
 }
 
 type ExamInstruction {
-    id: ID
-    ExamId: String
-    Instructions: String
-    PassingCriteria: String
-    NoAttempts: String
-    AccessType: String
-    CreatedAt: String
-    UpdatedAt: String
-    CreatedBy: String
-    UpdatedBy: String
-    IsActive : Boolean
+  id: ID
+  ExamId: String
+  Instructions: String
+  PassingCriteria: String
+  NoAttempts: String
+  AccessType: String
+  CreatedAt: String
+  UpdatedAt: String
+  CreatedBy: String
+  UpdatedBy: String
+  IsActive: Boolean
 }
 
 type ExamCohort {
-    id: ID
-    ExamId: String
-    CohortId: String
-    CreatedAt: String
-    UpdatedAt: String
-    CreatedBy: String
-    UpdatedBy: String
-    IsActive : Boolean
+  id: ID
+  ExamId: String
+  CohortId: String
+  CreatedAt: String
+  UpdatedAt: String
+  CreatedBy: String
+  UpdatedBy: String
+  IsActive: Boolean
 }
 
 type ExamConfiguration {
-    id: ID
-    ExamId: String
-    Shuffle: Boolean
-    DisplayHints: Boolean
-    ShowAnswer: Boolean
-    ShowResult: Boolean
-    CreatedBy: String
-    UpdatedBy: String
-    IsActive : Boolean
-    CreatedAt: String
-    UpdatedAt: String
+  id: ID
+  ExamId: String
+  Shuffle: Boolean
+  DisplayHints: Boolean
+  ShowAnswer: Boolean
+  ShowResult: Boolean
+  CreatedBy: String
+  UpdatedBy: String
+  IsActive: Boolean
+  CreatedAt: String
+  UpdatedAt: String
 }
 
-type TopicExam{
-    id: ID
-    topicId: String
-    examId: String
-    courseId: String
-    created_at: String
-    updated_at: String
-    language: String
+type TopicExam {
+  id: ID
+  topicId: String
+  examId: String
+  courseId: String
+  created_at: String
+  updated_at: String
+  language: String
 }
-input QBFilters{
-    DifficultyStart: Int
-    DifficultyEnd: Int
-    TotalQuestions: Int
-    ExcludedQuestionIds: [String]
+input QBFilters {
+  DifficultyStart: Int
+  DifficultyEnd: Int
+  TotalQuestions: Int
+  ExcludedQuestionIds: [String]
 }
 
 type CourseCohort {
-    id: ID
-    CourseId: String
-    CohortId: String
-    CourseType: String
-    LspId: String
-    CohortCode: String
-    isMandatory: Boolean
-    CourseStatus: String
-    AddedBy: String
-    CreatedAt: String
-    UpdatedAt: String
-    CreatedBy: String
-    UpdatedBy: String
-    IsActive : Boolean
-    ExpectedCompletion: Int 
+  id: ID
+  CourseId: String
+  CohortId: String
+  CourseType: String
+  LspId: String
+  CohortCode: String
+  isMandatory: Boolean
+  CourseStatus: String
+  AddedBy: String
+  CreatedAt: String
+  UpdatedAt: String
+  CreatedBy: String
+  UpdatedBy: String
+  IsActive: Boolean
+  ExpectedCompletion: Int
 }
 
 type CatMain {
-    id: ID
-    Name: String
-    Description: String
-    ImageUrl: String
-    Code: String
-    CreatedAt: String
-    UpdatedAt: String
-    CreatedBy: String
-    UpdatedBy: String
-    IsActive : Boolean
+  id: ID
+  Name: String
+  Description: String
+  ImageUrl: String
+  Code: String
+  CreatedAt: String
+  UpdatedAt: String
+  CreatedBy: String
+  UpdatedBy: String
+  IsActive: Boolean
 }
 
 type SubCatMain {
-    id: ID
-    Name: String
-    Description: String
-    ImageUrl: String
-    Code: String
-    CatId: String
-    CreatedAt: String
-    UpdatedAt: String
-    CreatedBy: String
-    UpdatedBy: String
-    IsActive : Boolean
+  id: ID
+  Name: String
+  Description: String
+  ImageUrl: String
+  Code: String
+  CatId: String
+  CreatedAt: String
+  UpdatedAt: String
+  CreatedBy: String
+  UpdatedBy: String
+  IsActive: Boolean
 }
 
 input CoursesFilters {
-    LspId: String
-    Category: String
-    SubCategory: String
-    Language: String
-    DurationMin: Int
-    DurationMax: Int
-    Type: String
-    SearchText: String
+  LspId: String
+  Category: String
+  SubCategory: String
+  Language: String
+  DurationMin: Int
+  DurationMax: Int
+  Type: String
+  SearchText: String
 }
 
-
 type Discussion {
-	DiscussionId: String
-	CourseId: String 
-	ReplyId: String 
-	UserId: String 
-	Time: String
-	Content: String 
-	Module: String 
-	Chapter: String 
-	Topic: String 
-	Likes: [String]
-	Dislike: [String]
-	IsAnonymous: Boolean   
-	IsPinned: Boolean
-	IsAnnouncement: Boolean
-	ReplyCount: Int
-	CreatedBy: String
-	Created_at: Int
-	Updated_by: String 
-	Updated_at: Int
-	Status: String 
+  DiscussionId: String
+  CourseId: String
+  ReplyId: String
+  UserId: String
+  Time: String
+  Content: String
+  Module: String
+  Chapter: String
+  Topic: String
+  Likes: [String]
+  Dislike: [String]
+  IsAnonymous: Boolean
+  IsPinned: Boolean
+  IsAnnouncement: Boolean
+  ReplyCount: Int
+  CreatedBy: String
+  Created_at: Int
+  Updated_by: String
+  Updated_at: Int
+  Status: String
 }
 
 type Count {
-  name: String
-  count: Int
+  name: String!
+  count: Int!
 }
 
-
 input BasicCourseStatsInput {
-    lsp_id: String!
-    course_status: String
-    duration: Int
-    owner: String
-    created_by: String  
-    course_type: String
-    categories: [String]
-    sub_categories: [String]
-    languages: [String]
-    expertise_level: [String]
+  lsp_id: String!
+  course_status: String
+  duration: Int
+  owner: String
+  created_by: String
+  course_type: String
+  categories: [String]
+  sub_categories: [String]
+  languages: [String]
+  expertise_level: [String]
 }
 
 type BasicCourseStats {
-    lsp_id: String!
-    course_status: String
-    duration: Int
-    owner: String
-    created_by: String
-    course_type: String
-    categories: [Count]
-    sub_categories: [Count]
-    languages: [Count]
-    expertise_level: [Count]
+  lsp_id: String!
+  course_status: String
+  duration: Int
+  owner: String
+  created_by: String
+  course_type: String
+  categories: [Count]
+  sub_categories: [Count]
+  languages: [Count]
+  expertise_level: [Count]
 }
 
-type Query{
+type Query {
   allCatMain(lsp_ids: [String], searchText: String): [CatMain]
   allSubCatMain(lsp_ids: [String], searchText: String): [SubCatMain]
   allSubCatByCatId(catId: String): [SubCatMain]
   allCategories: [String]
   allSubCategories: [String]
   allSubCatsByCat(category: String): [String]
-  latestCourses(publish_time: Int, pageCursor: String, Direction: String, pageSize:Int, status:Status, filters:CoursesFilters): PaginatedCourse
+  latestCourses(
+    publish_time: Int
+    pageCursor: String
+    Direction: String
+    pageSize: Int
+    status: Status
+    filters: CoursesFilters
+  ): PaginatedCourse
   getCourse(course_id: [String]): [Course]
   getCourseModules(course_id: String): [Module]
   getModuleById(module_id: String): Module
@@ -536,18 +541,40 @@ type Query{
   getTopicContentByModuleId(module_id: String): [TopicContent]
   getTopicExamsByCourseId(course_id: String): [TopicExam]
   getResourcesByCourseId(course_id: String): [TopicResource]
-  getLatestQuestionBank(publish_time: Int, pageCursor: String, Direction: String, pageSize:Int, searchText: String, LspId: String): PaginatedQuestionBank
-  getQBMeta(qb_ids:[String]): [QuestionBank]
-  getQuestionBankQuestions(question_bank_id: String, filters: QBFilters): [QuestionBankQuestion]
-  getLatestQuestionPapers(publish_time: Int, pageCursor: String, Direction: String, pageSize:Int, searchText: String): PaginatedQuestionPapers
-  getQPMeta(question_papers_ids:[String]): [QuestionPaper]
-  getLatestExams(publish_time: Int, pageCursor: String, Direction: String, pageSize:Int, searchText: String): PaginatedExams
+  getLatestQuestionBank(
+    publish_time: Int
+    pageCursor: String
+    Direction: String
+    pageSize: Int
+    searchText: String
+    LspId: String
+  ): PaginatedQuestionBank
+  getQBMeta(qb_ids: [String]): [QuestionBank]
+  getQuestionBankQuestions(
+    question_bank_id: String
+    filters: QBFilters
+  ): [QuestionBankQuestion]
+  getLatestQuestionPapers(
+    publish_time: Int
+    pageCursor: String
+    Direction: String
+    pageSize: Int
+    searchText: String
+  ): PaginatedQuestionPapers
+  getQPMeta(question_papers_ids: [String]): [QuestionPaper]
+  getLatestExams(
+    publish_time: Int
+    pageCursor: String
+    Direction: String
+    pageSize: Int
+    searchText: String
+  ): PaginatedExams
   getQuestionPaperSections(question_paper_id: String): [QuestionPaperSection]
   getQPBankMappingByQBId(question_bank_id: String): [SectionQBMapping]
   getQPBankMappingBySectionId(section_id: String): [SectionQBMapping]
   getSectionFixedQuestions(section_id: String): [SectionFixedQuestions]
   getOptionsForQuestions(question_ids: [String]): [MapQuestionWithOption]
-  getExamsMeta(exam_ids:[String]): [Exam]
+  getExamsMeta(exam_ids: [String]): [Exam]
   getExamsByQPId(question_paper_id: String): [Exam]
   getExamSchedule(exam_id: String): [ExamSchedule]
   getExamInstruction(exam_id: String): [ExamInstruction]
@@ -555,6 +582,6 @@ type Query{
   getExamConfiguration(exam_id: String): [ExamConfiguration]
   getQuestionsById(question_ids: [String]): [QuestionBankQuestion]
   getCohortCourseMaps(cohort_id: String): [CourseCohort]
-  getCourseDiscussion(course_id:String!, discussion_id:String): [Discussion]
+  getCourseDiscussion(course_id: String!, discussion_id: String): [Discussion]
   getBasicCourseStats(input: BasicCourseStatsInput): BasicCourseStats
 }

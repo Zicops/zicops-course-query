@@ -59,8 +59,8 @@ type Chapter struct {
 }
 
 type Count struct {
-	Name  *string `json:"name"`
-	Count *int    `json:"count"`
+	Name  string `json:"name"`
+	Count int    `json:"count"`
 }
 
 type Course struct {
