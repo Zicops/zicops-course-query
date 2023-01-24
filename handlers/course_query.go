@@ -290,70 +290,91 @@ func GetBasicCourseStats(ctx context.Context, input *model.BasicCourseStatsInput
 		whereClause = fmt.Sprintf("%s AND created_by = '%s' ", whereClause, *input.CreatedBy)
 	}
 	catStats := make([]*model.Count, 0)
+	var wg sync.WaitGroup
 	if input.Categories != nil {
-		for _, v := range input.Categories {
-			copiedCat := *v
-			whereClause = fmt.Sprintf("%s AND category = '%s' ", whereClause, copiedCat)
-			query := fmt.Sprintf("SELECT COUNT(*) FROM coursez.course %s", whereClause)
-			iter := CassUserSession.Query(query, nil).Iter()
-			var count int
-			iter.Scan(&count)
-			currentStat := model.Count{
-				Name:  &copiedCat,
-				Count: &count,
-			}
-			catStats = append(catStats, &currentStat)
+		catStats = make([]*model.Count, len(input.Categories))
+		for i, v := range input.Categories {
+			wg.Add(1)
+			go func(v *string, i int) {
+				copiedCat := *v
+				whereClause = fmt.Sprintf("%s AND category = '%s' ", whereClause, copiedCat)
+				query := fmt.Sprintf("SELECT COUNT(*) FROM coursez.course %s ALLOW FILTERING", whereClause)
+				iter := CassUserSession.Query(query, nil).Iter()
+				var count int
+				iter.Scan(&count)
+				currentStat := model.Count{
+					Name:  &copiedCat,
+					Count: &count,
+				}
+				catStats[i] = &currentStat
+				wg.Done()
+			}(v, i)
 		}
 	}
 	subCatStats := make([]*model.Count, 0)
 	if input.SubCategories != nil {
-		for _, v := range input.SubCategories {
-			copiedSubCat := *v
-			whereClause = fmt.Sprintf("%s AND sub_category = '%s' ", whereClause, copiedSubCat)
-			query := fmt.Sprintf("SELECT COUNT(*) FROM coursez.course %s", whereClause)
-			iter := CassUserSession.Query(query, nil).Iter()
-			var count int
-			iter.Scan(&count)
-			currentStat := model.Count{
-				Name:  &copiedSubCat,
-				Count: &count,
-			}
-			subCatStats = append(subCatStats, &currentStat)
+		subCatStats = make([]*model.Count, len(input.SubCategories))
+		for i, v := range input.SubCategories {
+			wg.Add(1)
+			go func(v *string, i int) {
+				copiedSubCat := *v
+				whereClause = fmt.Sprintf("%s AND sub_category = '%s' ", whereClause, copiedSubCat)
+				query := fmt.Sprintf("SELECT COUNT(*) FROM coursez.course %s ALLOW FILTERING", whereClause)
+				iter := CassUserSession.Query(query, nil).Iter()
+				var count int
+				iter.Scan(&count)
+				currentStat := model.Count{
+					Name:  &copiedSubCat,
+					Count: &count,
+				}
+				subCatStats[i] = &currentStat
+				wg.Done()
+			}(v, i)
 		}
 	}
 	expertiseStats := make([]*model.Count, 0)
 	if input.ExpertiseLevel != nil {
-		for _, v := range input.ExpertiseLevel {
-			copiedExpertise := *v
-			whereClause = fmt.Sprintf("%s AND expertise_level = '%s' ", whereClause, copiedExpertise)
-			query := fmt.Sprintf("SELECT COUNT(*) FROM coursez.course %s", whereClause)
-			iter := CassUserSession.Query(query, nil).Iter()
-			var count int
-			iter.Scan(&count)
-			currentStat := model.Count{
-				Name:  &copiedExpertise,
-				Count: &count,
-			}
-			expertiseStats = append(expertiseStats, &currentStat)
+		expertiseStats = make([]*model.Count, len(input.ExpertiseLevel))
+		for i, v := range input.ExpertiseLevel {
+			wg.Add(1)
+			go func(v *string, i int) {
+				copiedExpertise := *v
+				whereClause = fmt.Sprintf("%s AND expertise_level = '%s' ", whereClause, copiedExpertise)
+				query := fmt.Sprintf("SELECT COUNT(*) FROM coursez.course %s ALLOW FILTERING", whereClause)
+				iter := CassUserSession.Query(query, nil).Iter()
+				var count int
+				iter.Scan(&count)
+				currentStat := model.Count{
+					Name:  &copiedExpertise,
+					Count: &count,
+				}
+				expertiseStats[i] = &currentStat
+				wg.Done()
+			}(v, i)
 		}
 	}
 	languageStats := make([]*model.Count, 0)
 	if input.Languages != nil {
-		for _, v := range input.Languages {
-			copiedLanguage := *v
-			whereClause = fmt.Sprintf("%s AND language CONTAINS '%s' ", whereClause, copiedLanguage)
-			query := fmt.Sprintf("SELECT COUNT(*) FROM coursez.course %s", whereClause)
-			log.Infof("query: %s", query)
-			iter := CassUserSession.Query(query, nil).Iter()
-			var count int
-			iter.Scan(&count)
-			currentStat := model.Count{
-				Name:  &copiedLanguage,
-				Count: &count,
-			}
-			languageStats = append(languageStats, &currentStat)
+		languageStats = make([]*model.Count, len(input.Languages))
+		for i, v := range input.Languages {
+			wg.Add(1)
+			go func(v *string, i int) {
+				copiedLanguage := *v
+				whereClause = fmt.Sprintf("%s AND language CONTAINS '%s' ", whereClause, copiedLanguage)
+				query := fmt.Sprintf("SELECT COUNT(*) FROM coursez.course %s ALLOW FILTERING", whereClause)
+				iter := CassUserSession.Query(query, nil).Iter()
+				var count int
+				iter.Scan(&count)
+				currentStat := model.Count{
+					Name:  &copiedLanguage,
+					Count: &count,
+				}
+				languageStats[i] = &currentStat
+				wg.Done()
+			}(v, i)
 		}
 	}
+	wg.Wait()
 	res := model.BasicCourseStats{
 		CourseStatus:   input.CourseStatus,
 		CourseType:     input.CourseType,
