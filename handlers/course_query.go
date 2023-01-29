@@ -297,8 +297,8 @@ func GetBasicCourseStats(ctx context.Context, input *model.BasicCourseStatsInput
 			wg.Add(1)
 			go func(v *string, i int) {
 				copiedCat := *v
-				whereClause = fmt.Sprintf("%s AND category = '%s' ", whereClause, copiedCat)
-				query := fmt.Sprintf("SELECT COUNT(*) FROM coursez.course %s ALLOW FILTERING", whereClause)
+				tempClause := fmt.Sprintf("%s AND category = '%s' ", whereClause, copiedCat)
+				query := fmt.Sprintf("SELECT COUNT(*) FROM coursez.course %s ALLOW FILTERING", tempClause)
 				iter := CassUserSession.Query(query, nil).Iter()
 				count := 0
 				iter.Scan(&count)
@@ -318,8 +318,8 @@ func GetBasicCourseStats(ctx context.Context, input *model.BasicCourseStatsInput
 			wg.Add(1)
 			go func(v *string, i int) {
 				copiedSubCat := *v
-				whereClause = fmt.Sprintf("%s AND sub_category = '%s' ", whereClause, copiedSubCat)
-				query := fmt.Sprintf("SELECT COUNT(*) FROM coursez.course %s ALLOW FILTERING", whereClause)
+				tempClause := fmt.Sprintf("%s AND sub_category = '%s' ", whereClause, copiedSubCat)
+				query := fmt.Sprintf("SELECT COUNT(*) FROM coursez.course %s ALLOW FILTERING", tempClause)
 				iter := CassUserSession.Query(query, nil).Iter()
 				count := 0
 				iter.Scan(&count)
@@ -339,8 +339,8 @@ func GetBasicCourseStats(ctx context.Context, input *model.BasicCourseStatsInput
 			wg.Add(1)
 			go func(v *string, i int) {
 				copiedExpertise := *v
-				whereClause = fmt.Sprintf("%s AND expertise_level = '%s' ", whereClause, copiedExpertise)
-				query := fmt.Sprintf("SELECT COUNT(*) FROM coursez.course %s ALLOW FILTERING", whereClause)
+				tempClause := fmt.Sprintf("%s AND expertise_level = '%s' ", whereClause, copiedExpertise)
+				query := fmt.Sprintf("SELECT COUNT(*) FROM coursez.course %s ALLOW FILTERING", tempClause)
 				iter := CassUserSession.Query(query, nil).Iter()
 				count:=0
 				iter.Scan(&count)
@@ -360,8 +360,8 @@ func GetBasicCourseStats(ctx context.Context, input *model.BasicCourseStatsInput
 			wg.Add(1)
 			go func(v *string, i int) {
 				copiedLanguage := *v
-				whereClause = fmt.Sprintf("%s AND language CONTAINS '%s' ", whereClause, copiedLanguage)
-				query := fmt.Sprintf("SELECT COUNT(*) FROM coursez.course %s ALLOW FILTERING", whereClause)
+				tempClause := fmt.Sprintf("%s AND language CONTAINS '%s' ", whereClause, copiedLanguage)
+				query := fmt.Sprintf("SELECT COUNT(*) FROM coursez.course %s ALLOW FILTERING", tempClause)
 				iter := CassUserSession.Query(query, nil).Iter()
 				count := 0
 				iter.Scan(&count)
