@@ -7,9 +7,9 @@ require (
 	cloud.google.com/go/storage v1.28.1
 	github.com/99designs/gqlgen v0.17.22
 	github.com/bradhe/stopwatch v0.0.0-20190618212248-a58cccc508ea
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-contrib/cors v1.4.0
 	github.com/gin-gonic/gin v1.8.2
+	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/sirupsen/logrus v1.9.0
 	github.com/vektah/gqlparser/v2 v2.5.1
 	github.com/zicops/contracts v0.0.0-20230110195038-fa653f33802a
