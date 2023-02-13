@@ -557,6 +557,3 @@ type Query{
   getCourseDiscussion(course_id:String!, discussion_id:String): [Discussion]
   getBasicCourseStats(input: BasicCourseStatsInput): BasicCourseStats
 }
-
-#lsp id - course count
-#lsp + filters - course status, qa_required - bool, 

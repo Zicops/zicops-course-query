@@ -300,7 +300,7 @@ func GetBasicCourseStats(ctx context.Context, input *model.BasicCourseStatsInput
 				tempClause := fmt.Sprintf("%s AND category = '%s' ", whereClause, copiedCat)
 				query := fmt.Sprintf("SELECT COUNT(*) FROM coursez.course %s ALLOW FILTERING", tempClause)
 				iter := CassUserSession.Query(query, nil).Iter()
-				var count int
+				count := 0
 				iter.Scan(&count)
 				currentStat := model.Count{
 					Name:  copiedCat,
@@ -321,7 +321,7 @@ func GetBasicCourseStats(ctx context.Context, input *model.BasicCourseStatsInput
 				tempClause := fmt.Sprintf("%s AND sub_category = '%s' ", whereClause, copiedSubCat)
 				query := fmt.Sprintf("SELECT COUNT(*) FROM coursez.course %s ALLOW FILTERING", tempClause)
 				iter := CassUserSession.Query(query, nil).Iter()
-				var count int
+				count := 0
 				iter.Scan(&count)
 				currentStat := model.Count{
 					Name:  copiedSubCat,
@@ -342,7 +342,7 @@ func GetBasicCourseStats(ctx context.Context, input *model.BasicCourseStatsInput
 				tempClause := fmt.Sprintf("%s AND expertise_level = '%s' ", whereClause, copiedExpertise)
 				query := fmt.Sprintf("SELECT COUNT(*) FROM coursez.course %s ALLOW FILTERING", tempClause)
 				iter := CassUserSession.Query(query, nil).Iter()
-				var count int
+				count:=0
 				iter.Scan(&count)
 				currentStat := model.Count{
 					Name:  copiedExpertise,
@@ -363,7 +363,7 @@ func GetBasicCourseStats(ctx context.Context, input *model.BasicCourseStatsInput
 				tempClause := fmt.Sprintf("%s AND language CONTAINS '%s' ", whereClause, copiedLanguage)
 				query := fmt.Sprintf("SELECT COUNT(*) FROM coursez.course %s ALLOW FILTERING", tempClause)
 				iter := CassUserSession.Query(query, nil).Iter()
-				var count int
+				count := 0
 				iter.Scan(&count)
 				currentStat := model.Count{
 					Name:  copiedLanguage,

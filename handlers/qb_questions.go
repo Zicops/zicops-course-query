@@ -210,6 +210,7 @@ func GetQuestionsByID(ctx context.Context, questionIds []*string) ([]*model.Ques
 			wg.Wait()
 			allQuestions = append(allQuestions, collectQs...)
 		}
+		wg.Wait()
 		redisBytes, err := json.Marshal(banks)
 		if err == nil {
 			redis.SetTTL(key, 3600)
