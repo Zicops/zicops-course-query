@@ -104,8 +104,3 @@ func GetCourseDiscussion(ctx context.Context, courseID string, discussionID *str
 	}
 	return result, nil
 }
-
-/*
-editable
-Content,time, likes, dislikes, isanonymous, ispinned, isannouncement, status
-*/
