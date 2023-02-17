@@ -67,20 +67,20 @@ func GetCourseByID(ctx context.Context, courseID []*string) ([]*model.Course, er
 	}
 	//role := strings.ToLower(claims["role"].(string))
 	//lspID := claims["lsp_id"].(string)
-	result, err := redis.GetRedisValue(key)
-	if err != nil {
-		log.Error("Error in getting redis value for key: ", key)
-	}
-	if result != "" {
-		err = json.Unmarshal([]byte(result), &course)
-		if err != nil {
-			log.Error("Error in unmarshalling redis value for key: ", key)
-		}
-	}
+	// result, err := redis.GetRedisValue(key)
+	// if err != nil {
+	// 	log.Error("Error in getting redis value for key: ", key)
+	// }
+	// if result != "" {
+	// 	err = json.Unmarshal([]byte(result), &course)
+	// 	if err != nil {
+	// 		log.Error("Error in unmarshalling redis value for key: ", key)
+	// 	}
+	// }
 	//from here we will write query if our cache value is nil
 	res := make([]*model.Course, len(courseID))
 	var wg sync.WaitGroup
-	if course.ID == "" {
+	{
 		session, err := cassandra.GetCassSession("coursez")
 		if err != nil {
 			return nil, err
