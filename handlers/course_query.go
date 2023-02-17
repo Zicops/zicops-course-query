@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
-	"strings"
 	"sync"
 
 	log "github.com/sirupsen/logrus"
@@ -62,11 +61,11 @@ func GetCourseByID(ctx context.Context, courseID []*string) ([]*model.Course, er
 		Publisher:          "",
 	}
 	key := "GetCourseByID" + fmt.Sprintf("%v", courseID)
-	claims, err := helpers.GetClaimsFromContext(ctx)
+	_, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
-	role := strings.ToLower(claims["role"].(string))
+	//role := strings.ToLower(claims["role"].(string))
 	//lspID := claims["lsp_id"].(string)
 	result, err := redis.GetRedisValue(key)
 	if err != nil {
@@ -81,7 +80,7 @@ func GetCourseByID(ctx context.Context, courseID []*string) ([]*model.Course, er
 	//from here we will write query if our cache value is nil
 	res := make([]*model.Course, len(courseID))
 	var wg sync.WaitGroup
-	if course.ID == "" || role == "admin" {
+	if course.ID == "" {
 		session, err := cassandra.GetCassSession("coursez")
 		if err != nil {
 			return nil, err
@@ -342,7 +341,7 @@ func GetBasicCourseStats(ctx context.Context, input *model.BasicCourseStatsInput
 				tempClause := fmt.Sprintf("%s AND expertise_level = '%s' ", whereClause, copiedExpertise)
 				query := fmt.Sprintf("SELECT COUNT(*) FROM coursez.course %s ALLOW FILTERING", tempClause)
 				iter := CassUserSession.Query(query, nil).Iter()
-				count:=0
+				count := 0
 				iter.Scan(&count)
 				currentStat := model.Count{
 					Name:  copiedExpertise,
