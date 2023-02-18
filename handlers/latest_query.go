@@ -70,7 +70,6 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 		statusNew = *status
 	}
 	if len(dbCourses) <= 0 || role != "learner" {
-		dbCourses = make([]coursez.Course, 0)
 		session, err := cassandra.GetCassSession("coursez")
 		if err != nil {
 			return nil, err
