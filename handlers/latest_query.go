@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"strconv"
@@ -24,21 +25,19 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 	var newPage []byte
 	//var pageDirection string
 	var pageSizeInt int
-	cursor := ""
 	if pageCursor != nil && *pageCursor != "" {
 		page, err := global.CryptSession.DecryptString(*pageCursor, nil)
 		if err != nil {
 			return nil, fmt.Errorf("invalid page cursor: %v", err)
 		}
 		newPage = page
-		cursor = *pageCursor
 	}
 	// stringify filters
 	var filtersStr string
 	if filters != nil {
-		filtersStr = fmt.Sprintf("%v", *filters)
+		filtersStr = base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%v", filters)))
 	} else {
-		filtersStr = "nil"
+		filtersStr = "landed"
 	}
 	claims, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
@@ -50,11 +49,7 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 		pageSizeInt = *pageSize
 	}
 	role := strings.ToLower(claims["role"].(string))
-	statusKey := ""
-	if status == nil {
-		statusKey = (*status).String()
-	}
-	key := fmt.Sprintf("latest_courses_%s_%s_%d_%s_%s", role, cursor, pageSizeInt, filtersStr, statusKey)
+	key := fmt.Sprintf("latest_courses_%v", filtersStr)
 	result, err := redis.GetRedisValue(ctx, key)
 	if err != nil {
 		log.Errorf("Error in getting redis value for key %v : %v", key, err)
