@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"math/rand"
 	"os/signal"
@@ -14,6 +15,7 @@ import (
 	"github.com/penglongli/gin-metrics/ginmetrics"
 	log "github.com/sirupsen/logrus"
 
+	"github.com/zicops/contracts/coursez"
 	"github.com/zicops/zicops-cass-pool/cassandra"
 	"github.com/zicops/zicops-cass-pool/redis"
 	"github.com/zicops/zicops-course-query/controller"
@@ -86,6 +88,40 @@ func checkAndInitCassandraSession() {
 	} else {
 		log.Infof("Redis connection successful")
 	}
+	dbCourses := make([]coursez.Course, 0)
+	c1 := coursez.Course{
+		ID: "1",
+	}
+	c2 := coursez.Course{
+		ID: "2",
+	}
+	dbCourses = append(dbCourses, c1)
+	dbCourses = append(dbCourses, c2)
+	redisBytes, err := json.Marshal(dbCourses)
+	if err != nil {
+		log.Errorf("Error marshalling redis value: %v", err)
+	}
+	err = redis.SetRedisValue(context.Background(), "test", string(redisBytes))
+	if err != nil {
+		log.Errorf("Error setting redis value: %v", err)
+	}
+	err = redis.SetTTL(context.Background(), "test", 60)
+	if err != nil {
+		log.Errorf("Failed to set redis value: %v", err.Error())
+	}
+	vaulue, err := redis.GetRedisValue(context.Background(), "test")
+	if err != nil {
+		log.Errorf("Error getting redis value: %v", err)
+	}
+	if vaulue == "" {
+		log.Errorf("Redis value is empty")
+	} else {
+		err = json.Unmarshal([]byte(vaulue), &dbCourses)
+		if err != nil {
+			log.Errorf("Error unmarshalling redis value: %v", err)
+		}
+	}
+	log.Infof("Redis value: %v", vaulue)
 	_, err1 := cassandra.GetCassSession("coursez")
 	_, err2 := cassandra.GetCassSession("qbankz")
 	if err1 != nil || err2 != nil {
