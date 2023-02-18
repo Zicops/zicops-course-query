@@ -84,7 +84,7 @@ func GetCourseByID(ctx context.Context, courseID []*string) ([]*model.Course, er
 				continue
 			}
 			vvv := vv
-			key := "GetCourseByID" + *vvv
+			key := fmt.Sprintf("course:%s", *vvv)
 			if role == "learner" {
 				result, err := redis.GetRedisValue(ctx, key)
 				if err != nil {

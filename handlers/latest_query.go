@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"context"
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"strconv"
@@ -25,12 +24,14 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 	var newPage []byte
 	//var pageDirection string
 	var pageSizeInt int
+	cursor := ""
 	if pageCursor != nil && *pageCursor != "" {
 		page, err := global.CryptSession.DecryptString(*pageCursor, nil)
 		if err != nil {
 			return nil, fmt.Errorf("invalid page cursor: %v", err)
 		}
 		newPage = page
+		cursor = *pageCursor
 	}
 	// stringify filters
 	var filtersStr string
@@ -43,9 +44,17 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 	if err != nil {
 		return nil, err
 	}
+	if pageSize == nil {
+		pageSizeInt = 10
+	} else {
+		pageSizeInt = *pageSize
+	}
 	role := strings.ToLower(claims["role"].(string))
-	email := claims["email"].(string)
-	key := "LatestCourses" + base64.StdEncoding.EncodeToString([]byte(string(newPage)+email+filtersStr))
+	statusKey := ""
+	if status == nil {
+		statusKey = (*status).String()
+	}
+	key := fmt.Sprintf("latest_courses_%s_%s_%d_%s_%s", role, cursor, pageSizeInt, filtersStr, statusKey)
 	result, err := redis.GetRedisValue(ctx, key)
 	if err != nil {
 		log.Errorf("Error in getting redis value: %v", err)
@@ -57,11 +66,6 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 		if err != nil {
 			log.Errorf("Error in unmarshalling redis value: %v", err)
 		}
-	}
-	if pageSize == nil {
-		pageSizeInt = 10
-	} else {
-		pageSizeInt = *pageSize
 	}
 	var newCursor string
 	var statusNew model.Status

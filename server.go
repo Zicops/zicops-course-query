@@ -121,7 +121,6 @@ func checkAndInitCassandraSession() {
 			log.Errorf("Error unmarshalling redis value: %v", err)
 		}
 	}
-	log.Infof("Redis value: %v", vaulue)
 	_, err1 := cassandra.GetCassSession("coursez")
 	_, err2 := cassandra.GetCassSession("qbankz")
 	if err1 != nil || err2 != nil {
