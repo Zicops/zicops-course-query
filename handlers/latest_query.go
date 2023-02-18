@@ -278,7 +278,7 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 	start = stopwatch.Start()
 	redisBytes, err := json.Marshal(dbCourses)
 	if err == nil {
-		redis.SetTTL(key, 3600)
+		redis.SetTTL(key, 60)
 		redis.SetRedisValue(key, string(redisBytes))
 	}
 	end = start.Stop()

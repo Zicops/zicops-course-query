@@ -109,7 +109,7 @@ func GetTopicContent(ctx context.Context, topicID *string) ([]*model.TopicConten
 	wg.Wait()
 	redisBytes, err := json.Marshal(currentContent)
 	if err == nil {
-		redis.SetTTL(key, 3600)
+		redis.SetTTL(key, 60)
 		redis.SetRedisValue(key, string(redisBytes))
 	}
 	return topicsOut, nil
@@ -175,7 +175,7 @@ func GetTopicExams(ctx context.Context, topicID *string) ([]*model.TopicExam, er
 	wg.Wait()
 	redisBytes, err := json.Marshal(topicsOut)
 	if err == nil {
-		redis.SetTTL(key, 3600)
+		redis.SetTTL(key, 60)
 		redis.SetRedisValue(key, string(redisBytes))
 	}
 	return topicsOut, nil
@@ -275,7 +275,7 @@ func GetTopicContentByCourse(ctx context.Context, courseID *string) ([]*model.To
 	wg.Wait()
 	redisBytes, err := json.Marshal(currentContent)
 	if err == nil {
-		redis.SetTTL(key, 3600)
+		redis.SetTTL(key, 60)
 		redis.SetRedisValue(key, string(redisBytes))
 	}
 	return topicsOut, nil
@@ -347,7 +347,7 @@ func GetTopicExamsByCourse(ctx context.Context, courseID *string) ([]*model.Topi
 	wg.Wait()
 	redisBytes, err := json.Marshal(topicsOut)
 	if err == nil {
-		redis.SetTTL(key, 3600)
+		redis.SetTTL(key, 60)
 		redis.SetRedisValue(key, string(redisBytes))
 	}
 	return topicsOut, nil
@@ -446,7 +446,7 @@ func GetTopicContentByModule(ctx context.Context, moduleID *string) ([]*model.To
 	wg.Wait()
 	redisBytes, err := json.Marshal(currentContent)
 	if err == nil {
-		redis.SetTTL(key, 3600)
+		redis.SetTTL(key, 60)
 		redis.SetRedisValue(key, string(redisBytes))
 	}
 	return topicsOut, nil

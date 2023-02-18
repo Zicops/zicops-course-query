@@ -95,7 +95,7 @@ func GetTopicResources(ctx context.Context, topicID *string) ([]*model.TopicReso
 	wg.Wait()
 	redisBytes, err := json.Marshal(currentResources)
 	if err == nil {
-		redis.SetTTL(key, 3600)
+		redis.SetTTL(key, 60)
 		redis.SetRedisValue(key, string(redisBytes))
 	}
 	return topicsRes, nil
@@ -177,7 +177,7 @@ func GetCourseResources(ctx context.Context, courseID *string) ([]*model.TopicRe
 	wg.Wait()
 	redisBytes, err := json.Marshal(currentResources)
 	if err == nil {
-		redis.SetTTL(key, 3600)
+		redis.SetTTL(key, 60)
 		redis.SetRedisValue(key, string(redisBytes))
 	}
 	return topicsRes, nil

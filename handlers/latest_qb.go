@@ -124,7 +124,7 @@ func LatestQuestionBanks(ctx context.Context, publishTime *int, pageCursor *stri
 	if err != nil {
 		log.Errorf("Error marshalling redis value: %v", err)
 	} else {
-		redis.SetTTL(key, 3600)
+		redis.SetTTL(key, 60)
 		err = redis.SetRedisValue(key, string(redisBytes))
 		if err != nil {
 			log.Errorf("Error setting redis value: %v", err)
@@ -244,7 +244,7 @@ func LatestQuestionPapers(ctx context.Context, publishTime *int, pageCursor *str
 	if err != nil {
 		log.Errorf("Error marshalling redis value: %v", err)
 	} else {
-		redis.SetTTL(key, 3600)
+		redis.SetTTL(key, 60)
 		err = redis.SetRedisValue(key, string(redisBytes))
 		if err != nil {
 			log.Errorf("Error setting redis value: %v", err)
@@ -382,7 +382,7 @@ func GetLatestExams(ctx context.Context, publishTime *int, pageCursor *string, d
 	if err != nil {
 		log.Errorf("Error marshalling redis value: %v", err)
 	} else {
-		redis.SetTTL(key, 3600)
+		redis.SetTTL(key, 60)
 		err = redis.SetRedisValue(key, string(redisBytes))
 		if err != nil {
 			log.Errorf("Error setting redis value: %v", err)

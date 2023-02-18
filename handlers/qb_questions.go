@@ -126,7 +126,7 @@ func GetQuestionBankQuestions(ctx context.Context, questionBankID *string, filte
 	wg.Wait()
 	redisBytes, err := json.Marshal(banks)
 	if err == nil {
-		redis.SetTTL(key, 3600)
+		redis.SetTTL(key, 60)
 		redis.SetRedisValue(key, string(redisBytes))
 	}
 	return allQuestions, nil
@@ -214,7 +214,7 @@ func GetQuestionsByID(ctx context.Context, questionIds []*string) ([]*model.Ques
 		wg.Wait()
 		redisBytes, err := json.Marshal(banks)
 		if err == nil {
-			redis.SetTTL(key, 3600)
+			redis.SetTTL(key, 60)
 			redis.SetRedisValue(key, string(redisBytes))
 		}
 	}

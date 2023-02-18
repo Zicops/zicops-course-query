@@ -200,7 +200,7 @@ func AllCatMain(ctx context.Context, lspIds []*string, searchText *string) ([]*m
 	}
 	redisValue, err := json.Marshal(cats)
 	if err == nil {
-		redis.SetTTL(key, 3600)
+		redis.SetTTL(key, 60)
 		err = redis.SetRedisValue(key, string(redisValue))
 		if err != nil {
 			log.Errorf("Failed to set value in redis: %v", err.Error())
@@ -319,7 +319,7 @@ func AllSubCatMain(ctx context.Context, lspIds []*string, searchText *string) ([
 	}
 	redisValue, err := json.Marshal(cats)
 	if err == nil {
-		redis.SetTTL(key, 3600)
+		redis.SetTTL(key, 60)
 		err = redis.SetRedisValue(key, string(redisValue))
 		if err != nil {
 			log.Errorf("Failed to set value in redis: %v", err.Error())
@@ -402,7 +402,7 @@ func AllSubCatByCatID(ctx context.Context, catID *string) ([]*model.SubCatMain, 
 	}
 	redisValue, err := json.Marshal(cats)
 	if err == nil {
-		redis.SetTTL(key, 3600)
+		redis.SetTTL(key, 60)
 		err = redis.SetRedisValue(key, string(redisValue))
 		if err != nil {
 			log.Errorf("Failed to set value in redis: %v", err.Error())

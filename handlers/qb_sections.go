@@ -80,7 +80,7 @@ func GetQuestionBankSections(ctx context.Context, questionPaperID *string) ([]*m
 	wg.Wait()
 	redisBytes, err := json.Marshal(allSections)
 	if err == nil {
-		redis.SetTTL(key, 3600)
+		redis.SetTTL(key, 60)
 		redis.SetRedisValue(key, string(redisBytes))
 	}
 	return allSections, nil
@@ -152,7 +152,7 @@ func GetQPBankMappingByQPId(ctx context.Context, questionPaperID *string) ([]*mo
 	wg.Wait()
 	redisBytes, err := json.Marshal(allSectionsMap)
 	if err == nil {
-		redis.SetTTL(key, 3600)
+		redis.SetTTL(key, 60)
 		redis.SetRedisValue(key, string(redisBytes))
 	}
 	return allSectionsMap, nil
@@ -224,7 +224,7 @@ func GetQPBankMappingBySectionID(ctx context.Context, sectionID *string) ([]*mod
 	wg.Wait()
 	redisBytes, err := json.Marshal(allSectionsMap)
 	if err == nil {
-		redis.SetTTL(key, 3600)
+		redis.SetTTL(key, 60)
 		redis.SetRedisValue(key, string(redisBytes))
 	}
 	return allSectionsMap, nil
@@ -291,7 +291,7 @@ func GetSectionFixedQuestions(ctx context.Context, sectionID *string) ([]*model.
 	wg.Wait()
 	redisBytes, err := json.Marshal(allSectionsMap)
 	if err == nil {
-		redis.SetTTL(key, 3600)
+		redis.SetTTL(key, 60)
 		redis.SetRedisValue(key, string(redisBytes))
 	}
 	return allSectionsMap, nil
