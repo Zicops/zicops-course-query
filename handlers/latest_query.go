@@ -272,7 +272,7 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 	outputResponse.PageCursor = &newCursor
 	outputResponse.PageSize = &pageSizeInt
 	outputResponse.Direction = direction
-	redisBytes, err := json.Marshal(outputResponse)
+	redisBytes, err := json.Marshal(dbCourses)
 	if err == nil {
 		err = redis.SetRedisValue(ctx, key, string(redisBytes))
 		if err != nil {
