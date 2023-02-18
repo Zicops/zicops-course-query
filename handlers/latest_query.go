@@ -57,7 +57,7 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 	key := fmt.Sprintf("latest_courses_%s_%s_%d_%s_%s", role, cursor, pageSizeInt, filtersStr, statusKey)
 	result, err := redis.GetRedisValue(ctx, key)
 	if err != nil {
-		log.Errorf("Error in getting redis value: %v", err)
+		log.Errorf("Error in getting redis value for key %v : %v", key, err)
 	}
 	dbCourses := make([]coursez.Course, 0)
 	if result != "" {
