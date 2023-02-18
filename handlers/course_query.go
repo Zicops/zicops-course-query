@@ -61,7 +61,6 @@ func GetCourseByID(ctx context.Context, courseID []*string) ([]*model.Course, er
 		LspId:              "",
 		Publisher:          "",
 	}
-	key := "GetCourseByID" + fmt.Sprintf("%v", courseID)
 	claims, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -81,7 +80,11 @@ func GetCourseByID(ctx context.Context, courseID []*string) ([]*model.Course, er
 		//iterate through each courseId value and store it in res variable
 		for i, vv := range courseID {
 			//this is to avoid pointers overlapping
+			if vv == nil {
+				continue
+			}
 			vvv := vv
+			key := "GetCourseByID" + *vvv
 			if role == "learner" {
 				result, err := redis.GetRedisValue(ctx, key)
 				if err != nil {
@@ -249,10 +252,13 @@ func GetCourseByID(ctx context.Context, courseID []*string) ([]*model.Course, er
 				if err != nil {
 					log.Errorf("Failed to marshal course: %v", err.Error())
 				} else {
-					redis.SetTTL(ctx, key, 60)
 					err = redis.SetRedisValue(ctx, key, string(redisBytes))
 					if err != nil {
 						log.Errorf("Failed to set redis value: %v", err.Error())
+					}
+					err = redis.SetTTL(ctx, key, 60)
+					if err != nil {
+						log.Errorf("Failed to set redis ttl: %v", err.Error())
 					}
 				}
 				res[i] = &currentCourse
