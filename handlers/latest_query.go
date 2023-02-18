@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"context"
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"strconv"
@@ -35,7 +34,27 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 	// stringify filters
 	var filtersStr string
 	if filters != nil {
-		filtersStr = base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%v", filters)))
+		/// iterate over filets and add to string which are not nil
+		filtersStr = "filtered"
+		if filters.Language != nil {
+			filtersStr = fmt.Sprintf("%v_languages_%v", filtersStr, *filters.Language)
+		}
+		if filters.LspID != nil {
+			filtersStr = fmt.Sprintf("%v_levels_%v", filtersStr, *filters.LspID)
+		}
+		if filters.Category != nil {
+			filtersStr = fmt.Sprintf("%v_categories_%v", filtersStr, *filters.Category)
+		}
+		if filters.SubCategory != nil {
+			filtersStr = fmt.Sprintf("%v_subcategories_%v", filtersStr, *filters.SubCategory)
+		}
+		if filters.SearchText != nil {
+			filtersStr = fmt.Sprintf("%v_search_%v", filtersStr, *filters.SearchText)
+		}
+		if filters.Type != nil {
+			filtersStr = fmt.Sprintf("%v_types_%v", filtersStr, *filters.Type)
+		}
+
 	} else {
 		filtersStr = "landed"
 	}
