@@ -45,7 +45,7 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 	}
 	role := strings.ToLower(claims["role"].(string))
 	email := claims["email"].(string)
-	key := "LatestCourses" + base64.StdEncoding.EncodeToString(newPage) + email + filtersStr
+	key := "LatestCourses" + base64.StdEncoding.EncodeToString([]byte(string(newPage)+email+filtersStr))
 	result, err := redis.GetRedisValue(ctx, key)
 	if err != nil {
 		log.Errorf("Error in getting redis value: %v", err)
@@ -142,7 +142,6 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 		outputResponse.Courses = allCourses
 		return &outputResponse, nil
 	}
-	start = stopwatch.Start()
 	var wg sync.WaitGroup
 	for i, cCourse := range dbCourses {
 		copiedCourse := cCourse
@@ -273,16 +272,18 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 	outputResponse.PageCursor = &newCursor
 	outputResponse.PageSize = &pageSizeInt
 	outputResponse.Direction = direction
-	redisBytes, err := json.Marshal(dbCourses)
+	redisBytes, err := json.Marshal(outputResponse)
 	if err == nil {
-		err = redis.SetTTL(ctx, key, 60)
-		if err != nil {
-			log.Errorf("Failed to set redis value: %v", err.Error())
-		}
 		err = redis.SetRedisValue(ctx, key, string(redisBytes))
 		if err != nil {
 			log.Errorf("Failed to set redis value: %v", err.Error())
 		}
+		err = redis.SetTTL(ctx, key, 60)
+		if err != nil {
+			log.Errorf("Failed to set redis value: %v", err.Error())
+		}
+	} else {
+		log.Errorf("Failed to marshal redis value: %v", err.Error())
 	}
 	return &outputResponse, nil
 }
