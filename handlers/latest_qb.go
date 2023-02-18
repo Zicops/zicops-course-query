@@ -34,7 +34,7 @@ func LatestQuestionBanks(ctx context.Context, publishTime *int, pageCursor *stri
 		return nil, err
 	}
 	role := strings.ToLower(claims["role"].(string))
-	result, err := redis.GetRedisValue(key)
+	result, err := redis.GetRedisValue(ctx, key)
 	if err != nil {
 		log.Errorf("Error getting redis value: %v", err)
 	}
@@ -124,8 +124,8 @@ func LatestQuestionBanks(ctx context.Context, publishTime *int, pageCursor *stri
 	if err != nil {
 		log.Errorf("Error marshalling redis value: %v", err)
 	} else {
-		redis.SetTTL(key, 60)
-		err = redis.SetRedisValue(key, string(redisBytes))
+		redis.SetTTL(ctx, key, 60)
+		err = redis.SetRedisValue(ctx, key, string(redisBytes))
 		if err != nil {
 			log.Errorf("Error setting redis value: %v", err)
 		}
@@ -150,7 +150,7 @@ func LatestQuestionPapers(ctx context.Context, publishTime *int, pageCursor *str
 		return nil, err
 	}
 	role := strings.ToLower(claims["role"].(string))
-	result, err := redis.GetRedisValue(key)
+	result, err := redis.GetRedisValue(ctx, key)
 	if err != nil {
 		log.Errorf("Error getting redis value: %v", err)
 	}
@@ -244,8 +244,8 @@ func LatestQuestionPapers(ctx context.Context, publishTime *int, pageCursor *str
 	if err != nil {
 		log.Errorf("Error marshalling redis value: %v", err)
 	} else {
-		redis.SetTTL(key, 60)
-		err = redis.SetRedisValue(key, string(redisBytes))
+		redis.SetTTL(ctx, key, 60)
+		err = redis.SetRedisValue(ctx, key, string(redisBytes))
 		if err != nil {
 			log.Errorf("Error setting redis value: %v", err)
 		}
@@ -271,7 +271,7 @@ func GetLatestExams(ctx context.Context, publishTime *int, pageCursor *string, d
 	}
 	lspId := claims["lsp_id"].(string)
 	role := strings.ToLower(claims["role"].(string))
-	result, err := redis.GetRedisValue(key)
+	result, err := redis.GetRedisValue(ctx, key)
 	if err != nil {
 		log.Errorf("Error getting redis value: %v", err)
 	}
@@ -382,8 +382,8 @@ func GetLatestExams(ctx context.Context, publishTime *int, pageCursor *string, d
 	if err != nil {
 		log.Errorf("Error marshalling redis value: %v", err)
 	} else {
-		redis.SetTTL(key, 60)
-		err = redis.SetRedisValue(key, string(redisBytes))
+		redis.SetTTL(ctx, key, 60)
+		err = redis.SetRedisValue(ctx, key, string(redisBytes))
 		if err != nil {
 			log.Errorf("Error setting redis value: %v", err)
 		}
@@ -404,7 +404,7 @@ func GetExamsMeta(ctx context.Context, examIds []*string) ([]*model.Exam, error)
 	role := strings.ToLower(claims["role"].(string))
 	responseMap := make([]*model.Exam, 0)
 	for _, questionId := range examIds {
-		result, _ := redis.GetRedisValue("GetExamsMeta" + *questionId)
+		result, _ := redis.GetRedisValue(ctx, "GetExamsMeta"+*questionId)
 		if result != "" && role == "learner" {
 			var outputResponse model.Exam
 			err = json.Unmarshal([]byte(result), &outputResponse)
@@ -466,8 +466,8 @@ func GetExamsMeta(ctx context.Context, examIds []*string) ([]*model.Exam, error)
 				resExams[i] = currentExam
 				redisBytes, err := json.Marshal(currentExam)
 				if err == nil {
-					redis.SetTTL("GetExamsMeta"+*questionId, 3600)
-					redis.SetRedisValue("GetExamsMeta"+*questionId, string(redisBytes))
+					redis.SetTTL(ctx, "GetExamsMeta"+*questionId, 60)
+					redis.SetRedisValue(ctx, "GetExamsMeta"+*questionId, string(redisBytes))
 				}
 				wg.Done()
 			}(i, c)
@@ -494,7 +494,7 @@ func GetQBMeta(ctx context.Context, qbIds []*string) ([]*model.QuestionBank, err
 	lspId := claims["lsp_id"].(string)
 
 	for _, qbId := range qbIds {
-		result, _ := redis.GetRedisValue("GetQBMeta" + *qbId)
+		result, _ := redis.GetRedisValue(ctx, "GetQBMeta"+*qbId)
 		if result != "" && role == "learner" {
 			var outputResponse model.QuestionBank
 			err = json.Unmarshal([]byte(result), &outputResponse)
@@ -543,8 +543,8 @@ func GetQBMeta(ctx context.Context, qbIds []*string) ([]*model.QuestionBank, err
 				resBanks[i] = currentBank
 				redisBytes, err := json.Marshal(currentBank)
 				if err == nil {
-					redis.SetTTL("GetQBMeta"+*qbId, 3600)
-					redis.SetRedisValue("GetQBMeta"+*qbId, string(redisBytes))
+					redis.SetTTL(ctx, "GetQBMeta"+*qbId, 60)
+					redis.SetRedisValue(ctx, "GetQBMeta"+*qbId, string(redisBytes))
 				}
 				wg.Done()
 			}(i, c)

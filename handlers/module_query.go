@@ -23,7 +23,7 @@ func GetModulesCourseByID(ctx context.Context, courseID *string) ([]*model.Modul
 		return nil, err
 	}
 	role := strings.ToLower(claims["role"].(string))
-	result, err := redis.GetRedisValue(key)
+	result, err := redis.GetRedisValue(ctx, key)
 	if err == nil && role == "learner" {
 		err = json.Unmarshal([]byte(result), &modules)
 		if err == nil {
@@ -86,8 +86,8 @@ func GetModulesCourseByID(ctx context.Context, courseID *string) ([]*model.Modul
 	wg.Wait()
 	redisBtres, err := json.Marshal(modules)
 	if err == nil {
-		redis.SetTTL(key, 60)
-		redis.SetRedisValue(key, string(redisBtres))
+		redis.SetTTL(ctx, key, 60)
+		redis.SetRedisValue(ctx, key, string(redisBtres))
 	}
 	return modules, nil
 }
@@ -100,7 +100,7 @@ func GetModuleByID(ctx context.Context, moduleID *string) (*model.Module, error)
 		return nil, err
 	}
 	role := strings.ToLower(claims["role"].(string))
-	result, err := redis.GetRedisValue(key)
+	result, err := redis.GetRedisValue(ctx, key)
 	if err == nil && role == "learner" {
 		err = json.Unmarshal([]byte(result), &modules)
 		if err == nil {
@@ -157,8 +157,8 @@ func GetModuleByID(ctx context.Context, moduleID *string) (*model.Module, error)
 	wg.Wait()
 	redisBtres, err := json.Marshal(modules)
 	if err == nil {
-		redis.SetTTL(key, 60)
-		redis.SetRedisValue(key, string(redisBtres))
+		redis.SetTTL(ctx, key, 60)
+		redis.SetRedisValue(ctx, key, string(redisBtres))
 	}
 
 	return modules[0], nil

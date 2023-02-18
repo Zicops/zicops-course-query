@@ -100,7 +100,7 @@ func AllCatMain(ctx context.Context, lspIds []*string, searchText *string) ([]*m
 	log.Infof("claims: %v", claims)
 	role := strings.ToLower(claims["role"].(string))
 	cats := make([]coursez.CatMain, 0)
-	result, err := redis.GetRedisValue(key)
+	result, err := redis.GetRedisValue(ctx, key)
 	if err != nil {
 		log.Errorf("Failed to get value from redis: %v", err.Error())
 	}
@@ -200,8 +200,8 @@ func AllCatMain(ctx context.Context, lspIds []*string, searchText *string) ([]*m
 	}
 	redisValue, err := json.Marshal(cats)
 	if err == nil {
-		redis.SetTTL(key, 60)
-		err = redis.SetRedisValue(key, string(redisValue))
+		redis.SetTTL(ctx, key, 60)
+		err = redis.SetRedisValue(ctx, key, string(redisValue))
 		if err != nil {
 			log.Errorf("Failed to set value in redis: %v", err.Error())
 		}
@@ -218,7 +218,7 @@ func AllSubCatMain(ctx context.Context, lspIds []*string, searchText *string) ([
 	}
 	role := strings.ToLower(claims["role"].(string))
 	cats := make([]coursez.SubCatMain, 0)
-	result, err := redis.GetRedisValue(key)
+	result, err := redis.GetRedisValue(ctx, key)
 	if err != nil {
 		log.Errorf("Failed to get value from redis: %v", err.Error())
 	}
@@ -319,8 +319,8 @@ func AllSubCatMain(ctx context.Context, lspIds []*string, searchText *string) ([
 	}
 	redisValue, err := json.Marshal(cats)
 	if err == nil {
-		redis.SetTTL(key, 60)
-		err = redis.SetRedisValue(key, string(redisValue))
+		redis.SetTTL(ctx, key, 60)
+		err = redis.SetRedisValue(ctx, key, string(redisValue))
 		if err != nil {
 			log.Errorf("Failed to set value in redis: %v", err.Error())
 		}
@@ -337,7 +337,7 @@ func AllSubCatByCatID(ctx context.Context, catID *string) ([]*model.SubCatMain, 
 	}
 	role := strings.ToLower(claims["role"].(string))
 	cats := make([]coursez.SubCatMain, 0)
-	result, err := redis.GetRedisValue(key)
+	result, err := redis.GetRedisValue(ctx, key)
 	if err != nil {
 		log.Errorf("Failed to get value from redis: %v", err.Error())
 	}
@@ -402,8 +402,8 @@ func AllSubCatByCatID(ctx context.Context, catID *string) ([]*model.SubCatMain, 
 	}
 	redisValue, err := json.Marshal(cats)
 	if err == nil {
-		redis.SetTTL(key, 60)
-		err = redis.SetRedisValue(key, string(redisValue))
+		redis.SetTTL(ctx, key, 60)
+		err = redis.SetRedisValue(ctx, key, string(redisValue))
 		if err != nil {
 			log.Errorf("Failed to set value in redis: %v", err.Error())
 		}

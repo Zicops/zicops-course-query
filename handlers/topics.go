@@ -26,7 +26,7 @@ func GetTopicsCourseByID(ctx context.Context, courseID *string) ([]*model.Topic,
 		return nil, err
 	}
 	role := strings.ToLower(claims["role"].(string))
-	result, err := redis.GetRedisValue(key)
+	result, err := redis.GetRedisValue(ctx, key)
 	if err == nil && role == "learner" {
 		err = json.Unmarshal([]byte(result), &currentTopics)
 		if err != nil {
@@ -102,8 +102,8 @@ func GetTopicsCourseByID(ctx context.Context, courseID *string) ([]*model.Topic,
 	wg.Wait()
 	redisBytes, err := json.Marshal(currentTopics)
 	if err == nil {
-		redis.SetTTL(key, 60)
-		redis.SetRedisValue(key, string(redisBytes))
+		redis.SetTTL(ctx, key, 60)
+		redis.SetRedisValue(ctx, key, string(redisBytes))
 	}
 	return topicsOut, nil
 }
@@ -116,7 +116,7 @@ func GetTopicByID(ctx context.Context, topicID *string) (*model.Topic, error) {
 		return nil, err
 	}
 	role := strings.ToLower(claims["role"].(string))
-	result, err := redis.GetRedisValue(key)
+	result, err := redis.GetRedisValue(ctx, key)
 	if err == nil && role == "learner" {
 		err = json.Unmarshal([]byte(result), &currentTopics)
 		if err != nil {
@@ -185,8 +185,8 @@ func GetTopicByID(ctx context.Context, topicID *string) (*model.Topic, error) {
 	wg.Wait()
 	redisBytes, err := json.Marshal(currentTopics)
 	if err == nil {
-		redis.SetTTL(key, 60)
-		redis.SetRedisValue(key, string(redisBytes))
+		redis.SetTTL(ctx, key, 60)
+		redis.SetRedisValue(ctx, key, string(redisBytes))
 	}
 	return topics[0], nil
 }

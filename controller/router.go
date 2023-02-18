@@ -95,20 +95,24 @@ func graphqlHandler() gin.HandlerFunc {
 		userIdUsingEmail := base64.URLEncoding.EncodeToString([]byte(emailCalled))
 		var userInput userz.User
 		// user get query
-		redisResult, _ := redis.GetRedisValue(userIdUsingEmail)
+		redisResult, _ := redis.GetRedisValue(c.Request.Context(), userIdUsingEmail)
 		lspIdInt := c.Request.Header.Get("tenant")
 		lspID := "d8685567-cdae-4ee0-a80e-c187848a760e"
 		if lspIdInt != "" {
 			lspID = lspIdInt
 		}
 		ctxValue["lsp_id"] = lspID
+		roleFromHeader := c.Request.Header.Get("role")
+		ctxValue["role"] = roleFromHeader
+		request := c.Request
+		newCtx := context.WithValue(request.Context(), "zclaims", ctxValue)
 		if redisResult != "" {
 			err := json.Unmarshal([]byte(redisResult), &userInput)
 			if err != nil {
 				log.Errorf("Error unmarshalling user from redis %s", err.Error())
 			} else {
 				ctxValue["role"] = userInput.Role
-				redis.SetTTL(userIdUsingEmail, 3600)
+				redis.SetTTL(newCtx, userIdUsingEmail, 60)
 			}
 		} else {
 			session, err := cassandra.GetCassSession("userz")
@@ -131,14 +135,11 @@ func graphqlHandler() gin.HandlerFunc {
 				ctxValue["role"] = users[0].Role
 				userInput = users[0]
 				userInputBytes, _ := json.Marshal(userInput)
-				redis.SetRedisValue(userIdUsingEmail, string(userInputBytes))
-				redis.SetTTL(userIdUsingEmail, 3600)
+				redis.SetRedisValue(newCtx, userIdUsingEmail, string(userInputBytes))
+				redis.SetTTL(newCtx, userIdUsingEmail, 60)
 			}
 		}
-		roleFromHeader := c.Request.Header.Get("role")
-		ctxValue["role"] = roleFromHeader
-		request := c.Request
-		requestWithValue := request.WithContext(context.WithValue(request.Context(), "zclaims", ctxValue))
+		requestWithValue := request.WithContext(newCtx)
 		h.ServeHTTP(c.Writer, requestWithValue)
 	}
 }

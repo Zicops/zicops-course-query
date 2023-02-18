@@ -28,7 +28,7 @@ func GetQuestionBankQuestions(ctx context.Context, questionBankID *string, filte
 		return nil, err
 	}
 	role := strings.ToLower(claims["role"].(string))
-	result, err := redis.GetRedisValue(key)
+	result, err := redis.GetRedisValue(ctx, key)
 	banks := make([]qbankz.QuestionMain, 0)
 	if err == nil && role == "learner" {
 		err = json.Unmarshal([]byte(result), &banks)
@@ -126,8 +126,8 @@ func GetQuestionBankQuestions(ctx context.Context, questionBankID *string, filte
 	wg.Wait()
 	redisBytes, err := json.Marshal(banks)
 	if err == nil {
-		redis.SetTTL(key, 60)
-		redis.SetRedisValue(key, string(redisBytes))
+		redis.SetTTL(ctx, key, 60)
+		redis.SetRedisValue(ctx, key, string(redisBytes))
 	}
 	return allQuestions, nil
 }
@@ -149,7 +149,7 @@ func GetQuestionsByID(ctx context.Context, questionIds []*string) ([]*model.Ques
 
 	for _, id := range questionIds {
 		key := "GetQuestionsByID" + *id
-		result, err := redis.GetRedisValue(key)
+		result, err := redis.GetRedisValue(ctx, key)
 		banks := make([]qbankz.QuestionMain, 0)
 		if err == nil && role == "learner" {
 			json.Unmarshal([]byte(result), &banks)
@@ -214,8 +214,8 @@ func GetQuestionsByID(ctx context.Context, questionIds []*string) ([]*model.Ques
 		wg.Wait()
 		redisBytes, err := json.Marshal(banks)
 		if err == nil {
-			redis.SetTTL(key, 60)
-			redis.SetRedisValue(key, string(redisBytes))
+			redis.SetTTL(ctx, key, 60)
+			redis.SetRedisValue(ctx, key, string(redisBytes))
 		}
 	}
 	return allQuestions, nil

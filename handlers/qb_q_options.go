@@ -32,7 +32,7 @@ func GetOptionsForQuestions(ctx context.Context, questionIds []*string) ([]*mode
 	responseMap := make([]*model.MapQuestionWithOption, 0)
 	for _, questionId := range questionIds {
 		key := "GetOptionsForQuestions" + *questionId
-		result, err := redis.GetRedisValue(key)
+		result, err := redis.GetRedisValue(ctx, key)
 		banks := make([]qbankz.OptionsMain, 0)
 		if err == nil && role == "learner" {
 			err = json.Unmarshal([]byte(result), &banks)
@@ -102,8 +102,8 @@ func GetOptionsForQuestions(ctx context.Context, questionIds []*string) ([]*mode
 		currentMap.Options = allSections
 		redisBytes, err := json.Marshal(banks)
 		if err == nil {
-			redis.SetTTL(key, 60)
-			redis.SetRedisValue(key, string(redisBytes))
+			redis.SetTTL(ctx, key, 60)
+			redis.SetRedisValue(ctx, key, string(redisBytes))
 		}
 		responseMap = append(responseMap, currentMap)
 	}

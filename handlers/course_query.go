@@ -83,7 +83,7 @@ func GetCourseByID(ctx context.Context, courseID []*string) ([]*model.Course, er
 			//this is to avoid pointers overlapping
 			vvv := vv
 			if role == "learner" {
-				result, err := redis.GetRedisValue(key)
+				result, err := redis.GetRedisValue(ctx, key)
 				if err != nil {
 					log.Error("Error in getting redis value for key: ", key)
 				}
@@ -249,8 +249,8 @@ func GetCourseByID(ctx context.Context, courseID []*string) ([]*model.Course, er
 				if err != nil {
 					log.Errorf("Failed to marshal course: %v", err.Error())
 				} else {
-					redis.SetTTL(key, 60)
-					err = redis.SetRedisValue(key, string(redisBytes))
+					redis.SetTTL(ctx, key, 60)
+					err = redis.SetRedisValue(ctx, key, string(redisBytes))
 					if err != nil {
 						log.Errorf("Failed to set redis value: %v", err.Error())
 					}

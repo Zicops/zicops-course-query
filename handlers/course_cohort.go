@@ -22,7 +22,7 @@ func GetCohortCourseMaps(ctx context.Context, cohortID *string) ([]*model.Course
 		return nil, err
 	}
 	role := strings.ToLower(claims["role"].(string))
-	result, err := redis.GetRedisValue(key)
+	result, err := redis.GetRedisValue(ctx, key)
 	if err != nil {
 		log.Errorf("GetCohortCourseMaps: %v", err)
 	}
@@ -80,8 +80,8 @@ func GetCohortCourseMaps(ctx context.Context, cohortID *string) ([]*model.Course
 	if err != nil {
 		log.Errorf("GetCohortCourseMaps: %v", err)
 	} else {
-		redis.SetTTL(key, 60)
-		err = redis.SetRedisValue(key, string(redisBytes))
+		redis.SetTTL(ctx, key, 60)
+		err = redis.SetRedisValue(ctx, key, string(redisBytes))
 		if err != nil {
 			log.Errorf("GetCohortCourseMaps: %v", err)
 		}

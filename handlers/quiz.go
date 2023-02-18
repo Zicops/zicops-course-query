@@ -27,7 +27,7 @@ func GetTopicQuizes(ctx context.Context, topicID *string) ([]*model.Quiz, error)
 		return nil, err
 	}
 	role := strings.ToLower(claims["role"].(string))
-	result, err := redis.GetRedisValue(key)
+	result, err := redis.GetRedisValue(ctx, key)
 	if err == nil && role == "learner" {
 		err = json.Unmarshal([]byte(result), &currentQuizes)
 		if err == nil {
@@ -88,8 +88,8 @@ func GetTopicQuizes(ctx context.Context, topicID *string) ([]*model.Quiz, error)
 	wg.Wait()
 	redisBytes, err := json.Marshal(currentQuizes)
 	if err == nil {
-		redis.SetTTL(key, 60)
-		redis.SetRedisValue(key, string(redisBytes))
+		redis.SetTTL(ctx, key, 60)
+		redis.SetRedisValue(ctx, key, string(redisBytes))
 	}
 	return topicQuizes, nil
 }
@@ -102,7 +102,7 @@ func GetQuizFiles(ctx context.Context, quizID *string) ([]*model.QuizFile, error
 		return nil, err
 	}
 	role := strings.ToLower(claims["role"].(string))
-	result, err := redis.GetRedisValue(key)
+	result, err := redis.GetRedisValue(ctx, key)
 	if err == nil && role == "learner" {
 		err = json.Unmarshal([]byte(result), &currentFiles)
 		if err != nil {
@@ -163,8 +163,8 @@ func GetQuizFiles(ctx context.Context, quizID *string) ([]*model.QuizFile, error
 	wg.Wait()
 	redisBytes, err := json.Marshal(currentFiles)
 	if err == nil {
-		redis.SetTTL(key, 60)
-		redis.SetRedisValue(key, string(redisBytes))
+		redis.SetTTL(ctx, key, 60)
+		redis.SetRedisValue(ctx, key, string(redisBytes))
 	}
 	return quizFiles, nil
 }
@@ -177,7 +177,7 @@ func GetMCQQuiz(ctx context.Context, quizID *string) ([]*model.QuizMcq, error) {
 		return nil, err
 	}
 	role := strings.ToLower(claims["role"].(string))
-	result, err := redis.GetRedisValue(key)
+	result, err := redis.GetRedisValue(ctx, key)
 	if err == nil && role == "learner" {
 		err = json.Unmarshal([]byte(result), &quizMcqs)
 		if err == nil {
@@ -229,8 +229,8 @@ func GetMCQQuiz(ctx context.Context, quizID *string) ([]*model.QuizMcq, error) {
 	wg.Wait()
 	redisBytes, err := json.Marshal(quizMcqs)
 	if err == nil {
-		redis.SetTTL(key, 60)
-		redis.SetRedisValue(key, string(redisBytes))
+		redis.SetTTL(ctx, key, 60)
+		redis.SetRedisValue(ctx, key, string(redisBytes))
 	}
 	return quizMcqs, nil
 }
@@ -243,7 +243,7 @@ func GetQuizDes(ctx context.Context, quizID *string) ([]*model.QuizDescriptive, 
 		return nil, err
 	}
 	role := strings.ToLower(claims["role"].(string))
-	result, err := redis.GetRedisValue(key)
+	result, err := redis.GetRedisValue(ctx, key)
 	if err == nil && role == "learner" {
 		err = json.Unmarshal([]byte(result), &quizDes)
 		if err == nil {
@@ -290,8 +290,8 @@ func GetQuizDes(ctx context.Context, quizID *string) ([]*model.QuizDescriptive, 
 	wg.Wait()
 	redisBytes, err := json.Marshal(quizDes)
 	if err == nil {
-		redis.SetTTL(key, 60)
-		redis.SetRedisValue(key, string(redisBytes))
+		redis.SetTTL(ctx, key, 60)
+		redis.SetRedisValue(ctx, key, string(redisBytes))
 	}
 
 	return quizDes, nil

@@ -45,7 +45,7 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 	role := strings.ToLower(claims["role"].(string))
 	email := claims["email"].(string)
 	key := "LatestCourses" + string(newPage) + filtersStr + role + email
-	result, err := redis.GetRedisValue(key)
+	result, err := redis.GetRedisValue(ctx, key)
 	if err != nil {
 		log.Errorf("Error in getting redis value: %v", err)
 	}
@@ -277,8 +277,8 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 	start = stopwatch.Start()
 	redisBytes, err := json.Marshal(dbCourses)
 	if err == nil {
-		redis.SetTTL(key, 60)
-		redis.SetRedisValue(key, string(redisBytes))
+		redis.SetTTL(ctx, key, 60)
+		redis.SetRedisValue(ctx, key, string(redisBytes))
 	}
 	end = start.Stop()
 	log.Infof("Time taken to set redis value: %v", end)

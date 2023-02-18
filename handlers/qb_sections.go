@@ -23,7 +23,7 @@ func GetQuestionBankSections(ctx context.Context, questionPaperID *string) ([]*m
 		return nil, err
 	}
 	role := strings.ToLower(claims["role"].(string))
-	result, err := redis.GetRedisValue(key)
+	result, err := redis.GetRedisValue(ctx, key)
 	if err == nil && role == "learner" {
 		err = json.Unmarshal([]byte(result), &allSections)
 		if err == nil {
@@ -80,8 +80,8 @@ func GetQuestionBankSections(ctx context.Context, questionPaperID *string) ([]*m
 	wg.Wait()
 	redisBytes, err := json.Marshal(allSections)
 	if err == nil {
-		redis.SetTTL(key, 60)
-		redis.SetRedisValue(key, string(redisBytes))
+		redis.SetTTL(ctx, key, 60)
+		redis.SetRedisValue(ctx, key, string(redisBytes))
 	}
 	return allSections, nil
 }
@@ -93,7 +93,7 @@ func GetQPBankMappingByQPId(ctx context.Context, questionPaperID *string) ([]*mo
 		return nil, err
 	}
 	role := strings.ToLower(claims["role"].(string))
-	result, err := redis.GetRedisValue(key)
+	result, err := redis.GetRedisValue(ctx, key)
 	if err == nil && role == "learner" {
 		allSectionsMap := make([]*model.SectionQBMapping, 0)
 		err = json.Unmarshal([]byte(result), &allSectionsMap)
@@ -152,8 +152,8 @@ func GetQPBankMappingByQPId(ctx context.Context, questionPaperID *string) ([]*mo
 	wg.Wait()
 	redisBytes, err := json.Marshal(allSectionsMap)
 	if err == nil {
-		redis.SetTTL(key, 60)
-		redis.SetRedisValue(key, string(redisBytes))
+		redis.SetTTL(ctx, key, 60)
+		redis.SetRedisValue(ctx, key, string(redisBytes))
 	}
 	return allSectionsMap, nil
 }
@@ -165,7 +165,7 @@ func GetQPBankMappingBySectionID(ctx context.Context, sectionID *string) ([]*mod
 		return nil, err
 	}
 	role := strings.ToLower(claims["role"].(string))
-	result, err := redis.GetRedisValue(key)
+	result, err := redis.GetRedisValue(ctx, key)
 	if err == nil && role == "learner" {
 		allSectionsMap := make([]*model.SectionQBMapping, 0)
 		err = json.Unmarshal([]byte(result), &allSectionsMap)
@@ -224,8 +224,8 @@ func GetQPBankMappingBySectionID(ctx context.Context, sectionID *string) ([]*mod
 	wg.Wait()
 	redisBytes, err := json.Marshal(allSectionsMap)
 	if err == nil {
-		redis.SetTTL(key, 60)
-		redis.SetRedisValue(key, string(redisBytes))
+		redis.SetTTL(ctx, key, 60)
+		redis.SetRedisValue(ctx, key, string(redisBytes))
 	}
 	return allSectionsMap, nil
 }
@@ -237,7 +237,7 @@ func GetSectionFixedQuestions(ctx context.Context, sectionID *string) ([]*model.
 		return nil, err
 	}
 	role := strings.ToLower(claims["role"].(string))
-	result, err := redis.GetRedisValue(key)
+	result, err := redis.GetRedisValue(ctx, key)
 	if err == nil && role == "learner" {
 		allSectionsMap := make([]*model.SectionFixedQuestions, 0)
 		err = json.Unmarshal([]byte(result), &allSectionsMap)
@@ -291,8 +291,8 @@ func GetSectionFixedQuestions(ctx context.Context, sectionID *string) ([]*model.
 	wg.Wait()
 	redisBytes, err := json.Marshal(allSectionsMap)
 	if err == nil {
-		redis.SetTTL(key, 60)
-		redis.SetRedisValue(key, string(redisBytes))
+		redis.SetTTL(ctx, key, 60)
+		redis.SetRedisValue(ctx, key, string(redisBytes))
 	}
 	return allSectionsMap, nil
 }
