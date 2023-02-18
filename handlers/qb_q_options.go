@@ -34,7 +34,7 @@ func GetOptionsForQuestions(ctx context.Context, questionIds []*string) ([]*mode
 		key := "GetOptionsForQuestions" + *questionId
 		result, err := redis.GetRedisValue(key)
 		banks := make([]qbankz.OptionsMain, 0)
-		if err == nil && role != "admin" {
+		if err == nil && role == "learner" {
 			err = json.Unmarshal([]byte(result), &banks)
 			if err != nil {
 				log.Errorf("Error in unmarshalling redis value: %v", err)
@@ -64,7 +64,7 @@ func GetOptionsForQuestions(ctx context.Context, questionIds []*string) ([]*mode
 		}
 		var wg sync.WaitGroup
 		for i, bank := range banks {
-			copiedQuestion := bank
+			c := bank
 			wg.Add(1)
 			go func(copiedQuestion qbankz.OptionsMain, i int) {
 				createdAt := strconv.FormatInt(copiedQuestion.CreatedAt, 10)
@@ -96,7 +96,7 @@ func GetOptionsForQuestions(ctx context.Context, questionIds []*string) ([]*mode
 				}
 				allSections[i] = currentQuestion
 				wg.Done()
-			}(copiedQuestion, i)
+			}(c, i)
 		}
 		wg.Wait()
 		currentMap.Options = allSections

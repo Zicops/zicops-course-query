@@ -26,7 +26,7 @@ func GetCohortCourseMaps(ctx context.Context, cohortID *string) ([]*model.Course
 	if err != nil {
 		log.Errorf("GetCohortCourseMaps: %v", err)
 	}
-	if result != "" && role != "admin" {
+	if result != "" && role == "learner" {
 		var resultOutput []*model.CourseCohort
 		err = json.Unmarshal([]byte(result), &resultOutput)
 		if err != nil {

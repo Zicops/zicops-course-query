@@ -28,7 +28,7 @@ func GetTopicContent(ctx context.Context, topicID *string) ([]*model.TopicConten
 	}
 	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
-	if err == nil && role != "admin" {
+	if err == nil && role == "learner" {
 		err = json.Unmarshal([]byte(result), &currentContent)
 		if err != nil {
 			log.Errorf("Error in unmarshalling redis value for key %s", key)
@@ -61,7 +61,7 @@ func GetTopicContent(ctx context.Context, topicID *string) ([]*model.TopicConten
 	urlSub := make([]*model.SubtitleURL, 0)
 	var wg sync.WaitGroup
 	for i, topCon := range currentContent {
-		mod := topCon
+		mm := topCon
 		wg.Add(1)
 		go func(i int, mod coursez.TopicContent) {
 			createdAt := strconv.FormatInt(mod.CreatedAt, 10)
@@ -104,7 +104,7 @@ func GetTopicContent(ctx context.Context, topicID *string) ([]*model.TopicConten
 
 			topicsOut[i] = currentModule
 			wg.Done()
-		}(i, mod)
+		}(i, mm)
 	}
 	wg.Wait()
 	redisBytes, err := json.Marshal(currentContent)
@@ -124,7 +124,7 @@ func GetTopicExams(ctx context.Context, topicID *string) ([]*model.TopicExam, er
 	}
 	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
-	if err == nil && role != "admin" {
+	if err == nil && role == "learner" {
 		err = json.Unmarshal([]byte(result), &topicsOut)
 		if err == nil {
 			return topicsOut, nil
@@ -153,7 +153,7 @@ func GetTopicExams(ctx context.Context, topicID *string) ([]*model.TopicExam, er
 	}
 	var wg sync.WaitGroup
 	for i, topCon := range currentContent {
-		mod := topCon
+		mm := topCon
 		wg.Add(1)
 		go func(i int, mod coursez.TopicExam) {
 			createdAt := strconv.FormatInt(mod.CreatedAt, 10)
@@ -170,7 +170,7 @@ func GetTopicExams(ctx context.Context, topicID *string) ([]*model.TopicExam, er
 
 			topicsOut[i] = currentModule
 			wg.Done()
-		}(i, mod)
+		}(i, mm)
 	}
 	wg.Wait()
 	redisBytes, err := json.Marshal(topicsOut)
@@ -190,7 +190,7 @@ func GetTopicContentByCourse(ctx context.Context, courseID *string) ([]*model.To
 	}
 	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
-	if err == nil && role != "admin" {
+	if err == nil && role == "learner" {
 		err = json.Unmarshal([]byte(result), &currentContent)
 		if err != nil {
 			log.Errorf("Error in unmarshalling redis value for key %s", key)
@@ -228,7 +228,7 @@ func GetTopicContentByCourse(ctx context.Context, courseID *string) ([]*model.To
 	}
 	var wg sync.WaitGroup
 	for i, topCon := range currentContent {
-		mod := topCon
+		mm := topCon
 		wg.Add(1)
 		go func(i int, mod coursez.TopicContent) {
 			createdAt := strconv.FormatInt(mod.CreatedAt, 10)
@@ -270,7 +270,7 @@ func GetTopicContentByCourse(ctx context.Context, courseID *string) ([]*model.To
 
 			topicsOut[i] = currentModule
 			wg.Done()
-		}(i, mod)
+		}(i, mm)
 	}
 	wg.Wait()
 	redisBytes, err := json.Marshal(currentContent)
@@ -290,7 +290,7 @@ func GetTopicExamsByCourse(ctx context.Context, courseID *string) ([]*model.Topi
 	}
 	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
-	if err == nil && role != "admin" {
+	if err == nil && role == "learner" {
 		err = json.Unmarshal([]byte(result), &topicsOut)
 		if err == nil {
 			return topicsOut, nil
@@ -325,7 +325,7 @@ func GetTopicExamsByCourse(ctx context.Context, courseID *string) ([]*model.Topi
 	}
 	var wg sync.WaitGroup
 	for i, topCon := range currentContent {
-		mod := topCon
+		mm := topCon
 		wg.Add(1)
 		go func(i int, mod coursez.TopicExam) {
 			createdAt := strconv.FormatInt(mod.CreatedAt, 10)
@@ -342,7 +342,7 @@ func GetTopicExamsByCourse(ctx context.Context, courseID *string) ([]*model.Topi
 
 			topicsOut[i] = currentModule
 			wg.Done()
-		}(i, mod)
+		}(i, mm)
 	}
 	wg.Wait()
 	redisBytes, err := json.Marshal(topicsOut)
@@ -365,7 +365,7 @@ func GetTopicContentByModule(ctx context.Context, moduleID *string) ([]*model.To
 		lspID := claims["lsp_id"].(string)
 	*/
 	result, err := redis.GetRedisValue(key)
-	if err == nil && role != "admin" {
+	if err == nil && role == "learner" {
 		err = json.Unmarshal([]byte(result), &currentContent)
 		if err != nil {
 			log.Errorf("Error in unmarshalling redis value for key %s", key)
@@ -398,7 +398,7 @@ func GetTopicContentByModule(ctx context.Context, moduleID *string) ([]*model.To
 	}
 	var wg sync.WaitGroup
 	for i, topCon := range currentContent {
-		mod := topCon
+		mm := topCon
 		wg.Add(1)
 		go func(i int, mod coursez.TopicContent) {
 			createdAt := strconv.FormatInt(mod.CreatedAt, 10)
@@ -441,7 +441,7 @@ func GetTopicContentByModule(ctx context.Context, moduleID *string) ([]*model.To
 
 			topicsOut[i] = currentModule
 			wg.Done()
-		}(i, mod)
+		}(i, mm)
 	}
 	wg.Wait()
 	redisBytes, err := json.Marshal(currentContent)

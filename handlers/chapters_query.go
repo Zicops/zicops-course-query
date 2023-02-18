@@ -35,7 +35,7 @@ func GetChaptersCourseByID(ctx context.Context, courseID *string) ([]*model.Chap
 			log.Errorf("GetChaptersCourseByID: %v", err)
 		}
 	}
-	if len(chapters) > 0 && role != "admin" {
+	if len(chapters) > 0 && role == "learner" {
 		return chapters, nil
 	}
 	session, err := cassandra.GetCassSession("coursez")
@@ -60,7 +60,7 @@ func GetChaptersCourseByID(ctx context.Context, courseID *string) ([]*model.Chap
 	}
 	var wg sync.WaitGroup
 	for i, copiedMod := range currentChapters {
-		mod := copiedMod
+		mm := copiedMod
 		wg.Add(1)
 		go func(i int, mod coursez.Chapter) {
 			createdAt := strconv.FormatInt(mod.CreatedAt, 10)
@@ -77,7 +77,7 @@ func GetChaptersCourseByID(ctx context.Context, courseID *string) ([]*model.Chap
 			}
 			chapters[i] = currentChapter
 			wg.Done()
-		}(i, mod)
+		}(i, mm)
 	}
 	wg.Wait()
 	chaptersBytes, err := json.Marshal(chapters)
@@ -111,7 +111,7 @@ func GetChapterByID(ctx context.Context, chapterID *string) (*model.Chapter, err
 			log.Errorf("GetChapterByID: %v", err)
 		}
 	}
-	if len(chapters) > 0 && role != "admin" {
+	if len(chapters) > 0 && role == "learner" {
 		return chapters[0], nil
 	} else {
 		chapters = make([]*model.Chapter, 0)

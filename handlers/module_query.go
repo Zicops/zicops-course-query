@@ -24,7 +24,7 @@ func GetModulesCourseByID(ctx context.Context, courseID *string) ([]*model.Modul
 	}
 	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
-	if err == nil && role != "admin" {
+	if err == nil && role == "learner" {
 		err = json.Unmarshal([]byte(result), &modules)
 		if err == nil {
 			return modules, nil
@@ -60,7 +60,7 @@ func GetModulesCourseByID(ctx context.Context, courseID *string) ([]*model.Modul
 	modules = make([]*model.Module, len(currentModules))
 	var wg sync.WaitGroup
 	for i, copiedMod := range currentModules {
-		mod := copiedMod
+		cm := copiedMod
 		wg.Add(1)
 		go func(i int, mod coursez.Module) {
 			createdAt := strconv.FormatInt(mod.CreatedAt, 10)
@@ -81,7 +81,7 @@ func GetModulesCourseByID(ctx context.Context, courseID *string) ([]*model.Modul
 			}
 			modules[i] = currentModule
 			wg.Done()
-		}(i, mod)
+		}(i, cm)
 	}
 	wg.Wait()
 	redisBtres, err := json.Marshal(modules)
@@ -101,7 +101,7 @@ func GetModuleByID(ctx context.Context, moduleID *string) (*model.Module, error)
 	}
 	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
-	if err == nil && role != "admin" {
+	if err == nil && role == "learner" {
 		err = json.Unmarshal([]byte(result), &modules)
 		if err == nil {
 			return modules[0], nil
@@ -131,7 +131,7 @@ func GetModuleByID(ctx context.Context, moduleID *string) (*model.Module, error)
 	}
 	var wg sync.WaitGroup
 	for i, copiedMod := range currentModules {
-		mod := copiedMod
+		cm := copiedMod
 		wg.Add(1)
 		go func(i int, mod coursez.Module) {
 			createdAt := strconv.FormatInt(mod.CreatedAt, 10)
@@ -152,7 +152,7 @@ func GetModuleByID(ctx context.Context, moduleID *string) (*model.Module, error)
 			}
 			modules[i] = currentModule
 			wg.Done()
-		}(i, mod)
+		}(i, cm)
 	}
 	wg.Wait()
 	redisBtres, err := json.Marshal(modules)

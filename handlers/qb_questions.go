@@ -30,7 +30,7 @@ func GetQuestionBankQuestions(ctx context.Context, questionBankID *string, filte
 	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
 	banks := make([]qbankz.QuestionMain, 0)
-	if err == nil && role != "admin" {
+	if err == nil && role == "learner" {
 		err = json.Unmarshal([]byte(result), &banks)
 		if err != nil {
 			log.Errorf("Failed to unmarshal redis value: %v", err.Error())
@@ -86,7 +86,8 @@ func GetQuestionBankQuestions(ctx context.Context, questionBankID *string, filte
 		return allQuestions, nil
 	}
 	var wg sync.WaitGroup
-	for i, bank := range shuffledBanks {
+	for i, b := range shuffledBanks {
+		bb := b
 		wg.Add(1)
 		go func(i int, bank qbankz.QuestionMain) {
 			copiedQuestion := bank
@@ -120,7 +121,7 @@ func GetQuestionBankQuestions(ctx context.Context, questionBankID *string, filte
 			}
 			allQuestions[i] = currentQuestion
 			wg.Done()
-		}(i, bank)
+		}(i, bb)
 	}
 	wg.Wait()
 	redisBytes, err := json.Marshal(banks)
@@ -150,7 +151,7 @@ func GetQuestionsByID(ctx context.Context, questionIds []*string) ([]*model.Ques
 		key := "GetQuestionsByID" + *id
 		result, err := redis.GetRedisValue(key)
 		banks := make([]qbankz.QuestionMain, 0)
-		if err == nil && role != "admin" {
+		if err == nil && role == "learner" {
 			json.Unmarshal([]byte(result), &banks)
 		}
 		if len(banks) <= 0 {
@@ -172,9 +173,9 @@ func GetQuestionsByID(ctx context.Context, questionIds []*string) ([]*model.Ques
 		var wg sync.WaitGroup
 		for i, bank := range banks {
 			collectQs := make([]*model.QuestionBankQuestion, len(banks))
-			copiedQuestion := bank
+			c := bank
 			wg.Add(1)
-			go func(i int, bank qbankz.QuestionMain) {
+			go func(i int, copiedQuestion qbankz.QuestionMain) {
 				createdAt := strconv.FormatInt(copiedQuestion.CreatedAt, 10)
 				updatedAt := strconv.FormatInt(copiedQuestion.UpdatedAt, 10)
 				bucketQ := copiedQuestion.AttachmentBucket
@@ -206,7 +207,7 @@ func GetQuestionsByID(ctx context.Context, questionIds []*string) ([]*model.Ques
 				}
 				collectQs[i] = currentQuestion
 				wg.Done()
-			}(i, bank)
+			}(i, c)
 			wg.Wait()
 			allQuestions = append(allQuestions, collectQs...)
 		}

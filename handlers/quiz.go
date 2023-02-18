@@ -28,7 +28,7 @@ func GetTopicQuizes(ctx context.Context, topicID *string) ([]*model.Quiz, error)
 	}
 	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
-	if err == nil && role != "admin" {
+	if err == nil && role == "learner" {
 		err = json.Unmarshal([]byte(result), &currentQuizes)
 		if err == nil {
 			log.Errorf("GetTopicQuizes from redis")
@@ -59,7 +59,7 @@ func GetTopicQuizes(ctx context.Context, topicID *string) ([]*model.Quiz, error)
 	}
 	var wg sync.WaitGroup
 	for i, topQuiz := range currentQuizes {
-		mod := topQuiz
+		tt := topQuiz
 		wg.Add(1)
 		go func(mod coursez.Quiz, i int) {
 			createdAt := strconv.FormatInt(mod.CreatedAt, 10)
@@ -83,7 +83,7 @@ func GetTopicQuizes(ctx context.Context, topicID *string) ([]*model.Quiz, error)
 
 			topicQuizes[i] = currentQ
 			wg.Done()
-		}(mod, i)
+		}(tt, i)
 	}
 	wg.Wait()
 	redisBytes, err := json.Marshal(currentQuizes)
@@ -103,7 +103,7 @@ func GetQuizFiles(ctx context.Context, quizID *string) ([]*model.QuizFile, error
 	}
 	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
-	if err == nil && role != "admin" {
+	if err == nil && role == "learner" {
 		err = json.Unmarshal([]byte(result), &currentFiles)
 		if err != nil {
 			log.Errorf("GetQuizFiles from redis")
@@ -136,7 +136,7 @@ func GetQuizFiles(ctx context.Context, quizID *string) ([]*model.QuizFile, error
 	}
 	var wg sync.WaitGroup
 	for i, file := range currentFiles {
-		mod := file
+		cc := file
 		url := ""
 		wg.Add(1)
 		go func(mod coursez.QuizFile, i int) {
@@ -158,7 +158,7 @@ func GetQuizFiles(ctx context.Context, quizID *string) ([]*model.QuizFile, error
 
 			quizFiles[i] = currentFile
 			wg.Done()
-		}(mod, i)
+		}(cc, i)
 	}
 	wg.Wait()
 	redisBytes, err := json.Marshal(currentFiles)
@@ -178,7 +178,7 @@ func GetMCQQuiz(ctx context.Context, quizID *string) ([]*model.QuizMcq, error) {
 	}
 	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
-	if err == nil && role != "admin" {
+	if err == nil && role == "learner" {
 		err = json.Unmarshal([]byte(result), &quizMcqs)
 		if err == nil {
 			return quizMcqs, nil
@@ -208,7 +208,7 @@ func GetMCQQuiz(ctx context.Context, quizID *string) ([]*model.QuizMcq, error) {
 	}
 	var wg sync.WaitGroup
 	for i, mcq := range currentMCQs {
-		mod := mcq
+		mm := mcq
 		wg.Add(1)
 		go func(mod coursez.QuizMcq, i int) {
 			options := make([]*string, 0)
@@ -224,7 +224,7 @@ func GetMCQQuiz(ctx context.Context, quizID *string) ([]*model.QuizMcq, error) {
 			}
 			quizMcqs[i] = currentMcq
 			wg.Done()
-		}(mod, i)
+		}(mm, i)
 	}
 	wg.Wait()
 	redisBytes, err := json.Marshal(quizMcqs)
@@ -244,7 +244,7 @@ func GetQuizDes(ctx context.Context, quizID *string) ([]*model.QuizDescriptive, 
 	}
 	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
-	if err == nil && role != "admin" {
+	if err == nil && role == "learner" {
 		err = json.Unmarshal([]byte(result), &quizDes)
 		if err == nil {
 			return quizDes, nil
@@ -273,7 +273,7 @@ func GetQuizDes(ctx context.Context, quizID *string) ([]*model.QuizDescriptive, 
 	}
 	var wg sync.WaitGroup
 	for i, mcq := range currentDesQ {
-		mod := mcq
+		cd := mcq
 		wg.Add(1)
 		go func(mod coursez.QuizDescriptive, i int) {
 			currentMcq := &model.QuizDescriptive{
@@ -285,7 +285,7 @@ func GetQuizDes(ctx context.Context, quizID *string) ([]*model.QuizDescriptive, 
 
 			quizDes[i] = currentMcq
 			wg.Done()
-		}(mod, i)
+		}(cd, i)
 	}
 	wg.Wait()
 	redisBytes, err := json.Marshal(quizDes)

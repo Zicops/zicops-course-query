@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"strings"
 	"sync"
 
 	log "github.com/sirupsen/logrus"
@@ -19,7 +20,7 @@ import (
 
 func GetCourseByID(ctx context.Context, courseID []*string) ([]*model.Course, error) {
 	//set the query, after getting results iterate over them using goroutines
-	course := &coursez.Course{
+	courseI := coursez.Course{
 		ID:                 "",
 		Name:               "",
 		Description:        "",
@@ -61,22 +62,12 @@ func GetCourseByID(ctx context.Context, courseID []*string) ([]*model.Course, er
 		Publisher:          "",
 	}
 	key := "GetCourseByID" + fmt.Sprintf("%v", courseID)
-	_, err := helpers.GetClaimsFromContext(ctx)
+	claims, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
-	//role := strings.ToLower(claims["role"].(string))
-	//lspID := claims["lsp_id"].(string)
-	// result, err := redis.GetRedisValue(key)
-	// if err != nil {
-	// 	log.Error("Error in getting redis value for key: ", key)
-	// }
-	// if result != "" {
-	// 	err = json.Unmarshal([]byte(result), &course)
-	// 	if err != nil {
-	// 		log.Error("Error in unmarshalling redis value for key: ", key)
-	// 	}
-	// }
+	role := strings.ToLower(claims["role"].(string))
+
 	//from here we will write query if our cache value is nil
 	res := make([]*model.Course, len(courseID))
 	var wg sync.WaitGroup
@@ -90,27 +81,42 @@ func GetCourseByID(ctx context.Context, courseID []*string) ([]*model.Course, er
 		//iterate through each courseId value and store it in res variable
 		for i, vv := range courseID {
 			//this is to avoid pointers overlapping
-			v := vv
-
+			vvv := vv
+			if role == "learner" {
+				result, err := redis.GetRedisValue(key)
+				if err != nil {
+					log.Error("Error in getting redis value for key: ", key)
+				}
+				if result != "" {
+					err = json.Unmarshal([]byte(result), &courseI)
+					if err != nil {
+						log.Error("Error in unmarshalling redis value for key: ", key)
+					}
+				}
+			}
 			wg.Add(1)
 			//send each value to different go routines and store the result
-			go func(v *string, i int) {
-				qryStr := fmt.Sprintf(`SELECT * from coursez.course where id='%s' ALLOW FILTERING`, *v)
-				getCourse := func() (courses []coursez.Course, err error) {
-					q := CassSession.Query(qryStr, nil)
-					defer q.Release()
-					iter := q.Iter()
-					return courses, iter.Select(&courses)
+			go func(v *string, i int, cc coursez.Course) {
+				var course coursez.Course
+				if cc.ID != "" {
+					course = cc
+				} else {
+					qryStr := fmt.Sprintf(`SELECT * from coursez.course where id='%s' ALLOW FILTERING`, *v)
+					getCourse := func() (courses []coursez.Course, err error) {
+						q := CassSession.Query(qryStr, nil)
+						defer q.Release()
+						iter := q.Iter()
+						return courses, iter.Select(&courses)
+					}
+					courses, err := getCourse()
+					if err != nil {
+						log.Errorf("%v", err)
+					}
+					if len(courses) <= 0 {
+						log.Errorf("course not found: %v", err)
+					}
+					course = courses[0]
 				}
-				courses, err := getCourse()
-				if err != nil {
-					log.Errorf("%v", err)
-				}
-				if len(courses) <= 0 {
-					log.Errorf("course not found: %v", err)
-				}
-				course = &courses[0]
-
 				createdAt := strconv.FormatInt(course.CreatedAt, 10)
 				updatedAt := strconv.FormatInt(course.UpdatedAt, 10)
 				language := make([]*string, 0)
@@ -251,9 +257,9 @@ func GetCourseByID(ctx context.Context, courseID []*string) ([]*model.Course, er
 				}
 				res[i] = &currentCourse
 				wg.Done()
-			}(v, i)
-			wg.Wait()
+			}(vvv, i, courseI)
 		}
+		wg.Wait()
 	}
 
 	return res, nil
@@ -292,7 +298,8 @@ func GetBasicCourseStats(ctx context.Context, input *model.BasicCourseStatsInput
 	var wg sync.WaitGroup
 	if input.Categories != nil {
 		catStats = make([]*model.Count, len(input.Categories))
-		for i, v := range input.Categories {
+		for i, vv := range input.Categories {
+			vvv := vv
 			wg.Add(1)
 			go func(v *string, i int) {
 				copiedCat := *v
@@ -307,13 +314,14 @@ func GetBasicCourseStats(ctx context.Context, input *model.BasicCourseStatsInput
 				}
 				catStats[i] = &currentStat
 				wg.Done()
-			}(v, i)
+			}(vvv, i)
 		}
 	}
 	subCatStats := make([]*model.Count, 0)
 	if input.SubCategories != nil {
 		subCatStats = make([]*model.Count, len(input.SubCategories))
-		for i, v := range input.SubCategories {
+		for i, vv := range input.SubCategories {
+			vvv := vv
 			wg.Add(1)
 			go func(v *string, i int) {
 				copiedSubCat := *v
@@ -328,13 +336,14 @@ func GetBasicCourseStats(ctx context.Context, input *model.BasicCourseStatsInput
 				}
 				subCatStats[i] = &currentStat
 				wg.Done()
-			}(v, i)
+			}(vvv, i)
 		}
 	}
 	expertiseStats := make([]*model.Count, 0)
 	if input.ExpertiseLevel != nil {
 		expertiseStats = make([]*model.Count, len(input.ExpertiseLevel))
-		for i, v := range input.ExpertiseLevel {
+		for i, vv := range input.ExpertiseLevel {
+			vvv := vv
 			wg.Add(1)
 			go func(v *string, i int) {
 				copiedExpertise := *v
@@ -349,13 +358,14 @@ func GetBasicCourseStats(ctx context.Context, input *model.BasicCourseStatsInput
 				}
 				expertiseStats[i] = &currentStat
 				wg.Done()
-			}(v, i)
+			}(vvv, i)
 		}
 	}
 	languageStats := make([]*model.Count, 0)
 	if input.Languages != nil {
 		languageStats = make([]*model.Count, len(input.Languages))
-		for i, v := range input.Languages {
+		for i, vv := range input.Languages {
+			vvv := vv
 			wg.Add(1)
 			go func(v *string, i int) {
 				copiedLanguage := *v
@@ -370,7 +380,7 @@ func GetBasicCourseStats(ctx context.Context, input *model.BasicCourseStatsInput
 				}
 				languageStats[i] = &currentStat
 				wg.Done()
-			}(v, i)
+			}(vvv, i)
 		}
 	}
 	wg.Wait()

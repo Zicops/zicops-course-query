@@ -229,7 +229,7 @@ func AllSubCatMain(ctx context.Context, lspIds []*string, searchText *string) ([
 			log.Errorf("Failed to unmarshal value from redis: %v", err.Error())
 		}
 	}
-	if len(cats) <= 0 || role == "admin" {
+	if len(cats) <= 0 || role != "learner" {
 		cats = make([]coursez.SubCatMain, 0)
 		session, err := cassandra.GetCassSession("coursez")
 		if err != nil {
@@ -348,7 +348,7 @@ func AllSubCatByCatID(ctx context.Context, catID *string) ([]*model.SubCatMain, 
 			log.Errorf("Failed to unmarshal value from redis: %v", err.Error())
 		}
 	}
-	if len(cats) <= 0 || role == "admin" {
+	if len(cats) <= 0 || role != "learner" {
 		session, err := cassandra.GetCassSession("coursez")
 		if err != nil {
 			return nil, err

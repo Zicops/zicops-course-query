@@ -38,7 +38,7 @@ func LatestQuestionBanks(ctx context.Context, publishTime *int, pageCursor *stri
 	if err != nil {
 		log.Errorf("Error getting redis value: %v", err)
 	}
-	if result != "" && role != "admin" {
+	if result != "" && role == "learner" {
 		var outputResponse model.PaginatedQuestionBank
 		err = json.Unmarshal([]byte(result), &outputResponse)
 		if err != nil {
@@ -154,7 +154,7 @@ func LatestQuestionPapers(ctx context.Context, publishTime *int, pageCursor *str
 	if err != nil {
 		log.Errorf("Error getting redis value: %v", err)
 	}
-	if result != "" && role != "admin" {
+	if result != "" && role == "learner" {
 		var outputResponse model.PaginatedQuestionPapers
 		err = json.Unmarshal([]byte(result), &outputResponse)
 		if err != nil {
@@ -210,7 +210,7 @@ func LatestQuestionPapers(ctx context.Context, publishTime *int, pageCursor *str
 	}
 	var wg sync.WaitGroup
 	for i, bank := range banks {
-		copiedBank := bank
+		c := bank
 		wg.Add(1)
 		go func(i int, copiedBank qbankz.QuestionPaperMain) {
 			createdAt := strconv.FormatInt(copiedBank.CreatedAt, 10)
@@ -233,7 +233,7 @@ func LatestQuestionPapers(ctx context.Context, publishTime *int, pageCursor *str
 			}
 			allBanks[i] = currentBank
 			wg.Done()
-		}(i, copiedBank)
+		}(i, c)
 	}
 	wg.Wait()
 	outputResponse.QuestionPapers = allBanks
@@ -275,7 +275,7 @@ func GetLatestExams(ctx context.Context, publishTime *int, pageCursor *string, d
 	if err != nil {
 		log.Errorf("Error getting redis value: %v", err)
 	}
-	if result != "" && role != "admin" {
+	if result != "" && role == "learner" {
 		var outputResponse model.PaginatedExams
 		err = json.Unmarshal([]byte(result), &outputResponse)
 		if err != nil {
@@ -339,7 +339,7 @@ func GetLatestExams(ctx context.Context, publishTime *int, pageCursor *string, d
 	}
 	var wg sync.WaitGroup
 	for i, exam := range exams {
-		copiedExam := exam
+		c := exam
 		wg.Add(1)
 		go func(i int, copiedExam qbankz.Exam) {
 			createdAt := strconv.FormatInt(copiedExam.CreatedAt, 10)
@@ -371,7 +371,7 @@ func GetLatestExams(ctx context.Context, publishTime *int, pageCursor *string, d
 			}
 			allExams[i] = currentExam
 			wg.Done()
-		}(i, copiedExam)
+		}(i, c)
 	}
 	wg.Wait()
 	outputResponse.Exams = allExams
@@ -405,7 +405,7 @@ func GetExamsMeta(ctx context.Context, examIds []*string) ([]*model.Exam, error)
 	responseMap := make([]*model.Exam, 0)
 	for _, questionId := range examIds {
 		result, _ := redis.GetRedisValue("GetExamsMeta" + *questionId)
-		if result != "" && role != "admin" {
+		if result != "" && role == "learner" {
 			var outputResponse model.Exam
 			err = json.Unmarshal([]byte(result), &outputResponse)
 			if err == nil {
@@ -433,7 +433,7 @@ func GetExamsMeta(ctx context.Context, examIds []*string) ([]*model.Exam, error)
 		resExams := make([]*model.Exam, len(banks))
 		var wg sync.WaitGroup
 		for i, bank := range banks {
-			copiedExam := bank
+			c := bank
 			wg.Add(1)
 			go func(i int, copiedExam qbankz.Exam) {
 				createdAt := strconv.FormatInt(copiedExam.CreatedAt, 10)
@@ -470,7 +470,7 @@ func GetExamsMeta(ctx context.Context, examIds []*string) ([]*model.Exam, error)
 					redis.SetRedisValue("GetExamsMeta"+*questionId, string(redisBytes))
 				}
 				wg.Done()
-			}(i, copiedExam)
+			}(i, c)
 		}
 		wg.Wait()
 		responseMap = append(responseMap, resExams...)
@@ -495,7 +495,7 @@ func GetQBMeta(ctx context.Context, qbIds []*string) ([]*model.QuestionBank, err
 
 	for _, qbId := range qbIds {
 		result, _ := redis.GetRedisValue("GetQBMeta" + *qbId)
-		if result != "" && role != "admin" {
+		if result != "" && role == "learner" {
 			var outputResponse model.QuestionBank
 			err = json.Unmarshal([]byte(result), &outputResponse)
 			if err == nil {
@@ -521,7 +521,7 @@ func GetQBMeta(ctx context.Context, qbIds []*string) ([]*model.QuestionBank, err
 		}
 		var wg sync.WaitGroup
 		for i, bank := range banks {
-			copiedBank := bank
+			c := bank
 			wg.Add(1)
 			go func(i int, copiedBank qbankz.QuestionBankMain) {
 				createdAt := strconv.FormatInt(copiedBank.CreatedAt, 10)
@@ -547,7 +547,7 @@ func GetQBMeta(ctx context.Context, qbIds []*string) ([]*model.QuestionBank, err
 					redis.SetRedisValue("GetQBMeta"+*qbId, string(redisBytes))
 				}
 				wg.Done()
-			}(i, copiedBank)
+			}(i, c)
 		}
 		wg.Wait()
 		responseMap = append(responseMap, resBanks...)

@@ -135,6 +135,8 @@ func graphqlHandler() gin.HandlerFunc {
 				redis.SetTTL(userIdUsingEmail, 3600)
 			}
 		}
+		roleFromHeader := c.Request.Header.Get("role")
+		ctxValue["role"] = roleFromHeader
 		request := c.Request
 		requestWithValue := request.WithContext(context.WithValue(request.Context(), "zclaims", ctxValue))
 		h.ServeHTTP(c.Writer, requestWithValue)

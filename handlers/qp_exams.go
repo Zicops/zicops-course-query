@@ -23,7 +23,7 @@ func GetExamsByQPId(ctx context.Context, questionPaperID *string) ([]*model.Exam
 	}
 	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
-	if err == nil && role != "admin" {
+	if err == nil && role == "learner" {
 		output := make([]*model.Exam, 0)
 		err = json.Unmarshal([]byte(result), &output)
 		if err == nil {
@@ -54,7 +54,7 @@ func GetExamsByQPId(ctx context.Context, questionPaperID *string) ([]*model.Exam
 	}
 	var wg sync.WaitGroup
 	for i, bank := range banks {
-		copiedQuestion := bank
+		cqb := bank
 		wg.Add(1)
 		go func(i int, copiedQuestion qbankz.Exam) {
 			createdAt := strconv.FormatInt(copiedQuestion.CreatedAt, 10)
@@ -86,7 +86,7 @@ func GetExamsByQPId(ctx context.Context, questionPaperID *string) ([]*model.Exam
 			}
 			allSections[i] = currentQuestion
 			wg.Done()
-		}(i, copiedQuestion)
+		}(i, cqb)
 	}
 	wg.Wait()
 	output, err := json.Marshal(allSections)
@@ -105,7 +105,7 @@ func GetExamSchedule(ctx context.Context, examID *string) ([]*model.ExamSchedule
 	}
 	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
-	if err == nil && role != "admin" {
+	if err == nil && role == "learner" {
 		output := make([]*model.ExamSchedule, 0)
 		err = json.Unmarshal([]byte(result), &output)
 		if err == nil {
@@ -136,7 +136,7 @@ func GetExamSchedule(ctx context.Context, examID *string) ([]*model.ExamSchedule
 	}
 	var wg sync.WaitGroup
 	for i, bank := range banks {
-		copiedQuestion := bank
+		cqb := bank
 		wg.Add(1)
 		go func(i int, copiedQuestion qbankz.ExamSchedule) {
 			createdAt := strconv.FormatInt(copiedQuestion.CreatedAt, 10)
@@ -158,7 +158,7 @@ func GetExamSchedule(ctx context.Context, examID *string) ([]*model.ExamSchedule
 			}
 			allSections[i] = currentQuestion
 			wg.Done()
-		}(i, copiedQuestion)
+		}(i, cqb)
 	}
 	wg.Wait()
 	output, err := json.Marshal(allSections)
@@ -177,7 +177,7 @@ func GetExamInstruction(ctx context.Context, examID *string) ([]*model.ExamInstr
 	}
 	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
-	if err == nil && role != "admin" {
+	if err == nil && role == "learner" {
 		output := make([]*model.ExamInstruction, 0)
 		err = json.Unmarshal([]byte(result), &output)
 		if err == nil {
@@ -208,7 +208,7 @@ func GetExamInstruction(ctx context.Context, examID *string) ([]*model.ExamInstr
 	}
 	var wg sync.WaitGroup
 	for i, bank := range banks {
-		copiedQuestion := bank
+		c := bank
 		wg.Add(1)
 		go func(i int, copiedQuestion qbankz.ExamInstructions) {
 			createdAt := strconv.FormatInt(copiedQuestion.CreatedAt, 10)
@@ -229,7 +229,7 @@ func GetExamInstruction(ctx context.Context, examID *string) ([]*model.ExamInstr
 			}
 			allSections[i] = currentQuestion
 			wg.Done()
-		}(i, copiedQuestion)
+		}(i, c)
 	}
 	wg.Wait()
 	output, err := json.Marshal(allSections)
@@ -248,7 +248,7 @@ func GetExamCohort(ctx context.Context, examID *string) ([]*model.ExamCohort, er
 	}
 	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
-	if err == nil && role != "admin" {
+	if err == nil && role == "learner" {
 		output := make([]*model.ExamCohort, 0)
 		err = json.Unmarshal([]byte(result), &output)
 		if err == nil {
@@ -279,7 +279,7 @@ func GetExamCohort(ctx context.Context, examID *string) ([]*model.ExamCohort, er
 	}
 	var wg sync.WaitGroup
 	for i, bank := range banks {
-		copiedQuestion := bank
+		c := bank
 		wg.Add(1)
 		go func(i int, copiedQuestion qbankz.ExamCohort) {
 			createdAt := strconv.FormatInt(copiedQuestion.CreatedAt, 10)
@@ -296,7 +296,7 @@ func GetExamCohort(ctx context.Context, examID *string) ([]*model.ExamCohort, er
 			}
 			allSections[i] = currentQuestion
 			wg.Done()
-		}(i, copiedQuestion)
+		}(i, c)
 	}
 	wg.Wait()
 	output, err := json.Marshal(allSections)
@@ -315,7 +315,7 @@ func GetExamConfiguration(ctx context.Context, examID *string) ([]*model.ExamCon
 	}
 	role := strings.ToLower(claims["role"].(string))
 	result, err := redis.GetRedisValue(key)
-	if err == nil && role != "admin" {
+	if err == nil && role == "learner" {
 		output := make([]*model.ExamConfiguration, 0)
 		err = json.Unmarshal([]byte(result), &output)
 		if err == nil {
@@ -346,7 +346,7 @@ func GetExamConfiguration(ctx context.Context, examID *string) ([]*model.ExamCon
 	}
 	var wg sync.WaitGroup
 	for i, bank := range banks {
-		copiedQuestion := bank
+		c := bank
 		wg.Add(1)
 		go func(i int, copiedQuestion qbankz.ExamConfig) {
 			createdAt := strconv.FormatInt(copiedQuestion.CreatedAt, 10)
@@ -366,7 +366,7 @@ func GetExamConfiguration(ctx context.Context, examID *string) ([]*model.ExamCon
 			}
 			allSections[i] = currentQuestion
 			wg.Done()
-		}(i, copiedQuestion)
+		}(i, c)
 	}
 	wg.Wait()
 	output, err := json.Marshal(allSections)
@@ -393,7 +393,7 @@ func GetQPMeta(ctx context.Context, questionPapersIds []*string) ([]*model.Quest
 	for _, questionId := range questionPapersIds {
 		key := "GetQPMeta" + *questionId
 		result, err := redis.GetRedisValue(key)
-		if err == nil && role != "admin" {
+		if err == nil && role == "learner" {
 			output := &model.QuestionPaper{}
 			err = json.Unmarshal([]byte(result), output)
 			if err == nil {
@@ -419,7 +419,7 @@ func GetQPMeta(ctx context.Context, questionPapersIds []*string) ([]*model.Quest
 		}
 		var wg sync.WaitGroup
 		for i, bank := range banks {
-			copiedBank := bank
+			c := bank
 			wg.Add(1)
 			go func(i int, copiedBank qbankz.QuestionPaperMain) {
 				createdAt := strconv.FormatInt(copiedBank.CreatedAt, 10)
@@ -447,7 +447,7 @@ func GetQPMeta(ctx context.Context, questionPapersIds []*string) ([]*model.Quest
 					redis.SetRedisValue(key, string(output))
 				}
 				wg.Done()
-			}(i, copiedBank)
+			}(i, c)
 		}
 		wg.Wait()
 		responseMap = append(responseMap, resCurrent...)
