@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"strconv"
@@ -68,7 +69,7 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 		pageSizeInt = *pageSize
 	}
 	role := strings.ToLower(claims["role"].(string))
-	key := fmt.Sprintf("latest_courses_%v", filtersStr)
+	key := base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("latest_courses_%v_%v", role, filtersStr)))
 	result, err := redis.GetRedisValue(ctx, key)
 	if err != nil {
 		log.Errorf("Error in getting redis value for key %v : %v", key, err)
