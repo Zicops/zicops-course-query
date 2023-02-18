@@ -111,7 +111,7 @@ func AllCatMain(ctx context.Context, lspIds []*string, searchText *string) ([]*m
 			log.Errorf("Failed to unmarshal value from redis: %v", err.Error())
 		}
 	}
-	if len(cats) <= 0 || role == "admin" {
+	if len(cats) <= 0 || role != "learner" {
 		cats = make([]coursez.CatMain, 0)
 		session, err := cassandra.GetCassSession("coursez")
 		if err != nil {
