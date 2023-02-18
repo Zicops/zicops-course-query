@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"strconv"
@@ -44,7 +45,7 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 	}
 	role := strings.ToLower(claims["role"].(string))
 	email := claims["email"].(string)
-	key := "LatestCourses" + string(newPage) + filtersStr + role + email
+	key := "LatestCourses" + base64.StdEncoding.EncodeToString(newPage) + email + filtersStr
 	result, err := redis.GetRedisValue(ctx, key)
 	if err != nil {
 		log.Errorf("Error in getting redis value: %v", err)
@@ -272,15 +273,16 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 	outputResponse.PageCursor = &newCursor
 	outputResponse.PageSize = &pageSizeInt
 	outputResponse.Direction = direction
-	end = start.Stop()
-	log.Infof("Time taken to fetch all courses: %v", end)
-	start = stopwatch.Start()
 	redisBytes, err := json.Marshal(dbCourses)
 	if err == nil {
-		redis.SetTTL(ctx, key, 60)
-		redis.SetRedisValue(ctx, key, string(redisBytes))
+		err = redis.SetTTL(ctx, key, 60)
+		if err != nil {
+			log.Errorf("Failed to set redis value: %v", err.Error())
+		}
+		err = redis.SetRedisValue(ctx, key, string(redisBytes))
+		if err != nil {
+			log.Errorf("Failed to set redis value: %v", err.Error())
+		}
 	}
-	end = start.Stop()
-	log.Infof("Time taken to set redis value: %v", end)
 	return &outputResponse, nil
 }
