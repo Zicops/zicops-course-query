@@ -2,10 +2,8 @@ package controller
 
 import (
 	"context"
-	"encoding/base64"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -14,9 +12,6 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
-	"github.com/zicops/contracts/userz"
-	"github.com/zicops/zicops-cass-pool/cassandra"
-	"github.com/zicops/zicops-cass-pool/redis"
 	"github.com/zicops/zicops-course-query/graph"
 	"github.com/zicops/zicops-course-query/graph/generated"
 	"github.com/zicops/zicops-course-query/lib/jwt"
@@ -91,11 +86,6 @@ func graphqlHandler() gin.HandlerFunc {
 		ctxValue := c.Value("zclaims").(map[string]interface{})
 		// set ctxValue to request context
 		// get user using email
-		emailCalled := ctxValue["email"].(string)
-		userIdUsingEmail := base64.URLEncoding.EncodeToString([]byte(emailCalled))
-		var userInput userz.User
-		// user get query
-		redisResult, _ := redis.GetRedisValue(c.Request.Context(), userIdUsingEmail)
 		lspIdInt := c.Request.Header.Get("tenant")
 		lspID := "d8685567-cdae-4ee0-a80e-c187848a760e"
 		if lspIdInt != "" {
@@ -106,39 +96,6 @@ func graphqlHandler() gin.HandlerFunc {
 		ctxValue["role"] = roleFromHeader
 		request := c.Request
 		newCtx := context.WithValue(request.Context(), "zclaims", ctxValue)
-		if redisResult != "" {
-			err := json.Unmarshal([]byte(redisResult), &userInput)
-			if err != nil {
-				log.Errorf("Error unmarshalling user from redis %s", err.Error())
-			} else {
-				ctxValue["role"] = userInput.Role
-				redis.SetTTL(newCtx, userIdUsingEmail, 60)
-			}
-		} else {
-			session, err := cassandra.GetCassSession("userz")
-			if err != nil {
-				log.Errorf("Error getting cassandra session %s", err.Error())
-			}
-			CassUserSession := session
-			qryStr := fmt.Sprintf(`SELECT * from userz.users where id='%s' `, userIdUsingEmail)
-			getUsers := func() (users []userz.User, err error) {
-				q := CassUserSession.Query(qryStr, nil)
-				defer q.Release()
-				iter := q.Iter()
-				return users, iter.Select(&users)
-			}
-			users, err := getUsers()
-			if err != nil {
-				log.Errorf("Error getting users %s", err.Error())
-			}
-			if len(users) > 0 {
-				ctxValue["role"] = users[0].Role
-				userInput = users[0]
-				userInputBytes, _ := json.Marshal(userInput)
-				redis.SetRedisValue(newCtx, userIdUsingEmail, string(userInputBytes))
-				redis.SetTTL(newCtx, userIdUsingEmail, 60)
-			}
-		}
 		requestWithValue := request.WithContext(newCtx)
 		h.ServeHTTP(c.Writer, requestWithValue)
 	}
