@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"strconv"
@@ -92,7 +93,17 @@ func GetSubCategoriesForSub(ctx context.Context, cat *string) ([]*string, error)
 
 func AllCatMain(ctx context.Context, lspIds []*string, searchText *string) ([]*model.CatMain, error) {
 	log.Info("AllCatMain")
-	key := "AllCatMain" + fmt.Sprintf("%v", lspIds)
+	key := "zicops_all_cat_main"
+	if len(lspIds) > 0 {
+		for _, lspId := range lspIds {
+			lc := strings.ToLower(*lspId)
+			key = key + lc
+		}
+	}
+	if searchText != nil && *searchText != "" {
+		key = key + *searchText
+	}
+	key = base64.StdEncoding.EncodeToString([]byte(key))
 	claims, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -101,10 +112,7 @@ func AllCatMain(ctx context.Context, lspIds []*string, searchText *string) ([]*m
 	role := strings.ToLower(claims["role"].(string))
 	cats := make([]coursez.CatMain, 0)
 	result, err := redis.GetRedisValue(ctx, key)
-	if err != nil {
-		log.Errorf("Failed to get value from redis: %v", err.Error())
-	}
-	if result != "" {
+	if err == nil && result != "" {
 		log.Info("Got value from redis")
 		err = json.Unmarshal([]byte(result), &cats)
 		if err != nil {
@@ -200,18 +208,25 @@ func AllCatMain(ctx context.Context, lspIds []*string, searchText *string) ([]*m
 	}
 	redisValue, err := json.Marshal(cats)
 	if err == nil {
-		redis.SetTTL(ctx, key, 60)
-		err = redis.SetRedisValue(ctx, key, string(redisValue))
-		if err != nil {
-			log.Errorf("Failed to set value in redis: %v", err.Error())
-		}
+		redis.SetRedisValue(ctx, key, string(redisValue))
+		redis.SetTTL(ctx, key, 3600)
 	}
 	return resultOutput, nil
 }
 
 func AllSubCatMain(ctx context.Context, lspIds []*string, searchText *string) ([]*model.SubCatMain, error) {
 	log.Info("AllSubCatMain")
-	key := "AllSubCatMain" + fmt.Sprintf("%v", lspIds)
+	key := "zicops_all_subcat_main"
+	if len(lspIds) > 0 {
+		for _, lspId := range lspIds {
+			lc := strings.ToLower(*lspId)
+			key = key + lc
+		}
+	}
+	if searchText != nil && *searchText != "" {
+		key = key + *searchText
+	}
+	key = base64.StdEncoding.EncodeToString([]byte(key))
 	claims, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -319,11 +334,11 @@ func AllSubCatMain(ctx context.Context, lspIds []*string, searchText *string) ([
 	}
 	redisValue, err := json.Marshal(cats)
 	if err == nil {
-		redis.SetTTL(ctx, key, 60)
 		err = redis.SetRedisValue(ctx, key, string(redisValue))
 		if err != nil {
 			log.Errorf("Failed to set value in redis: %v", err.Error())
 		}
+		redis.SetTTL(ctx, key, 3600)
 	}
 	return resultOutput, nil
 }
