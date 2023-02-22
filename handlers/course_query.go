@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
-	"strings"
 	"sync"
 
 	log "github.com/sirupsen/logrus"
@@ -61,12 +60,10 @@ func GetCourseByID(ctx context.Context, courseID []*string) ([]*model.Course, er
 		LspId:              "",
 		Publisher:          "",
 	}
-	claims, err := helpers.GetClaimsFromContext(ctx)
+	_, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
-	role := strings.ToLower(claims["role"].(string))
-
 	//from here we will write query if our cache value is nil
 	res := make([]*model.Course, len(courseID))
 	var wg sync.WaitGroup
@@ -85,7 +82,7 @@ func GetCourseByID(ctx context.Context, courseID []*string) ([]*model.Course, er
 			}
 			vvv := vv
 			key := fmt.Sprintf("course:%s", *vvv)
-			if role == "learner" {
+			{
 				result, err := redis.GetRedisValue(ctx, key)
 				if err != nil {
 					log.Error("Error in getting redis value for key: ", key)
