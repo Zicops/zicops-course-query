@@ -102,8 +102,9 @@ func (sc *Client) GetSignedURLForObjectCache(ctx context.Context, object string)
 	if err != nil {
 		return ""
 	}
+	allBut10Secsto24Hours := 24*time.Hour - 10*time.Second
 	redis.SetRedisValue(ctx, key, url)
-	redis.SetTTL(ctx, key, 3000)
+	redis.SetTTL(ctx, key, int(allBut10Secsto24Hours.Seconds()))
 	return url
 }
 
