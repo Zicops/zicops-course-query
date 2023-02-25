@@ -240,12 +240,12 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 			}
 			imageUrl := course.Image
 			if course.ImageBucket != "" {
-				key := base64.StdEncoding.EncodeToString([]byte(course.Image))
+				key := base64.StdEncoding.EncodeToString([]byte(course.ImageBucket))
 				res, err := redis.GetRedisValue(ctx, key)
 				if err == nil && res != "" {
 					imageUrl = res
 				} else {
-					imageUrl = storageC.GetSignedURLForObject(course.Image)
+					imageUrl = storageC.GetSignedURLForObject(course.ImageBucket)
 					redis.SetRedisValue(ctx, key, imageUrl)
 					redis.SetTTL(ctx, key, 3000)
 				}
