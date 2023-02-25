@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"context"
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"strconv"
@@ -73,22 +72,15 @@ func GetOptionsForQuestions(ctx context.Context, questionIds []*string) ([]*mode
 				attUrl := ""
 
 				if copiedQuestion.AttachmentBucket != "" {
-					key := base64.StdEncoding.EncodeToString([]byte(copiedQuestion.AttachmentBucket))
-					redisResult, err := redis.GetRedisValue(ctx, key)
-					if err == nil && redisResult != "" {
-						attUrl = redisResult
-					} else {
-						storageC := bucket.NewStorageHandler()
-						gproject := googleprojectlib.GetGoogleProjectID()
 
-						err := storageC.InitializeStorageClient(ctx, gproject, copiedQuestion.LspId)
-						if err != nil {
-							log.Errorf("Error in initializing storage client: %v", err)
-						}
-						attUrl = storageC.GetSignedURLForObject(copiedQuestion.AttachmentBucket)
-						redis.SetRedisValue(ctx, key, attUrl)
-						redis.SetTTL(ctx, key, 3000)
+					storageC := bucket.NewStorageHandler()
+					gproject := googleprojectlib.GetGoogleProjectID()
+
+					err := storageC.InitializeStorageClient(ctx, gproject, copiedQuestion.LspId)
+					if err != nil {
+						log.Errorf("Error in initializing storage client: %v", err)
 					}
+					attUrl = storageC.GetSignedURLForObjectCache(ctx, copiedQuestion.AttachmentBucket)
 				}
 				currentQuestion := &model.QuestionOption{
 					ID:             &copiedQuestion.ID,

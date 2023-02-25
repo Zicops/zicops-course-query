@@ -186,22 +186,14 @@ func AllCatMain(ctx context.Context, lspIds []*string, searchText *string) ([]*m
 			updatedAt := strconv.FormatInt(copiedCat.UpdatedAt, 10)
 			imageUrl := copiedCat.ImageURL
 			if copiedCat.ImageBucket != "" {
-				key := base64.StdEncoding.EncodeToString([]byte(copiedCat.ImageBucket))
-				result, err := redis.GetRedisValue(ctx, key)
-				if err == nil && result != "" {
-					imageUrl = result
-				} else {
-					storageC := bucket.NewStorageHandler()
-					gproject := googleprojectlib.GetGoogleProjectID()
-					err = storageC.InitializeStorageClient(ctx, gproject, "coursez-catimages")
-					if err != nil {
-						log.Errorf("Failed to initialize storage: %v", err.Error())
-						return
-					}
-					imageUrl = storageC.GetSignedURLForObject(copiedCat.ImageBucket)
-					redis.SetRedisValue(ctx, key, imageUrl)
-					redis.SetTTL(ctx, key, 3000)
+				storageC := bucket.NewStorageHandler()
+				gproject := googleprojectlib.GetGoogleProjectID()
+				err = storageC.InitializeStorageClient(ctx, gproject, "coursez-catimages")
+				if err != nil {
+					log.Errorf("Failed to initialize storage: %v", err.Error())
+					return
 				}
+				imageUrl = storageC.GetSignedURLForObjectCache(ctx, copiedCat.ImageBucket)
 			}
 			currentCat := model.CatMain{
 				ID:          &copiedCat.ID,
@@ -325,22 +317,14 @@ func AllSubCatMain(ctx context.Context, lspIds []*string, searchText *string) ([
 			updatedAt := strconv.FormatInt(copiedCat.UpdatedAt, 10)
 			imageUrl := copiedCat.ImageURL
 			if copiedCat.ImageBucket != "" {
-				key := base64.StdEncoding.EncodeToString([]byte(copiedCat.ImageBucket))
-				result, err := redis.GetRedisValue(ctx, key)
-				if err == nil && result != "" {
-					imageUrl = result
-				} else {
-					storageC := bucket.NewStorageHandler()
-					gproject := googleprojectlib.GetGoogleProjectID()
-					err = storageC.InitializeStorageClient(ctx, gproject, "coursez-catimages")
-					if err != nil {
-						log.Errorf("Failed to initialize storage: %v", err.Error())
-						return
-					}
-					imageUrl = storageC.GetSignedURLForObject(copiedCat.ImageBucket)
-					redis.SetRedisValue(ctx, key, imageUrl)
-					redis.SetTTL(ctx, key, 3000)
+				storageC := bucket.NewStorageHandler()
+				gproject := googleprojectlib.GetGoogleProjectID()
+				err = storageC.InitializeStorageClient(ctx, gproject, "coursez-catimages")
+				if err != nil {
+					log.Errorf("Failed to initialize storage: %v", err.Error())
+					return
 				}
+				imageUrl = storageC.GetSignedURLForObjectCache(ctx, copiedCat.ImageBucket)
 			}
 			currentCat := model.SubCatMain{
 				ID:          &copiedCat.ID,
@@ -426,21 +410,13 @@ func AllSubCatByCatID(ctx context.Context, catID *string) ([]*model.SubCatMain, 
 		updatedAt := strconv.FormatInt(copiedCat.UpdatedAt, 10)
 		imageUrl := copiedCat.ImageURL
 		if copiedCat.ImageBucket != "" {
-			key := base64.StdEncoding.EncodeToString([]byte(copiedCat.ImageBucket))
-			result, err := redis.GetRedisValue(ctx, key)
-			if err == nil && result != "" {
-				imageUrl = result
-			} else {
-				storageC := bucket.NewStorageHandler()
-				gproject := googleprojectlib.GetGoogleProjectID()
-				err = storageC.InitializeStorageClient(ctx, gproject, "coursez-catimages")
-				if err != nil {
-					log.Errorf("Failed to initialize storage: %v", err.Error())
-				}
-				imageUrl = storageC.GetSignedURLForObject(copiedCat.ImageBucket)
-				redis.SetRedisValue(ctx, key, imageUrl)
-				redis.SetTTL(ctx, key, 3000)
+			storageC := bucket.NewStorageHandler()
+			gproject := googleprojectlib.GetGoogleProjectID()
+			err = storageC.InitializeStorageClient(ctx, gproject, "coursez-catimages")
+			if err != nil {
+				log.Errorf("Failed to initialize storage: %v", err.Error())
 			}
+			imageUrl = storageC.GetSignedURLForObjectCache(ctx, copiedCat.ImageBucket)
 		}
 		currentCat := model.SubCatMain{
 			ID:          &copiedCat.ID,

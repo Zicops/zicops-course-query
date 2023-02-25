@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"context"
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"strconv"
@@ -73,20 +72,12 @@ func GetTopicsCourseByID(ctx context.Context, courseID *string) ([]*model.Topic,
 			updatedAt := strconv.FormatInt(mod.UpdatedAt, 10)
 			url := ""
 			if mod.ImageBucket != "" {
-				key := base64.StdEncoding.EncodeToString([]byte(mod.ImageBucket))
-				res, err := redis.GetRedisValue(ctx, key)
-				if err == nil && res != "" {
-					url = res
-				} else {
-					storageC := bucket.NewStorageHandler()
-					err = storageC.InitializeStorageClient(ctx, gproject, mod.LspId)
-					if err != nil {
-						log.Errorf("Failed to initialize storage: %v", err.Error())
-					}
-					url = storageC.GetSignedURLForObject(mod.ImageBucket)
-					redis.SetRedisValue(ctx, key, url)
-					redis.SetTTL(ctx, key, 3000)
+				storageC := bucket.NewStorageHandler()
+				err = storageC.InitializeStorageClient(ctx, gproject, mod.LspId)
+				if err != nil {
+					log.Errorf("Failed to initialize storage: %v", err.Error())
 				}
+				url = storageC.GetSignedURLForObjectCache(ctx, mod.ImageBucket)
 			}
 			currentModule := &model.Topic{
 				ID:          &mod.ID,
@@ -165,20 +156,12 @@ func GetTopicByID(ctx context.Context, topicID *string) (*model.Topic, error) {
 			updatedAt := strconv.FormatInt(top.UpdatedAt, 10)
 			url := ""
 			if top.ImageBucket != "" {
-				key := base64.StdEncoding.EncodeToString([]byte(top.ImageBucket))
-				res, err := redis.GetRedisValue(ctx, key)
-				if err == nil && res != "" {
-					url = res
-				} else {
-					storageC := bucket.NewStorageHandler()
-					err = storageC.InitializeStorageClient(ctx, gproject, top.LspId)
-					if err != nil {
-						log.Errorf("Failed to initialize storage: %v", err.Error())
-					}
-					url = storageC.GetSignedURLForObject(top.ImageBucket)
-					redis.SetRedisValue(ctx, key, url)
-					redis.SetTTL(ctx, key, 3000)
+				storageC := bucket.NewStorageHandler()
+				err = storageC.InitializeStorageClient(ctx, gproject, top.LspId)
+				if err != nil {
+					log.Errorf("Failed to initialize storage: %v", err.Error())
 				}
+				url = storageC.GetSignedURLForObjectCache(ctx, top.ImageBucket)
 			}
 			currentTop := &model.Topic{
 				ID:          &top.ID,

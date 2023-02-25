@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"context"
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"strconv"
@@ -68,21 +67,13 @@ func GetTopicResources(ctx context.Context, topicID *string) ([]*model.TopicReso
 			updatedAt := strconv.FormatInt(mod.UpdatedAt, 10)
 			url := mod.Url
 			if mod.BucketPath != "" {
-				key := base64.StdEncoding.EncodeToString([]byte(mod.BucketPath))
-				result, err := redis.GetRedisValue(ctx, key)
-				if err == nil && result != "" {
-					url = result
-				} else {
-					storageC := bucket.NewStorageHandler()
-					err = storageC.InitializeStorageClient(ctx, gproject, mod.LspId)
-					if err != nil {
-						log.Errorf("Failed to initialize storage: %v", err.Error())
-						return
-					}
-					url = storageC.GetSignedURLForObject(mod.BucketPath)
-					redis.SetRedisValue(ctx, key, url)
-					redis.SetTTL(ctx, key, 3000)
+				storageC := bucket.NewStorageHandler()
+				err = storageC.InitializeStorageClient(ctx, gproject, mod.LspId)
+				if err != nil {
+					log.Errorf("Failed to initialize storage: %v", err.Error())
+					return
 				}
+				url = storageC.GetSignedURLForObjectCache(ctx, mod.BucketPath)
 			}
 			currentRes := &model.TopicResource{
 				ID:        &mod.ID,
@@ -159,20 +150,13 @@ func GetCourseResources(ctx context.Context, courseID *string) ([]*model.TopicRe
 			updatedAt := strconv.FormatInt(mod.UpdatedAt, 10)
 			url := mod.Url
 			if mod.BucketPath != "" {
-				key := base64.StdEncoding.EncodeToString([]byte(mod.BucketPath))
-				result, err := redis.GetRedisValue(ctx, key)
-				if err == nil && result != "" {
-					url = result
-				} else {
-					storageC := bucket.NewStorageHandler()
-					err = storageC.InitializeStorageClient(ctx, gproject, mod.LspId)
-					if err != nil {
-						log.Errorf("Failed to initialize storage: %v", err.Error())
-					}
-					url = storageC.GetSignedURLForObject(mod.BucketPath)
-					redis.SetRedisValue(ctx, key, url)
-					redis.SetTTL(ctx, key, 3000)
+				storageC := bucket.NewStorageHandler()
+				err = storageC.InitializeStorageClient(ctx, gproject, mod.LspId)
+				if err != nil {
+					log.Errorf("Failed to initialize storage: %v", err.Error())
+					return
 				}
+				url = storageC.GetSignedURLForObjectCache(ctx, mod.BucketPath)
 			}
 			currentRes := &model.TopicResource{
 				ID:        &mod.ID,
