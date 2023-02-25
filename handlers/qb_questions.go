@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"strconv"
@@ -96,12 +97,20 @@ func GetQuestionBankQuestions(ctx context.Context, questionBankID *string, filte
 			bucketQ := copiedQuestion.AttachmentBucket
 			attUrl := ""
 			if bucketQ != "" {
-				storageC := bucket.NewStorageHandler()
-				err = storageC.InitializeStorageClient(ctx, gproject, copiedQuestion.LspId)
-				if err != nil {
-					log.Errorf("Failed to initialize storage client: %v", err.Error())
+				key := base64.StdEncoding.EncodeToString([]byte(bucketQ))
+				redisValue, err := redis.GetRedisValue(ctx, key)
+				if err == nil && redisValue != ""{
+					attUrl = redisValue
+				} else {
+					storageC := bucket.NewStorageHandler()
+					err = storageC.InitializeStorageClient(ctx, gproject, copiedQuestion.LspId)
+					if err != nil {
+						log.Errorf("Failed to initialize storage client: %v", err.Error())
+					}
+					attUrl = storageC.GetSignedURLForObject(bucketQ)
+					redis.SetRedisValue(ctx, key, attUrl)
+					redis.SetTTL(ctx, key, 3000)
 				}
-				attUrl = storageC.GetSignedURLForObject(bucketQ)
 			}
 			currentQuestion := &model.QuestionBankQuestion{
 				ID:             &copiedQuestion.ID,

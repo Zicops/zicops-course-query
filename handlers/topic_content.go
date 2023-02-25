@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"strconv"
@@ -73,13 +74,33 @@ func GetTopicContent(ctx context.Context, topicID *string) ([]*model.TopicConten
 				log.Errorf("Failed to initialize storage: %v", err.Error())
 			}
 			if mainBucket != "" {
-				urlSub = storageC.GetSignedURLsForObjects(mainBucket)
+				key := base64.StdEncoding.EncodeToString([]byte(mainBucket))
+				result, err := redis.GetRedisValue(ctx, key)
+				if err == nil && result == "" {
+					json.Unmarshal([]byte(result), &urlSub)
+				} else {
+					urlSub = storageC.GetSignedURLsForObjects(mainBucket)
+					redisBytes, err := json.Marshal(urlSub)
+					if err == nil {
+						redis.SetRedisValue(ctx, key, string(redisBytes))
+						redis.SetTTL(ctx, key, 3000)
+					}
+
+				}
 			}
 
 			urlCon := mod.Url
 			_, ok := constants.StaticTypeMap[mod.Type]
 			if mod.TopicContentBucket != "" && !ok {
-				urlCon = storageC.GetSignedURLForObject(mod.TopicContentBucket)
+				key := base64.StdEncoding.EncodeToString([]byte(mod.TopicContentBucket))
+				result, err := redis.GetRedisValue(ctx, key)
+				if err == nil && result != "" {
+					urlCon = result
+				} else {
+					urlCon = storageC.GetSignedURLForObject(mod.TopicContentBucket)
+					redis.SetRedisValue(ctx, key, urlCon)
+					redis.SetTTL(ctx, key, 3000)
+				}
 			} else if mod.TopicContentBucket != "" && ok {
 				urlCon = mod.Url
 			}
@@ -248,7 +269,15 @@ func GetTopicContentByCourse(ctx context.Context, courseID *string) ([]*model.To
 			if mod.TopicContentBucket != "" && (strings.Contains(typeCon, "static") || strings.Contains(typeCon, "scorm") || strings.Contains(typeCon, "tincan") || strings.Contains(typeCon, "cmi5") || strings.Contains(typeCon, "html5")) {
 				urlCon = mod.Url
 			} else if mod.TopicContentBucket != "" {
-				urlCon = storageC.GetSignedURLForObject(mod.TopicContentBucket)
+				key := base64.StdEncoding.EncodeToString([]byte(mod.TopicContentBucket))
+				res, err := redis.GetRedisValue(ctx, key)
+				if err == nil {
+					urlCon = res
+				} else {
+					urlCon = storageC.GetSignedURLForObject(mod.TopicContentBucket)
+					redis.SetRedisValue(ctx, key, urlCon)
+					redis.SetTTL(ctx, key, 3000)
+				}
 			}
 			currentModule := &model.TopicContent{
 				ID:                &mod.ID,
@@ -419,7 +448,15 @@ func GetTopicContentByModule(ctx context.Context, moduleID *string) ([]*model.To
 			if mod.TopicContentBucket != "" && (strings.Contains(typeCon, "static") || strings.Contains(typeCon, "scorm") || strings.Contains(typeCon, "tincan") || strings.Contains(typeCon, "cmi5") || strings.Contains(typeCon, "html5")) {
 				urlCon = mod.Url
 			} else if mod.TopicContentBucket != "" {
-				urlCon = storageC.GetSignedURLForObject(mod.TopicContentBucket)
+				key := base64.StdEncoding.EncodeToString([]byte(mod.TopicContentBucket))
+				res, err := redis.GetRedisValue(ctx, key)
+				if err == nil && res != "" {
+					urlCon = res
+				} else {
+					urlCon = storageC.GetSignedURLForObject(mod.TopicContentBucket)
+					redis.SetRedisValue(ctx, key, urlCon)
+					redis.SetTTL(ctx, key, 3000)
+				}
 			}
 			currentModule := &model.TopicContent{
 				ID:                &mod.ID,

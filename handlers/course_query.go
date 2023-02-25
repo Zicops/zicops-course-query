@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"strconv"
@@ -177,15 +178,39 @@ func GetCourseByID(ctx context.Context, courseID []*string) ([]*model.Course, er
 				}
 				tileUrl := course.TileImage
 				if course.TileImageBucket != "" {
-					tileUrl = storageC.GetSignedURLForObject(course.TileImageBucket)
+					key := base64.StdEncoding.EncodeToString([]byte(course.TileImageBucket))
+					res, err := redis.GetRedisValue(ctx, key)
+					if err == nil && res != "" {
+						tileUrl = res
+					} else {
+						tileUrl = storageC.GetSignedURLForObject(course.TileImageBucket)
+						redis.SetRedisValue(ctx, key, tileUrl)
+						redis.SetTTL(ctx, key, 3000)
+					}
 				}
 				imageUrl := course.Image
 				if course.ImageBucket != "" {
-					imageUrl = storageC.GetSignedURLForObject(course.ImageBucket)
+					key := base64.StdEncoding.EncodeToString([]byte(course.Image))
+					res, err := redis.GetRedisValue(ctx, key)
+					if err == nil && res != "" {
+						imageUrl = res
+					} else {
+						imageUrl = storageC.GetSignedURLForObject(course.Image)
+						redis.SetRedisValue(ctx, key, imageUrl)
+						redis.SetTTL(ctx, key, 3000)
+					}
 				}
 				previewUrl := course.PreviewVideo
 				if course.PreviewVideoBucket != "" {
-					previewUrl = storageC.GetSignedURLForObject(course.PreviewVideoBucket)
+					key := base64.StdEncoding.EncodeToString([]byte(course.PreviewVideoBucket))
+					res, err := redis.GetRedisValue(ctx, key)
+					if err == nil && res != "" {
+						previewUrl = res
+					} else {
+						previewUrl = storageC.GetSignedURLForObject(course.PreviewVideoBucket)
+						redis.SetRedisValue(ctx, key, previewUrl)
+						redis.SetTTL(ctx, key, 3000)
+					}
 				}
 				var statusNew model.Status
 				if course.Status == model.StatusApprovalPending.String() {
