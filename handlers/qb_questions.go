@@ -231,7 +231,7 @@ func getWhereClause(filters *model.QBFilters, qb_id string) string {
 			whereClause = fmt.Sprintf("%s AND difficulty_score <= %d", whereClause, *filters.DifficultyEnd)
 		}
 	}
-	whereClause = whereClause + fmt.Sprintf(" AND is_active = true")
+	whereClause = whereClause + " AND is_active = true"
 	return whereClause
 }
 
