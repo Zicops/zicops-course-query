@@ -129,6 +129,8 @@ type CoursesFilters struct {
 	DurationMax *int    `json:"DurationMax"`
 	Type        *string `json:"Type"`
 	SearchText  *string `json:"SearchText"`
+	Owner       *string `json:"Owner"`
+	Publisher   *string `json:"Publisher"`
 }
 
 type Discussion struct {
