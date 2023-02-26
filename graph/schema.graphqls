@@ -452,6 +452,8 @@ input CoursesFilters {
     DurationMax: Int
     Type: String
     SearchText: String
+    Owner: String
+    Publisher: String
 }
 
 

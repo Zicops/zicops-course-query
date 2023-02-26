@@ -46,6 +46,12 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 		if filters.Category != nil {
 			filtersStr = fmt.Sprintf("%v_categories_%v", filtersStr, *filters.Category)
 		}
+		if filters.Owner != nil {
+			filtersStr = fmt.Sprintf("%v_owner_%v", filtersStr, *filters.Owner)
+		}
+		if filters.Publisher != nil {
+			filtersStr = fmt.Sprintf("%v_publisher_%v", filtersStr, *filters.Publisher)
+		}
 		if filters.SubCategory != nil {
 			filtersStr = fmt.Sprintf("%v_subcategories_%v", filtersStr, *filters.SubCategory)
 		}
@@ -117,6 +123,12 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 			}
 			if filters.Type != nil {
 				whereClause = whereClause + fmt.Sprintf(` and type='%s'`, *filters.Type)
+			}
+			if filters.Owner != nil {
+				whereClause = whereClause + fmt.Sprintf(` and owner='%s'`, *filters.Owner)
+			}
+			if filters.Publisher != nil {
+				whereClause = whereClause + fmt.Sprintf(` and publisher='%s'`, *filters.Publisher)
 			}
 			if filters.SearchText != nil {
 				if *filters.SearchText != "" {
