@@ -108,28 +108,30 @@ func GetTopicsCourseByID(ctx context.Context, courseID *string) ([]*model.Topic,
 	return topicsOut, nil
 }
 
-func GetTopicsByCourseIds(ctx context.Context, courseIds []*string) ([]*model.Topic, error) {
+func GetTopicsByCourseIds(ctx context.Context, courseIds []*string, Type *string) ([]*model.Topic, error) {
 	claims, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		log.Println("Got error while getting claims: ", err)
 		return nil, err
 	}
-	var res []*model.Topic
+
+	var TopicData []coursez.Topic
 	key := "GetTopicsCourseByID"
 	for _, vv := range courseIds {
 		v := *vv
 		key = key + v
 	}
 	role := strings.ToLower(claims["role"].(string))
+
 	result, err := redis.GetRedisValue(ctx, key)
 	if err == nil && role == "learner" && result != "" {
-		err = json.Unmarshal([]byte(result), &res)
+		err = json.Unmarshal([]byte(result), &TopicData)
 		if err != nil {
 			log.Errorf("Failed to unmarshal topics: %v", err.Error())
 		}
-		return res, nil
 	}
 	lsp := claims["lsp_id"].(string)
+
 	session, err := cassandra.GetCassSession("coursez")
 	if err != nil {
 		return nil, err
@@ -137,65 +139,77 @@ func GetTopicsByCourseIds(ctx context.Context, courseIds []*string) ([]*model.To
 	CassSession := session
 	gproject := googleprojectlib.GetGoogleProjectID()
 
-	var wg sync.WaitGroup
-	for _, vvv := range courseIds {
+	//if cache does not hit, then hit the database and store the data
+	if len(TopicData) <= 0 {
+		var wg sync.WaitGroup
+		for _, vvv := range courseIds {
 
-		vv := *vvv
-		wg.Add(1)
-		go func(v string, lsp_id string) {
-			queryStr := fmt.Sprintf(`SELECT * FROM coursez.topic WHERE course_id = '%s' AND is_active=true  AND lsp_id='%s' ALLOW FILTERING`, v, lsp_id)
-			getTopics := func() (topics []coursez.Topic, err error) {
-				q := CassSession.Query(queryStr, nil)
-				defer q.Release()
-				iter := q.Iter()
-				return topics, iter.Select(&topics)
-			}
-			currentTopics, err := getTopics()
-			if err != nil {
-				log.Printf("Got error while getting topics: %v", err)
-				return
-			}
-			if len(currentTopics) == 0 {
-				return
-			}
-			for _, kk := range currentTopics {
-				k := kk
-				url := ""
-				createdAt := strconv.FormatInt(k.CreatedAt, 10)
-				updatedAt := strconv.FormatInt(k.UpdatedAt, 10)
-				if k.ImageBucket != "" {
-					storageC := bucket.NewStorageHandler()
-					err = storageC.InitializeStorageClient(ctx, gproject, k.LspId)
-					if err != nil {
-						log.Errorf("Failed to initialize storage: %v", err.Error())
-					}
-					url = storageC.GetSignedURLForObjectCache(ctx, k.ImageBucket)
+			vv := *vvv
+			wg.Add(1)
+			go func(v string, lsp_id string) {
+				queryStr := fmt.Sprintf(`SELECT * FROM coursez.topic WHERE courseid = '%s' AND is_active=true  AND lsp_id='%s' `, v, lsp_id)
+				if Type != nil {
+					queryStr = queryStr + fmt.Sprintf(`AND type='%s' `, *Type)
 				}
-
-				currentModule := &model.Topic{
-					ID:          &k.ID,
-					CourseID:    &k.CourseID,
-					ModuleID:    &k.ModuleID,
-					ChapterID:   &k.ChapterID,
-					Name:        &k.Name,
-					Description: &k.Description,
-					CreatedAt:   &createdAt,
-					UpdatedAt:   &updatedAt,
-					Sequence:    &k.Sequence,
-					CreatedBy:   &k.CreatedBy,
-					UpdatedBy:   &k.UpdatedBy,
-					Image:       &url,
-					Type:        &k.Type,
+				queryStr = queryStr + "ALLOW FILTERING"
+				getTopics := func() (topics []coursez.Topic, err error) {
+					q := CassSession.Query(queryStr, nil)
+					defer q.Release()
+					iter := q.Iter()
+					return topics, iter.Select(&topics)
 				}
-				res = append(res, currentModule)
-			}
-			wg.Done()
+				currentTopics, err := getTopics()
+				if err != nil {
+					log.Printf("Got error while getting topics: %v", err)
+					return
+				}
+				if len(currentTopics) == 0 {
+					return
+				}
+				TopicData = append(TopicData, currentTopics...)
+				wg.Done()
 
-		}(vv, lsp)
+			}(vv, lsp)
+		}
+		wg.Wait()
 	}
-	wg.Wait()
 
-	redisBytes, err := json.Marshal(res)
+	//else directly map data gotten from cache
+	res := make([]*model.Topic, len(TopicData))
+
+	for i, kk := range TopicData {
+		k := kk
+		url := ""
+		createdAt := strconv.FormatInt(k.CreatedAt, 10)
+		updatedAt := strconv.FormatInt(k.UpdatedAt, 10)
+		if k.ImageBucket != "" {
+			storageC := bucket.NewStorageHandler()
+			err = storageC.InitializeStorageClient(ctx, gproject, k.LspId)
+			if err != nil {
+				log.Errorf("Failed to initialize storage: %v", err.Error())
+			}
+			url = storageC.GetSignedURLForObjectCache(ctx, k.ImageBucket)
+		}
+
+		currentModule := &model.Topic{
+			ID:          &k.ID,
+			CourseID:    &k.CourseID,
+			ModuleID:    &k.ModuleID,
+			ChapterID:   &k.ChapterID,
+			Name:        &k.Name,
+			Description: &k.Description,
+			CreatedAt:   &createdAt,
+			UpdatedAt:   &updatedAt,
+			Sequence:    &k.Sequence,
+			CreatedBy:   &k.CreatedBy,
+			UpdatedBy:   &k.UpdatedBy,
+			Image:       &url,
+			Type:        &k.Type,
+		}
+		res[i] = currentModule
+	}
+
+	redisBytes, err := json.Marshal(TopicData)
 	if err == nil {
 		redis.SetTTL(ctx, key, 60)
 		redis.SetRedisValue(ctx, key, string(redisBytes))

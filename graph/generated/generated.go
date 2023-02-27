@@ -331,7 +331,7 @@ type ComplexityRoot struct {
 		GetTopicQuizes              func(childComplexity int, topicID *string) int
 		GetTopicResources           func(childComplexity int, topicID *string) int
 		GetTopics                   func(childComplexity int, courseID *string) int
-		GetTopicsByCourseIds        func(childComplexity int, courseIds []*string) int
+		GetTopicsByCourseIds        func(childComplexity int, courseIds []*string, typeArg *string) int
 		LatestCourses               func(childComplexity int, publishTime *int, pageCursor *string, direction *string, pageSize *int, status *model.Status, filters *model.CoursesFilters) int
 	}
 
@@ -609,7 +609,7 @@ type QueryResolver interface {
 	GetCohortCourseMaps(ctx context.Context, cohortID *string) ([]*model.CourseCohort, error)
 	GetCourseDiscussion(ctx context.Context, courseID string, discussionID *string) ([]*model.Discussion, error)
 	GetBasicCourseStats(ctx context.Context, input *model.BasicCourseStatsInput) (*model.BasicCourseStats, error)
-	GetTopicsByCourseIds(ctx context.Context, courseIds []*string) ([]*model.Topic, error)
+	GetTopicsByCourseIds(ctx context.Context, courseIds []*string, typeArg *string) ([]*model.Topic, error)
 }
 
 type executableSchema struct {
@@ -2490,7 +2490,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.GetTopicsByCourseIds(childComplexity, args["course_ids"].([]*string)), true
+		return e.complexity.Query.GetTopicsByCourseIds(childComplexity, args["course_ids"].([]*string), args["type"].(*string)), true
 
 	case "Query.latestCourses":
 		if e.complexity.Query.LatestCourses == nil {
@@ -4324,7 +4324,7 @@ type Query{
   getCohortCourseMaps(cohort_id: String): [CourseCohort]
   getCourseDiscussion(course_id:String!, discussion_id:String): [Discussion]
   getBasicCourseStats(input: BasicCourseStatsInput): BasicCourseStats
-  getTopicsByCourseIds(course_ids: [String]): [Topic]
+  getTopicsByCourseIds(course_ids: [String], type: String): [Topic]
 }
 `, BuiltIn: false},
 }
@@ -5144,6 +5144,15 @@ func (ec *executionContext) field_Query_getTopicsByCourseIds_args(ctx context.Co
 		}
 	}
 	args["course_ids"] = arg0
+	var arg1 *string
+	if tmp, ok := rawArgs["type"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
+		arg1, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["type"] = arg1
 	return args, nil
 }
 
@@ -16672,7 +16681,7 @@ func (ec *executionContext) _Query_getTopicsByCourseIds(ctx context.Context, fie
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetTopicsByCourseIds(rctx, fc.Args["course_ids"].([]*string))
+		return ec.resolvers.Query().GetTopicsByCourseIds(rctx, fc.Args["course_ids"].([]*string), fc.Args["type"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)

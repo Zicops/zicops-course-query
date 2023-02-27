@@ -471,8 +471,8 @@ func (r *queryResolver) GetBasicCourseStats(ctx context.Context, input *model.Ba
 }
 
 // GetTopicsByCourseIds is the resolver for the getTopicsByCourseIds field.
-func (r *queryResolver) GetTopicsByCourseIds(ctx context.Context, courseIds []*string) ([]*model.Topic, error) {
-	resp, err := handlers.GetTopicsByCourseIds(ctx, courseIds)
+func (r *queryResolver) GetTopicsByCourseIds(ctx context.Context, courseIds []*string, typeArg *string) ([]*model.Topic, error) {
+	resp, err := handlers.GetTopicsByCourseIds(ctx, courseIds, typeArg)
 	if err != nil {
 		log.Errorf("error getting topics: %v", err)
 		return nil, err
