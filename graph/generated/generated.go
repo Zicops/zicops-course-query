@@ -303,6 +303,7 @@ type ComplexityRoot struct {
 		GetExamCohort               func(childComplexity int, examID *string) int
 		GetExamConfiguration        func(childComplexity int, examID *string) int
 		GetExamInstruction          func(childComplexity int, examID *string) int
+		GetExamInstructionByExamID  func(childComplexity int, examIds []*string) int
 		GetExamSchedule             func(childComplexity int, examID *string) int
 		GetExamsByQPId              func(childComplexity int, questionPaperID *string) int
 		GetExamsMeta                func(childComplexity int, examIds []*string) int
@@ -328,6 +329,7 @@ type ComplexityRoot struct {
 		GetTopicContentByModuleID   func(childComplexity int, moduleID *string) int
 		GetTopicExams               func(childComplexity int, topicID *string) int
 		GetTopicExamsByCourseID     func(childComplexity int, courseID *string) int
+		GetTopicExamsByCourseIds    func(childComplexity int, courseIds []*string) int
 		GetTopicQuizes              func(childComplexity int, topicID *string) int
 		GetTopicResources           func(childComplexity int, topicID *string) int
 		GetTopics                   func(childComplexity int, courseID *string) int
@@ -610,6 +612,8 @@ type QueryResolver interface {
 	GetCourseDiscussion(ctx context.Context, courseID string, discussionID *string) ([]*model.Discussion, error)
 	GetBasicCourseStats(ctx context.Context, input *model.BasicCourseStatsInput) (*model.BasicCourseStats, error)
 	GetTopicsByCourseIds(ctx context.Context, courseIds []*string, typeArg *string) ([]*model.Topic, error)
+	GetTopicExamsByCourseIds(ctx context.Context, courseIds []*string) ([]*model.TopicExam, error)
+	GetExamInstructionByExamID(ctx context.Context, examIds []*string) ([]*model.ExamInstruction, error)
 }
 
 type executableSchema struct {
@@ -2144,6 +2148,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetExamInstruction(childComplexity, args["exam_id"].(*string)), true
 
+	case "Query.getExamInstructionByExamId":
+		if e.complexity.Query.GetExamInstructionByExamID == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getExamInstructionByExamId_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetExamInstructionByExamID(childComplexity, args["exam_ids"].([]*string)), true
+
 	case "Query.getExamSchedule":
 		if e.complexity.Query.GetExamSchedule == nil {
 			break
@@ -2443,6 +2459,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.GetTopicExamsByCourseID(childComplexity, args["course_id"].(*string)), true
+
+	case "Query.getTopicExamsByCourseIds":
+		if e.complexity.Query.GetTopicExamsByCourseIds == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getTopicExamsByCourseIds_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetTopicExamsByCourseIds(childComplexity, args["course_ids"].([]*string)), true
 
 	case "Query.getTopicQuizes":
 		if e.complexity.Query.GetTopicQuizes == nil {
@@ -4325,6 +4353,8 @@ type Query{
   getCourseDiscussion(course_id:String!, discussion_id:String): [Discussion]
   getBasicCourseStats(input: BasicCourseStatsInput): BasicCourseStats
   getTopicsByCourseIds(course_ids: [String], type: String): [Topic]
+  getTopicExamsByCourseIds(course_ids: [String]): [TopicExam]
+  getExamInstructionByExamId(exam_ids: [String]): [ExamInstruction]
 }
 `, BuiltIn: false},
 }
@@ -4583,6 +4613,21 @@ func (ec *executionContext) field_Query_getExamConfiguration_args(ctx context.Co
 		}
 	}
 	args["exam_id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_getExamInstructionByExamId_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 []*string
+	if tmp, ok := rawArgs["exam_ids"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("exam_ids"))
+		arg0, err = ec.unmarshalOString2ᚕᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["exam_ids"] = arg0
 	return args, nil
 }
 
@@ -5084,6 +5129,21 @@ func (ec *executionContext) field_Query_getTopicExamsByCourseId_args(ctx context
 		}
 	}
 	args["course_id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_getTopicExamsByCourseIds_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 []*string
+	if tmp, ok := rawArgs["course_ids"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("course_ids"))
+		arg0, err = ec.unmarshalOString2ᚕᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["course_ids"] = arg0
 	return args, nil
 }
 
@@ -16747,6 +16807,150 @@ func (ec *executionContext) fieldContext_Query_getTopicsByCourseIds(ctx context.
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_getTopicExamsByCourseIds(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_getTopicExamsByCourseIds(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetTopicExamsByCourseIds(rctx, fc.Args["course_ids"].([]*string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*model.TopicExam)
+	fc.Result = res
+	return ec.marshalOTopicExam2ᚕᚖgithubᚗcomᚋzicopsᚋzicopsᚑcourseᚑqueryᚋgraphᚋmodelᚐTopicExam(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_getTopicExamsByCourseIds(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_TopicExam_id(ctx, field)
+			case "topicId":
+				return ec.fieldContext_TopicExam_topicId(ctx, field)
+			case "examId":
+				return ec.fieldContext_TopicExam_examId(ctx, field)
+			case "courseId":
+				return ec.fieldContext_TopicExam_courseId(ctx, field)
+			case "created_at":
+				return ec.fieldContext_TopicExam_created_at(ctx, field)
+			case "updated_at":
+				return ec.fieldContext_TopicExam_updated_at(ctx, field)
+			case "language":
+				return ec.fieldContext_TopicExam_language(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TopicExam", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_getTopicExamsByCourseIds_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_getExamInstructionByExamId(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_getExamInstructionByExamId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetExamInstructionByExamID(rctx, fc.Args["exam_ids"].([]*string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*model.ExamInstruction)
+	fc.Result = res
+	return ec.marshalOExamInstruction2ᚕᚖgithubᚗcomᚋzicopsᚋzicopsᚑcourseᚑqueryᚋgraphᚋmodelᚐExamInstruction(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_getExamInstructionByExamId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_ExamInstruction_id(ctx, field)
+			case "ExamId":
+				return ec.fieldContext_ExamInstruction_ExamId(ctx, field)
+			case "Instructions":
+				return ec.fieldContext_ExamInstruction_Instructions(ctx, field)
+			case "PassingCriteria":
+				return ec.fieldContext_ExamInstruction_PassingCriteria(ctx, field)
+			case "NoAttempts":
+				return ec.fieldContext_ExamInstruction_NoAttempts(ctx, field)
+			case "AccessType":
+				return ec.fieldContext_ExamInstruction_AccessType(ctx, field)
+			case "CreatedAt":
+				return ec.fieldContext_ExamInstruction_CreatedAt(ctx, field)
+			case "UpdatedAt":
+				return ec.fieldContext_ExamInstruction_UpdatedAt(ctx, field)
+			case "CreatedBy":
+				return ec.fieldContext_ExamInstruction_CreatedBy(ctx, field)
+			case "UpdatedBy":
+				return ec.fieldContext_ExamInstruction_UpdatedBy(ctx, field)
+			case "IsActive":
+				return ec.fieldContext_ExamInstruction_IsActive(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ExamInstruction", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_getExamInstructionByExamId_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query___type(ctx, field)
 	if err != nil {
@@ -28059,6 +28263,46 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_getTopicsByCourseIds(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "getTopicExamsByCourseIds":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getTopicExamsByCourseIds(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "getExamInstructionByExamId":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getExamInstructionByExamId(ctx, field)
 				return res
 			}
 
