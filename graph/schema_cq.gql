@@ -558,4 +558,5 @@ type Query{
   getCohortCourseMaps(cohort_id: String): [CourseCohort]
   getCourseDiscussion(course_id:String!, discussion_id:String): [Discussion]
   getBasicCourseStats(input: BasicCourseStatsInput): BasicCourseStats
+  getTopicsByCourseIds(course_id: [String]): [Topic]
 }
