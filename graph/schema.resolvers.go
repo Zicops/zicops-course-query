@@ -500,6 +500,16 @@ func (r *queryResolver) GetExamInstructionByExamID(ctx context.Context, examIds 
 	return resp, nil
 }
 
+// GetExamScheduleByExamID is the resolver for the getExamScheduleByExamId field.
+func (r *queryResolver) GetExamScheduleByExamID(ctx context.Context, examIds []*string) ([]*model.ExamSchedule, error) {
+	resp, err := handlers.GetExamScheduleByExamID(ctx, examIds)
+	if err != nil {
+		log.Errorf("error getting topic instructions: %v", err)
+		return nil, err
+	}
+	return resp, nil
+}
+
 // Query returns generated.QueryResolver implementation.
 func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 

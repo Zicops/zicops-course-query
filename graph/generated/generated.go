@@ -305,6 +305,7 @@ type ComplexityRoot struct {
 		GetExamInstruction          func(childComplexity int, examID *string) int
 		GetExamInstructionByExamID  func(childComplexity int, examIds []*string) int
 		GetExamSchedule             func(childComplexity int, examID *string) int
+		GetExamScheduleByExamID     func(childComplexity int, examIds []*string) int
 		GetExamsByQPId              func(childComplexity int, questionPaperID *string) int
 		GetExamsMeta                func(childComplexity int, examIds []*string) int
 		GetLatestExams              func(childComplexity int, publishTime *int, pageCursor *string, direction *string, pageSize *int, searchText *string) int
@@ -614,6 +615,7 @@ type QueryResolver interface {
 	GetTopicsByCourseIds(ctx context.Context, courseIds []*string, typeArg *string) ([]*model.Topic, error)
 	GetTopicExamsByCourseIds(ctx context.Context, courseIds []*string) ([]*model.TopicExam, error)
 	GetExamInstructionByExamID(ctx context.Context, examIds []*string) ([]*model.ExamInstruction, error)
+	GetExamScheduleByExamID(ctx context.Context, examIds []*string) ([]*model.ExamSchedule, error)
 }
 
 type executableSchema struct {
@@ -2171,6 +2173,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.GetExamSchedule(childComplexity, args["exam_id"].(*string)), true
+
+	case "Query.getExamScheduleByExamId":
+		if e.complexity.Query.GetExamScheduleByExamID == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getExamScheduleByExamId_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetExamScheduleByExamID(childComplexity, args["exam_ids"].([]*string)), true
 
 	case "Query.getExamsByQPId":
 		if e.complexity.Query.GetExamsByQPId == nil {
@@ -4355,6 +4369,7 @@ type Query{
   getTopicsByCourseIds(course_ids: [String], type: String): [Topic]
   getTopicExamsByCourseIds(course_ids: [String]): [TopicExam]
   getExamInstructionByExamId(exam_ids: [String]): [ExamInstruction]
+  getExamScheduleByExamId(exam_ids: [String]): [ExamSchedule]
 }
 `, BuiltIn: false},
 }
@@ -4643,6 +4658,21 @@ func (ec *executionContext) field_Query_getExamInstruction_args(ctx context.Cont
 		}
 	}
 	args["exam_id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_getExamScheduleByExamId_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 []*string
+	if tmp, ok := rawArgs["exam_ids"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("exam_ids"))
+		arg0, err = ec.unmarshalOString2ᚕᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["exam_ids"] = arg0
 	return args, nil
 }
 
@@ -16951,6 +16981,80 @@ func (ec *executionContext) fieldContext_Query_getExamInstructionByExamId(ctx co
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_getExamScheduleByExamId(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_getExamScheduleByExamId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetExamScheduleByExamID(rctx, fc.Args["exam_ids"].([]*string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*model.ExamSchedule)
+	fc.Result = res
+	return ec.marshalOExamSchedule2ᚕᚖgithubᚗcomᚋzicopsᚋzicopsᚑcourseᚑqueryᚋgraphᚋmodelᚐExamSchedule(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_getExamScheduleByExamId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_ExamSchedule_id(ctx, field)
+			case "ExamId":
+				return ec.fieldContext_ExamSchedule_ExamId(ctx, field)
+			case "Start":
+				return ec.fieldContext_ExamSchedule_Start(ctx, field)
+			case "End":
+				return ec.fieldContext_ExamSchedule_End(ctx, field)
+			case "BufferTime":
+				return ec.fieldContext_ExamSchedule_BufferTime(ctx, field)
+			case "CreatedAt":
+				return ec.fieldContext_ExamSchedule_CreatedAt(ctx, field)
+			case "UpdatedAt":
+				return ec.fieldContext_ExamSchedule_UpdatedAt(ctx, field)
+			case "CreatedBy":
+				return ec.fieldContext_ExamSchedule_CreatedBy(ctx, field)
+			case "UpdatedBy":
+				return ec.fieldContext_ExamSchedule_UpdatedBy(ctx, field)
+			case "IsActive":
+				return ec.fieldContext_ExamSchedule_IsActive(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ExamSchedule", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_getExamScheduleByExamId_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query___type(ctx, field)
 	if err != nil {
@@ -28303,6 +28407,26 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_getExamInstructionByExamId(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "getExamScheduleByExamId":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getExamScheduleByExamId(ctx, field)
 				return res
 			}
 

@@ -561,4 +561,5 @@ type Query{
   getTopicsByCourseIds(course_ids: [String], type: String): [Topic]
   getTopicExamsByCourseIds(course_ids: [String]): [TopicExam]
   getExamInstructionByExamId(exam_ids: [String]): [ExamInstruction]
+  getExamScheduleByExamId(exam_ids: [String]): [ExamSchedule]
 }
