@@ -18,48 +18,7 @@ import (
 )
 
 func GetCourseByID(ctx context.Context, courseID []*string) ([]*model.Course, error) {
-	//set the query, after getting results iterate over them using goroutines
-	courseI := coursez.Course{
-		ID:                 "",
-		Name:               "",
-		Description:        "",
-		Summary:            "",
-		Instructor:         "",
-		ImageBucket:        "",
-		Image:              "",
-		PreviewVideoBucket: "",
-		PreviewVideo:       "",
-		TileImageBucket:    "",
-		TileImage:          "",
-		Owner:              "",
-		Duration:           0,
-		ExpertiseLevel:     "",
-		Language:           []string{},
-		Benefits:           []string{},
-		Outcomes:           []string{},
-		CreatedAt:          0,
-		UpdatedAt:          0,
-		Type:               "",
-		Prequisites:        []string{},
-		GoodFor:            []string{},
-		MustFor:            []string{},
-		RelatedSkills:      []string{},
-		PublishDate:        "",
-		ExpiryDate:         "",
-		QARequired:         false,
-		Approvers:          []string{},
-		CreatedBy:          "",
-		UpdatedBy:          "",
-		Status:             "",
-		IsActive:           false,
-		IsDisplay:          false,
-		ExpectedCompletion: "",
-		Category:           "",
-		SubCategory:        "",
-		SubCategories:      []coursez.SubCat{},
-		LspId:              "",
-		Publisher:          "",
-	}
+
 	_, err := helpers.GetClaimsFromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -80,6 +39,7 @@ func GetCourseByID(ctx context.Context, courseID []*string) ([]*model.Course, er
 			if vv == nil {
 				continue
 			}
+			var courseI coursez.Course
 			vvv := vv
 			key := fmt.Sprintf("course:%s", *vvv)
 			{
