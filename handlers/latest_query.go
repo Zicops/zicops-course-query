@@ -155,6 +155,19 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 		if err != nil {
 			return nil, err
 		}
+		redisBytes, err := json.Marshal(dbCourses)
+		if err == nil {
+			err = redis.SetRedisValue(ctx, key, string(redisBytes))
+			if err != nil {
+				log.Errorf("Failed to set redis value: %v", err.Error())
+			}
+			err = redis.SetTTL(ctx, key, 600)
+			if err != nil {
+				log.Errorf("Failed to set redis value: %v", err.Error())
+			}
+		} else {
+			log.Errorf("Failed to marshal redis value: %v", err.Error())
+		}
 	}
 	start := stopwatch.Start()
 	if len(newPage) != 0 {
@@ -303,18 +316,6 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 	outputResponse.PageCursor = &newCursor
 	outputResponse.PageSize = &pageSizeInt
 	outputResponse.Direction = direction
-	redisBytes, err := json.Marshal(dbCourses)
-	if err == nil {
-		err = redis.SetRedisValue(ctx, key, string(redisBytes))
-		if err != nil {
-			log.Errorf("Failed to set redis value: %v", err.Error())
-		}
-		err = redis.SetTTL(ctx, key, 60)
-		if err != nil {
-			log.Errorf("Failed to set redis value: %v", err.Error())
-		}
-	} else {
-		log.Errorf("Failed to marshal redis value: %v", err.Error())
-	}
+
 	return &outputResponse, nil
 }
