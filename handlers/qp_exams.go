@@ -8,6 +8,7 @@ import (
 	"strings"
 	"sync"
 
+	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/qbankz"
 	"github.com/zicops/zicops-cass-pool/cassandra"
 	"github.com/zicops/zicops-cass-pool/redis"
@@ -169,6 +170,93 @@ func GetExamSchedule(ctx context.Context, examID *string) ([]*model.ExamSchedule
 	return allSections, nil
 }
 
+func GetExamScheduleByExamID(ctx context.Context, examIds []*string) ([]*model.ExamSchedule, error) {
+	claims, err := helpers.GetClaimsFromContext(ctx)
+	if err != nil {
+		log.Errorf("Got error while getting claims: %v", err)
+		return nil, err
+	}
+	role := strings.ToLower(claims["role"].(string))
+
+	key := "GetExamScheduleByExamID"
+	for _, vv := range examIds {
+		v := *vv
+		key = key + v
+	}
+	output := make([]qbankz.ExamSchedule, 0)
+	result, err := redis.GetRedisValue(ctx, key)
+	if err == nil && role == "learner" && result != "" {
+		err = json.Unmarshal([]byte(result), &output)
+		if err != nil {
+			return nil, err
+		}
+	}
+	session, err := cassandra.GetCassSession("qbankz")
+	if err != nil {
+		return nil, err
+	}
+	CassSession := session
+
+	//if unable to get data from cache, call the database
+	if len(output) == 0 {
+		for _, vv := range examIds {
+			v := *vv
+			qryStr := fmt.Sprintf(`SELECT * from qbankz.exam_schedule where exam_id = '%s'  AND is_active=true  ALLOW FILTERING`, v)
+			getSchedule := func() (schedules []qbankz.ExamSchedule, err error) {
+				q := CassSession.Query(qryStr, nil)
+				defer q.Release()
+				iter := q.Iter()
+				return schedules, iter.Select(&schedules)
+			}
+
+			examSchedules, err := getSchedule()
+			if err != nil {
+				log.Printf("Got error while getting schedule: %v", err)
+				return nil, err
+			}
+
+			output = append(output, examSchedules...)
+		}
+	}
+	res := make([]*model.ExamSchedule, len(output))
+	var wg sync.WaitGroup
+
+	for kk, vvv := range output {
+		vv := vvv
+		wg.Add(1)
+		go func(k int, v qbankz.ExamSchedule) {
+			createdAt := strconv.FormatInt(v.CreatedAt, 10)
+			updatedAt := strconv.FormatInt(v.UpdatedAt, 10)
+			bufferTimeInt := strconv.Itoa(v.BufferTime)
+			startInt := strconv.FormatInt(v.Start, 10)
+			endInt := strconv.FormatInt(v.End, 10)
+			currentQuestion := &model.ExamSchedule{
+				ID:         &v.ID,
+				CreatedBy:  &v.CreatedBy,
+				CreatedAt:  &createdAt,
+				UpdatedBy:  &v.UpdatedBy,
+				UpdatedAt:  &updatedAt,
+				ExamID:     &v.ExamID,
+				BufferTime: &bufferTimeInt,
+				Start:      &startInt,
+				End:        &endInt,
+				IsActive:   &v.IsActive,
+			}
+			res[k] = currentQuestion
+			wg.Done()
+		}(kk, vv)
+	}
+	wg.Wait()
+
+	tmp, err := json.Marshal(output)
+	if err != nil {
+		redis.SetRedisValue(ctx, key, string(tmp))
+		redis.SetTTL(ctx, key, 3600)
+	}
+
+	return res, nil
+}
+
 func GetExamInstruction(ctx context.Context, examID *string) ([]*model.ExamInstruction, error) {
 	key := "GetExamInstruction" + *examID
 	claims, err := helpers.GetClaimsFromContext(ctx)
@@ -234,10 +322,98 @@ func GetExamInstruction(ctx context.Context, examID *string) ([]*model.ExamInstr
 	wg.Wait()
 	output, err := json.Marshal(allSections)
 	if err == nil {
-		redis.SetTTL(ctx, key, 60)
 		redis.SetRedisValue(ctx, key, string(output))
+		redis.SetTTL(ctx, key, 60)
 	}
 	return allSections, nil
+}
+
+func GetExamInstructionByExamID(ctx context.Context, examIds []*string) ([]*model.ExamInstruction, error) {
+	claims, err := helpers.GetClaimsFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	CurrentInstruction := make([]qbankz.ExamInstructions, 0)
+	role := strings.ToLower(claims["role"].(string))
+	key := "GetExamInstructionByExamID"
+	for _, vv := range examIds {
+		v := *vv
+		key = key + v
+	}
+	result, err := redis.GetRedisValue(ctx, key)
+	if (err == nil && role == "learner") && result != "" {
+
+		err = json.Unmarshal([]byte(result), &CurrentInstruction)
+		if err == nil {
+			log.Errorf("Failed to unmarshal instructions: %v", err.Error())
+			return nil, err
+		}
+	}
+
+	session, err := cassandra.GetCassSession("qbankz")
+	if err != nil {
+		return nil, err
+	}
+	CassSession := session
+
+	if len(CurrentInstruction) == 0 {
+		for _, vv := range examIds {
+			v := *vv
+			queryStr := fmt.Sprintf(`SELECT * from qbankz.exam_instructions where exam_id = '%s' AND is_active=true   ALLOW FILTERING`, v)
+			getBanks := func() (banks []qbankz.ExamInstructions, err error) {
+				q := CassSession.Query(queryStr, nil)
+				defer q.Release()
+				iter := q.Iter()
+				return banks, iter.Select(&banks)
+			}
+			banks, err := getBanks()
+			if err != nil {
+				return nil, err
+			}
+			if len(banks) == 0 {
+				continue
+			}
+			CurrentInstruction = append(CurrentInstruction, banks...)
+		}
+	}
+
+	res := make([]*model.ExamInstruction, len(CurrentInstruction))
+	var wg sync.WaitGroup
+	for kk, vvv := range CurrentInstruction {
+		vv := vvv
+		wg.Add(1)
+
+		go func(k int, v qbankz.ExamInstructions) {
+			createdAt := strconv.FormatInt(v.CreatedAt, 10)
+			updatedAt := strconv.FormatInt(v.UpdatedAt, 10)
+			attempts := strconv.Itoa(v.NoAttempts)
+			tmp := &model.ExamInstruction{
+				ID:              &v.ID,
+				ExamID:          &v.ExamID,
+				Instructions:    &v.Instructions,
+				PassingCriteria: &v.PassingCriteria,
+				NoAttempts:      &attempts,
+				AccessType:      &v.AccessType,
+				CreatedAt:       &createdAt,
+				UpdatedAt:       &updatedAt,
+				CreatedBy:       &v.CreatedBy,
+				UpdatedBy:       &v.UpdatedBy,
+				IsActive:        &v.IsActive,
+			}
+
+			res[k] = tmp
+			wg.Done()
+		}(kk, vv)
+	}
+	wg.Wait()
+	output, err := json.Marshal(CurrentInstruction)
+	if err == nil {
+		redis.SetRedisValue(ctx, key, string(output))
+		redis.SetTTL(ctx, key, 3600)
+	}
+	return res, nil
+
 }
 
 func GetExamCohort(ctx context.Context, examID *string) ([]*model.ExamCohort, error) {

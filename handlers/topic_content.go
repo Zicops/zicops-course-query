@@ -360,10 +360,99 @@ func GetTopicExamsByCourse(ctx context.Context, courseID *string) ([]*model.Topi
 	wg.Wait()
 	redisBytes, err := json.Marshal(topicsOut)
 	if err == nil {
-		redis.SetTTL(ctx, key, 60)
 		redis.SetRedisValue(ctx, key, string(redisBytes))
+		redis.SetTTL(ctx, key, 60)
 	}
 	return topicsOut, nil
+}
+
+func GetTopicExamsByCourseIds(ctx context.Context, courseIds []*string) ([]*model.TopicExam, error) {
+	claims, err := helpers.GetClaimsFromContext(ctx)
+	if err != nil {
+		log.Printf("Got error while getting claims: %v", err)
+		return nil, err
+	}
+	TopicData := make([]coursez.TopicExam, 0)
+	lspId := claims["lsp_id"].(string)
+	role := strings.ToLower(claims["role"].(string))
+
+	key := "GetTopicExamsByCourseIds"
+	for _, vv := range courseIds {
+		v := *vv
+		key = key + v
+	}
+	result, err := redis.GetRedisValue(ctx, key)
+	if err == nil && role == "learner" && result != "" {
+		err = json.Unmarshal([]byte(result), &TopicData)
+		if err != nil {
+			log.Errorf("Failed to unmarshal exams: %v", err.Error())
+			return nil, err
+		}
+	}
+
+	session, err := cassandra.GetCassSession("coursez")
+	if err != nil {
+		return nil, err
+	}
+	CassSession := session
+
+	//if cache does not hit, call the database
+	if len(TopicData) == 0 {
+		for _, vv := range courseIds {
+			v := *vv
+			queryStr := fmt.Sprintf(`SELECT * FROM coursez.topic_exam where courseid='%s' AND is_active=true  AND lsp_id='%s' ALLOW FILTERING`, v, lspId)
+			getExams := func() (exams []coursez.TopicExam, err error) {
+				q := CassSession.Query(queryStr, nil)
+				defer q.Release()
+				iter := q.Iter()
+				return exams, iter.Select(&exams)
+			}
+
+			currentContent, err := getExams()
+			if err != nil {
+				log.Printf("Got error while getting exams: %v", err)
+				return nil, err
+			}
+			if len(currentContent) == 0 {
+				continue
+			}
+			//append data received from database
+			TopicData = append(TopicData, currentContent...)
+		}
+	}
+
+	//now we have the data, either through cache, or through database request
+	res := make([]*model.TopicExam, len(TopicData))
+	var wg sync.WaitGroup
+	for kk, vvv := range TopicData {
+		vv := vvv
+		wg.Add(1)
+		go func(k int, v coursez.TopicExam) {
+			createdAt := strconv.FormatInt(v.CreatedAt, 10)
+			updatedAt := strconv.FormatInt(v.UpdatedAt, 10)
+			tmp := &model.TopicExam{
+				ID:        &v.ID,
+				TopicID:   &v.TopicId,
+				ExamID:    &v.ExamId,
+				CourseID:  &v.CourseId,
+				CreatedAt: &createdAt,
+				UpdatedAt: &updatedAt,
+				Language:  &v.Language,
+			}
+			res[k] = tmp
+
+			wg.Done()
+		}(kk, vv)
+	}
+	wg.Wait()
+
+	redisBytes, err := json.Marshal(TopicData)
+	if err == nil {
+		redis.SetRedisValue(ctx, key, string(redisBytes))
+		redis.SetTTL(ctx, key, 3600)
+	}
+
+	return res, nil
 }
 
 func GetTopicContentByModule(ctx context.Context, moduleID *string) ([]*model.TopicContent, error) {
@@ -459,8 +548,8 @@ func GetTopicContentByModule(ctx context.Context, moduleID *string) ([]*model.To
 	wg.Wait()
 	redisBytes, err := json.Marshal(currentContent)
 	if err == nil {
-		redis.SetTTL(ctx, key, 60)
 		redis.SetRedisValue(ctx, key, string(redisBytes))
+		redis.SetTTL(ctx, key, 60)
 	}
 	return topicsOut, nil
 }

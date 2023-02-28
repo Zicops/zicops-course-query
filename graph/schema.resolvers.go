@@ -480,6 +480,36 @@ func (r *queryResolver) GetTopicsByCourseIds(ctx context.Context, courseIds []*s
 	return resp, nil
 }
 
+// GetTopicExamsByCourseIds is the resolver for the getTopicExamsByCourseIds field.
+func (r *queryResolver) GetTopicExamsByCourseIds(ctx context.Context, courseIds []*string) ([]*model.TopicExam, error) {
+	resp, err := handlers.GetTopicExamsByCourseIds(ctx, courseIds)
+	if err != nil {
+		log.Errorf("error getting topic exams: %v", err)
+		return nil, err
+	}
+	return resp, nil
+}
+
+// GetExamInstructionByExamID is the resolver for the getExamInstructionByExamId field.
+func (r *queryResolver) GetExamInstructionByExamID(ctx context.Context, examIds []*string) ([]*model.ExamInstruction, error) {
+	resp, err := handlers.GetExamInstructionByExamID(ctx, examIds)
+	if err != nil {
+		log.Errorf("error getting topic instructions: %v", err)
+		return nil, err
+	}
+	return resp, nil
+}
+
+// GetExamScheduleByExamID is the resolver for the getExamScheduleByExamId field.
+func (r *queryResolver) GetExamScheduleByExamID(ctx context.Context, examIds []*string) ([]*model.ExamSchedule, error) {
+	resp, err := handlers.GetExamScheduleByExamID(ctx, examIds)
+	if err != nil {
+		log.Errorf("error getting topic instructions: %v", err)
+		return nil, err
+	}
+	return resp, nil
+}
+
 // Query returns generated.QueryResolver implementation.
 func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 
