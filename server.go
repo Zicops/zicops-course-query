@@ -121,8 +121,11 @@ func checkAndInitCassandraSession() {
 			log.Errorf("Error unmarshalling redis value: %v", err)
 		}
 	}
-	_, err1 := cassandra.GetCassSession("coursez")
-	_, err2 := cassandra.GetCassSession("qbankz")
+	ctx := context.Background()
+	cassPool := cassandra.GetCassandraPoolInstance()
+	global.CassPool = cassPool
+	_, err1 := global.CassPool.GetSession(ctx, "coursez")
+	_, err2 := global.CassPool.GetSession(ctx, "qbankz")
 	if err1 != nil || err2 != nil {
 		log.Errorf("Error connecting to cassandra: %v and %v ", err1, err2)
 	} else {

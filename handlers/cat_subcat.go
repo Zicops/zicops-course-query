@@ -11,8 +11,8 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/coursez"
-	"github.com/zicops/zicops-cass-pool/cassandra"
 	"github.com/zicops/zicops-cass-pool/redis"
+	"github.com/zicops/zicops-course-query/global"
 	"github.com/zicops/zicops-course-query/graph/model"
 	"github.com/zicops/zicops-course-query/helpers"
 	"github.com/zicops/zicops-course-query/lib/db/bucket"
@@ -21,7 +21,7 @@ import (
 
 func GetCategories(ctx context.Context) ([]*string, error) {
 	log.Info("GetCategories")
-	session, err := cassandra.GetCassSession("coursez")
+	session, err := global.CassPool.GetSession(ctx, "coursez")
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +45,7 @@ func GetCategories(ctx context.Context) ([]*string, error) {
 
 func GetSubCategories(ctx context.Context) ([]*string, error) {
 	log.Info("GetSubCategories")
-	session, err := cassandra.GetCassSession("coursez")
+	session, err := global.CassPool.GetSession(ctx, "coursez")
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +69,7 @@ func GetSubCategories(ctx context.Context) ([]*string, error) {
 
 func GetSubCategoriesForSub(ctx context.Context, cat *string) ([]*string, error) {
 	log.Info("GetSubCategoriesForSub")
-	session, err := cassandra.GetCassSession("coursez")
+	session, err := global.CassPool.GetSession(ctx, "coursez")
 	if err != nil {
 		return nil, err
 	}
@@ -122,7 +122,7 @@ func AllCatMain(ctx context.Context, lspIds []*string, searchText *string) ([]*m
 	}
 	if len(cats) <= 0 || role != "learner" {
 		cats = make([]coursez.CatMain, 0)
-		session, err := cassandra.GetCassSession("coursez")
+		session, err := global.CassPool.GetSession(ctx, "coursez")
 		if err != nil {
 			return nil, err
 		}
@@ -252,7 +252,7 @@ func AllSubCatMain(ctx context.Context, lspIds []*string, searchText *string) ([
 	}
 	if len(cats) <= 0 || role != "learner" {
 		cats = make([]coursez.SubCatMain, 0)
-		session, err := cassandra.GetCassSession("coursez")
+		session, err := global.CassPool.GetSession(ctx, "coursez")
 		if err != nil {
 			return nil, err
 		}
@@ -376,7 +376,7 @@ func AllSubCatByCatID(ctx context.Context, catID *string) ([]*model.SubCatMain, 
 		}
 	}
 	if len(cats) <= 0 || role != "learner" {
-		session, err := cassandra.GetCassSession("coursez")
+		session, err := global.CassPool.GetSession(ctx, "coursez")
 		if err != nil {
 			return nil, err
 		}

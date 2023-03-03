@@ -12,7 +12,6 @@ import (
 	"github.com/bradhe/stopwatch"
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/coursez"
-	"github.com/zicops/zicops-cass-pool/cassandra"
 	"github.com/zicops/zicops-cass-pool/redis"
 	"github.com/zicops/zicops-course-query/global"
 	"github.com/zicops/zicops-course-query/graph/model"
@@ -96,7 +95,7 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 		statusNew = *status
 	}
 	if len(dbCourses) <= 0 || role != "learner" {
-		session, err := cassandra.GetCassSession("coursez")
+		session, err := global.CassPool.GetSession(ctx, "coursez")
 		if err != nil {
 			return nil, err
 		}

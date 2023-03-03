@@ -10,7 +10,6 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/qbankz"
-	"github.com/zicops/zicops-cass-pool/cassandra"
 	"github.com/zicops/zicops-cass-pool/redis"
 	"github.com/zicops/zicops-course-query/global"
 	"github.com/zicops/zicops-course-query/graph/model"
@@ -38,7 +37,7 @@ func GetQuestionBankQuestions(ctx context.Context, questionBankID *string, filte
 	}
 	if len(banks) <= 0 {
 		whereClause := getWhereClause(filters, *questionBankID)
-		session, err := cassandra.GetCassSession("qbankz")
+		session, err := global.CassPool.GetSession(ctx, "qbankz")
 		if err != nil {
 			return nil, err
 		}
@@ -135,7 +134,7 @@ func GetQuestionBankQuestions(ctx context.Context, questionBankID *string, filte
 func GetQuestionsByID(ctx context.Context, questionIds []*string) ([]*model.QuestionBankQuestion, error) {
 	gproject := googleprojectlib.GetGoogleProjectID()
 
-	session, err := cassandra.GetCassSession("qbankz")
+	session, err := global.CassPool.GetSession(ctx, "qbankz")
 	if err != nil {
 		return nil, err
 	}

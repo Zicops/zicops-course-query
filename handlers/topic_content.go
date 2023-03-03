@@ -11,9 +11,9 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/coursez"
-	"github.com/zicops/zicops-cass-pool/cassandra"
 	"github.com/zicops/zicops-cass-pool/redis"
 	"github.com/zicops/zicops-course-query/constants"
+	"github.com/zicops/zicops-course-query/global"
 	"github.com/zicops/zicops-course-query/graph/model"
 	"github.com/zicops/zicops-course-query/helpers"
 	"github.com/zicops/zicops-course-query/lib/db/bucket"
@@ -36,7 +36,7 @@ func GetTopicContent(ctx context.Context, topicID *string) ([]*model.TopicConten
 		}
 	}
 	if len(currentContent) <= 0 {
-		session, err := cassandra.GetCassSession("coursez")
+		session, err := global.CassPool.GetSession(ctx, "coursez")
 		if err != nil {
 			return nil, err
 		}
@@ -143,7 +143,7 @@ func GetTopicExams(ctx context.Context, topicID *string) ([]*model.TopicExam, er
 			return topicsOut, nil
 		}
 	}
-	session, err := cassandra.GetCassSession("coursez")
+	session, err := global.CassPool.GetSession(ctx, "coursez")
 	if err != nil {
 		return nil, err
 	}
@@ -215,7 +215,7 @@ func GetTopicContentByCourse(ctx context.Context, courseID *string) ([]*model.To
 	}
 	course := courses[0]
 	if len(currentContent) <= 0 {
-		session, err := cassandra.GetCassSession("coursez")
+		session, err := global.CassPool.GetSession(ctx, "coursez")
 		if err != nil {
 			return nil, err
 		}
@@ -310,7 +310,7 @@ func GetTopicExamsByCourse(ctx context.Context, courseID *string) ([]*model.Topi
 		}
 	}
 
-	session, err := cassandra.GetCassSession("coursez")
+	session, err := global.CassPool.GetSession(ctx, "coursez")
 	if err != nil {
 		return nil, err
 	}
@@ -390,7 +390,7 @@ func GetTopicExamsByCourseIds(ctx context.Context, courseIds []*string) ([]*mode
 		}
 	}
 
-	session, err := cassandra.GetCassSession("coursez")
+	session, err := global.CassPool.GetSession(ctx, "coursez")
 	if err != nil {
 		return nil, err
 	}
@@ -474,7 +474,7 @@ func GetTopicContentByModule(ctx context.Context, moduleID *string) ([]*model.To
 		}
 	}
 	if len(currentContent) <= 0 {
-		session, err := cassandra.GetCassSession("coursez")
+		session, err := global.CassPool.GetSession(ctx, "coursez")
 		if err != nil {
 			return nil, err
 		}

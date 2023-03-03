@@ -10,8 +10,8 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/coursez"
-	"github.com/zicops/zicops-cass-pool/cassandra"
 	"github.com/zicops/zicops-cass-pool/redis"
+	"github.com/zicops/zicops-course-query/global"
 	"github.com/zicops/zicops-course-query/graph/model"
 	"github.com/zicops/zicops-course-query/helpers"
 	"github.com/zicops/zicops-course-query/lib/db/bucket"
@@ -35,7 +35,7 @@ func GetTopicQuizes(ctx context.Context, topicID *string) ([]*model.Quiz, error)
 		}
 	}
 	if len(currentQuizes) <= 0 {
-		session, err := cassandra.GetCassSession("coursez")
+		session, err := global.CassPool.GetSession(ctx, "coursez")
 		if err != nil {
 			return nil, err
 		}
@@ -111,7 +111,7 @@ func GetQuizFiles(ctx context.Context, quizID *string) ([]*model.QuizFile, error
 	}
 
 	if len(currentFiles) <= 0 {
-		session, err := cassandra.GetCassSession("coursez")
+		session, err := global.CassPool.GetSession(ctx, "coursez")
 		if err != nil {
 			return nil, err
 		}
@@ -185,7 +185,7 @@ func GetMCQQuiz(ctx context.Context, quizID *string) ([]*model.QuizMcq, error) {
 		}
 	}
 
-	session, err := cassandra.GetCassSession("coursez")
+	session, err := global.CassPool.GetSession(ctx, "coursez")
 	if err != nil {
 		return nil, err
 	}
@@ -250,7 +250,7 @@ func GetQuizDes(ctx context.Context, quizID *string) ([]*model.QuizDescriptive, 
 			return quizDes, nil
 		}
 	}
-	session, err := cassandra.GetCassSession("coursez")
+	session, err := global.CassPool.GetSession(ctx, "coursez")
 	if err != nil {
 		return nil, err
 	}

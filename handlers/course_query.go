@@ -9,8 +9,8 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/coursez"
-	"github.com/zicops/zicops-cass-pool/cassandra"
 	"github.com/zicops/zicops-cass-pool/redis"
+	"github.com/zicops/zicops-course-query/global"
 	"github.com/zicops/zicops-course-query/graph/model"
 	"github.com/zicops/zicops-course-query/helpers"
 	"github.com/zicops/zicops-course-query/lib/db/bucket"
@@ -27,7 +27,7 @@ func GetCourseByID(ctx context.Context, courseID []*string) ([]*model.Course, er
 	res := make([]*model.Course, len(courseID))
 	var wg sync.WaitGroup
 	{
-		session, err := cassandra.GetCassSession("coursez")
+		session, err := global.CassPool.GetSession(ctx, "coursez")
 		if err != nil {
 			return nil, err
 		}
@@ -233,7 +233,7 @@ func GetBasicCourseStats(ctx context.Context, input *model.BasicCourseStatsInput
 	if err != nil {
 		return nil, err
 	}
-	session, err := cassandra.GetCassSession("coursez")
+	session, err := global.CassPool.GetSession(ctx, "coursez")
 	if err != nil {
 		return nil, err
 	}

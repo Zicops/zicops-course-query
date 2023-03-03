@@ -9,8 +9,8 @@ import (
 	"sync"
 
 	"github.com/zicops/contracts/qbankz"
-	"github.com/zicops/zicops-cass-pool/cassandra"
 	"github.com/zicops/zicops-cass-pool/redis"
+	"github.com/zicops/zicops-course-query/global"
 	"github.com/zicops/zicops-course-query/graph/model"
 	"github.com/zicops/zicops-course-query/helpers"
 )
@@ -32,7 +32,7 @@ func GetQuestionBankSections(ctx context.Context, questionPaperID *string) ([]*m
 	}
 
 	qryStr := fmt.Sprintf(`SELECT * from qbankz.section_main where qp_id = '%s'  AND is_active=true ALLOW FILTERING`, *questionPaperID)
-	session, err := cassandra.GetCassSession("qbankz")
+	session, err := global.CassPool.GetSession(ctx, "qbankz")
 	if err != nil {
 		return nil, err
 	}
@@ -103,7 +103,7 @@ func GetQPBankMappingByQPId(ctx context.Context, questionPaperID *string) ([]*mo
 	}
 
 	qryStr := fmt.Sprintf(`SELECT * from qbankz.section_qb_mapping where qb_id = '%s'  AND is_active=true  ALLOW FILTERING`, *questionPaperID)
-	session, err := cassandra.GetCassSession("qbankz")
+	session, err := global.CassPool.GetSession(ctx, "qbankz")
 	if err != nil {
 		return nil, err
 	}
@@ -175,7 +175,7 @@ func GetQPBankMappingBySectionID(ctx context.Context, sectionID *string) ([]*mod
 	}
 
 	qryStr := fmt.Sprintf(`SELECT * from qbankz.section_qb_mapping where section_id = '%s' AND is_active=true  ALLOW FILTERING`, *sectionID)
-	session, err := cassandra.GetCassSession("qbankz")
+	session, err := global.CassPool.GetSession(ctx, "qbankz")
 	if err != nil {
 		return nil, err
 	}
@@ -247,7 +247,7 @@ func GetSectionFixedQuestions(ctx context.Context, sectionID *string) ([]*model.
 	}
 
 	qryStr := fmt.Sprintf(`SELECT * from qbankz.section_fixed_questions where sqb_id = '%s' AND is_active=true  ALLOW FILTERING`, *sectionID)
-	session, err := cassandra.GetCassSession("qbankz")
+	session, err := global.CassPool.GetSession(ctx, "qbankz")
 	if err != nil {
 		return nil, err
 	}

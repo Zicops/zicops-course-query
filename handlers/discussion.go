@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/zicops/contracts/coursez"
-	"github.com/zicops/zicops-cass-pool/cassandra"
+	"github.com/zicops/zicops-course-query/global"
 	"github.com/zicops/zicops-course-query/graph/model"
 	"github.com/zicops/zicops-course-query/helpers"
 )
@@ -16,7 +16,7 @@ func GetCourseDiscussion(ctx context.Context, courseID string, discussionID *str
 	if err != nil {
 		return nil, err
 	}
-	session, err := cassandra.GetCassSession("coursez")
+	session, err := global.CassPool.GetSession(ctx, "coursez")
 	if err != nil {
 		return nil, err
 	}

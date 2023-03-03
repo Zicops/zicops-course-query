@@ -10,8 +10,8 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/coursez"
-	"github.com/zicops/zicops-cass-pool/cassandra"
 	"github.com/zicops/zicops-cass-pool/redis"
+	"github.com/zicops/zicops-course-query/global"
 	"github.com/zicops/zicops-course-query/graph/model"
 	"github.com/zicops/zicops-course-query/helpers"
 )
@@ -38,7 +38,7 @@ func GetChaptersCourseByID(ctx context.Context, courseID *string) ([]*model.Chap
 	if len(chapters) > 0 && role == "learner" {
 		return chapters, nil
 	}
-	session, err := cassandra.GetCassSession("coursez")
+	session, err := global.CassPool.GetSession(ctx, "coursez")
 	if err != nil {
 		return nil, err
 	}
@@ -117,7 +117,7 @@ func GetChapterByID(ctx context.Context, chapterID *string) (*model.Chapter, err
 		chapters = make([]*model.Chapter, 0)
 	}
 
-	session, err := cassandra.GetCassSession("coursez")
+	session, err := global.CassPool.GetSession(ctx, "coursez")
 	if err != nil {
 		return nil, err
 	}

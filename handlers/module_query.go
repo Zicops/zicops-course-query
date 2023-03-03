@@ -9,8 +9,8 @@ import (
 	"sync"
 
 	"github.com/zicops/contracts/coursez"
-	"github.com/zicops/zicops-cass-pool/cassandra"
 	"github.com/zicops/zicops-cass-pool/redis"
+	"github.com/zicops/zicops-course-query/global"
 	"github.com/zicops/zicops-course-query/graph/model"
 	"github.com/zicops/zicops-course-query/helpers"
 )
@@ -31,7 +31,7 @@ func GetModulesCourseByID(ctx context.Context, courseID *string) ([]*model.Modul
 		}
 	}
 
-	session, err := cassandra.GetCassSession("coursez")
+	session, err := global.CassPool.GetSession(ctx, "coursez")
 	if err != nil {
 		return nil, err
 	}
@@ -108,7 +108,7 @@ func GetModuleByID(ctx context.Context, moduleID *string) (*model.Module, error)
 		}
 	}
 
-	session, err := cassandra.GetCassSession("coursez")
+	session, err := global.CassPool.GetSession(ctx, "coursez")
 	if err != nil {
 		return nil, err
 	}

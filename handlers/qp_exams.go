@@ -10,8 +10,8 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zicops/contracts/qbankz"
-	"github.com/zicops/zicops-cass-pool/cassandra"
 	"github.com/zicops/zicops-cass-pool/redis"
+	"github.com/zicops/zicops-course-query/global"
 	"github.com/zicops/zicops-course-query/graph/model"
 	"github.com/zicops/zicops-course-query/helpers"
 )
@@ -33,7 +33,7 @@ func GetExamsByQPId(ctx context.Context, questionPaperID *string) ([]*model.Exam
 	}
 
 	qryStr := fmt.Sprintf(`SELECT * from qbankz.exam where qp_id = '%s'  AND is_active=true  ALLOW FILTERING`, *questionPaperID)
-	session, err := cassandra.GetCassSession("qbankz")
+	session, err := global.CassPool.GetSession(ctx, "qbankz")
 	if err != nil {
 		return nil, err
 	}
@@ -115,7 +115,7 @@ func GetExamSchedule(ctx context.Context, examID *string) ([]*model.ExamSchedule
 	}
 
 	qryStr := fmt.Sprintf(`SELECT * from qbankz.exam_schedule where exam_id = '%s'  AND is_active=true  ALLOW FILTERING`, *examID)
-	session, err := cassandra.GetCassSession("qbankz")
+	session, err := global.CassPool.GetSession(ctx, "qbankz")
 	if err != nil {
 		return nil, err
 	}
@@ -191,7 +191,7 @@ func GetExamScheduleByExamID(ctx context.Context, examIds []*string) ([]*model.E
 			return nil, err
 		}
 	}
-	session, err := cassandra.GetCassSession("qbankz")
+	session, err := global.CassPool.GetSession(ctx, "qbankz")
 	if err != nil {
 		return nil, err
 	}
@@ -274,7 +274,7 @@ func GetExamInstruction(ctx context.Context, examID *string) ([]*model.ExamInstr
 	}
 
 	qryStr := fmt.Sprintf(`SELECT * from qbankz.exam_instructions where exam_id = '%s' AND is_active=true   ALLOW FILTERING`, *examID)
-	session, err := cassandra.GetCassSession("qbankz")
+	session, err := global.CassPool.GetSession(ctx, "qbankz")
 	if err != nil {
 		return nil, err
 	}
@@ -351,7 +351,7 @@ func GetExamInstructionByExamID(ctx context.Context, examIds []*string) ([]*mode
 		}
 	}
 
-	session, err := cassandra.GetCassSession("qbankz")
+	session, err := global.CassPool.GetSession(ctx, "qbankz")
 	if err != nil {
 		return nil, err
 	}
@@ -433,7 +433,7 @@ func GetExamCohort(ctx context.Context, examID *string) ([]*model.ExamCohort, er
 	}
 
 	qryStr := fmt.Sprintf(`SELECT * from qbankz.exam_cohort where exam_id = '%s' AND is_active=true  ALLOW FILTERING`, *examID)
-	session, err := cassandra.GetCassSession("qbankz")
+	session, err := global.CassPool.GetSession(ctx, "qbankz")
 	if err != nil {
 		return nil, err
 	}
@@ -500,7 +500,7 @@ func GetExamConfiguration(ctx context.Context, examID *string) ([]*model.ExamCon
 	}
 
 	qryStr := fmt.Sprintf(`SELECT * from qbankz.exam_config where exam_id = '%s' AND is_active=true  ALLOW FILTERING`, *examID)
-	session, err := cassandra.GetCassSession("qbankz")
+	session, err := global.CassPool.GetSession(ctx, "qbankz")
 	if err != nil {
 		return nil, err
 	}
@@ -560,7 +560,7 @@ func GetQPMeta(ctx context.Context, questionPapersIds []*string) ([]*model.Quest
 		return nil, err
 	}
 	role := strings.ToLower(claims["role"].(string))
-	session, err := cassandra.GetCassSession("qbankz")
+	session, err := global.CassPool.GetSession(ctx, "qbankz")
 	if err != nil {
 		return nil, err
 	}
