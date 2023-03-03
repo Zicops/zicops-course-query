@@ -80,11 +80,11 @@ func GetCohortCourseMaps(ctx context.Context, cohortID *string) ([]*model.Course
 	if err != nil {
 		log.Errorf("GetCohortCourseMaps: %v", err)
 	} else {
-		redis.SetTTL(ctx, key, 60)
 		err = redis.SetRedisValue(ctx, key, string(redisBytes))
 		if err != nil {
 			log.Errorf("GetCohortCourseMaps: %v", err)
 		}
+		redis.SetTTL(ctx, key, 60)
 	}
 	return allSections, nil
 }

@@ -90,10 +90,10 @@ func GetExamsByQPId(ctx context.Context, questionPaperID *string) ([]*model.Exam
 		}(i, cqb)
 	}
 	wg.Wait()
-	output, err := json.Marshal(allSections)
+	redisBytes, err := json.Marshal(allSections)
 	if err == nil {
+		redis.SetRedisValue(ctx, key, string(redisBytes))
 		redis.SetTTL(ctx, key, 60)
-		redis.SetRedisValue(ctx, key, string(output))
 	}
 	return allSections, nil
 }
@@ -162,10 +162,10 @@ func GetExamSchedule(ctx context.Context, examID *string) ([]*model.ExamSchedule
 		}(i, cqb)
 	}
 	wg.Wait()
-	output, err := json.Marshal(allSections)
+	redisBytes, err := json.Marshal(allSections)
 	if err == nil {
+		redis.SetRedisValue(ctx, key, string(redisBytes))
 		redis.SetTTL(ctx, key, 60)
-		redis.SetRedisValue(ctx, key, string(output))
 	}
 	return allSections, nil
 }
@@ -249,9 +249,9 @@ func GetExamScheduleByExamID(ctx context.Context, examIds []*string) ([]*model.E
 	wg.Wait()
 
 	tmp, err := json.Marshal(output)
-	if err != nil {
+	if err == nil {
 		redis.SetRedisValue(ctx, key, string(tmp))
-		redis.SetTTL(ctx, key, 3600)
+		redis.SetTTL(ctx, key, 60)
 	}
 
 	return res, nil
@@ -410,7 +410,7 @@ func GetExamInstructionByExamID(ctx context.Context, examIds []*string) ([]*mode
 	output, err := json.Marshal(CurrentInstruction)
 	if err == nil {
 		redis.SetRedisValue(ctx, key, string(output))
-		redis.SetTTL(ctx, key, 3600)
+		redis.SetTTL(ctx, key, 60)
 	}
 	return res, nil
 
@@ -477,8 +477,8 @@ func GetExamCohort(ctx context.Context, examID *string) ([]*model.ExamCohort, er
 	wg.Wait()
 	output, err := json.Marshal(allSections)
 	if err == nil {
-		redis.SetTTL(ctx, key, 60)
 		redis.SetRedisValue(ctx, key, string(output))
+		redis.SetTTL(ctx, key, 60)
 	}
 	return allSections, nil
 }
@@ -547,8 +547,8 @@ func GetExamConfiguration(ctx context.Context, examID *string) ([]*model.ExamCon
 	wg.Wait()
 	output, err := json.Marshal(allSections)
 	if err == nil {
-		redis.SetTTL(ctx, key, 60)
 		redis.SetRedisValue(ctx, key, string(output))
+		redis.SetTTL(ctx, key, 60)
 	}
 	return allSections, nil
 }
@@ -619,8 +619,8 @@ func GetQPMeta(ctx context.Context, questionPapersIds []*string) ([]*model.Quest
 				resCurrent[i] = currentBank
 				output, err := json.Marshal(currentBank)
 				if err == nil {
-					redis.SetTTL(ctx, key, 60)
 					redis.SetRedisValue(ctx, key, string(output))
+					redis.SetTTL(ctx, key, 60)
 				}
 				wg.Done()
 			}(i, c)

@@ -86,8 +86,8 @@ func GetModulesCourseByID(ctx context.Context, courseID *string) ([]*model.Modul
 	wg.Wait()
 	redisBtres, err := json.Marshal(modules)
 	if err == nil {
-		redis.SetTTL(ctx, key, 60)
 		redis.SetRedisValue(ctx, key, string(redisBtres))
+		redis.SetTTL(ctx, key, 60)
 	}
 	return modules, nil
 }
@@ -157,8 +157,8 @@ func GetModuleByID(ctx context.Context, moduleID *string) (*model.Module, error)
 	wg.Wait()
 	redisBtres, err := json.Marshal(modules)
 	if err == nil {
-		redis.SetTTL(ctx, key, 60)
 		redis.SetRedisValue(ctx, key, string(redisBtres))
+		redis.SetTTL(ctx, key, 60)
 	}
 
 	return modules[0], nil

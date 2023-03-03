@@ -124,11 +124,11 @@ func LatestQuestionBanks(ctx context.Context, publishTime *int, pageCursor *stri
 	if err != nil {
 		log.Errorf("Error marshalling redis value: %v", err)
 	} else {
-		redis.SetTTL(ctx, key, 60)
 		err = redis.SetRedisValue(ctx, key, string(redisBytes))
 		if err != nil {
 			log.Errorf("Error setting redis value: %v", err)
 		}
+		redis.SetTTL(ctx, key, 60)
 	}
 	return &outputResponse, nil
 }
@@ -244,11 +244,11 @@ func LatestQuestionPapers(ctx context.Context, publishTime *int, pageCursor *str
 	if err != nil {
 		log.Errorf("Error marshalling redis value: %v", err)
 	} else {
-		redis.SetTTL(ctx, key, 60)
 		err = redis.SetRedisValue(ctx, key, string(redisBytes))
 		if err != nil {
 			log.Errorf("Error setting redis value: %v", err)
 		}
+		redis.SetTTL(ctx, key, 60)
 	}
 	return &outputResponse, nil
 }
@@ -382,11 +382,11 @@ func GetLatestExams(ctx context.Context, publishTime *int, pageCursor *string, d
 	if err != nil {
 		log.Errorf("Error marshalling redis value: %v", err)
 	} else {
-		redis.SetTTL(ctx, key, 60)
 		err = redis.SetRedisValue(ctx, key, string(redisBytes))
 		if err != nil {
 			log.Errorf("Error setting redis value: %v", err)
 		}
+		redis.SetTTL(ctx, key, 60)
 	}
 	return &outputResponse, nil
 }
@@ -466,8 +466,8 @@ func GetExamsMeta(ctx context.Context, examIds []*string) ([]*model.Exam, error)
 				resExams[i] = currentExam
 				redisBytes, err := json.Marshal(currentExam)
 				if err == nil {
-					redis.SetTTL(ctx, "GetExamsMeta"+*questionId, 60)
 					redis.SetRedisValue(ctx, "GetExamsMeta"+*questionId, string(redisBytes))
+					redis.SetTTL(ctx, "GetExamsMeta"+*questionId, 60)
 				}
 				wg.Done()
 			}(i, c)
@@ -543,8 +543,8 @@ func GetQBMeta(ctx context.Context, qbIds []*string) ([]*model.QuestionBank, err
 				resBanks[i] = currentBank
 				redisBytes, err := json.Marshal(currentBank)
 				if err == nil {
-					redis.SetTTL(ctx, "GetQBMeta"+*qbId, 60)
 					redis.SetRedisValue(ctx, "GetQBMeta"+*qbId, string(redisBytes))
+					redis.SetTTL(ctx, "GetQBMeta"+*qbId, 60)
 				}
 				wg.Done()
 			}(i, c)

@@ -102,8 +102,8 @@ func GetTopicsCourseByID(ctx context.Context, courseID *string) ([]*model.Topic,
 	wg.Wait()
 	redisBytes, err := json.Marshal(currentTopics)
 	if err == nil {
-		redis.SetTTL(ctx, key, 60)
 		redis.SetRedisValue(ctx, key, string(redisBytes))
+		redis.SetTTL(ctx, key, 60)
 	}
 	return topicsOut, nil
 }
@@ -211,8 +211,8 @@ func GetTopicsByCourseIds(ctx context.Context, courseIds []*string, Type *string
 
 	redisBytes, err := json.Marshal(TopicData)
 	if err == nil {
-		redis.SetTTL(ctx, key, 60)
 		redis.SetRedisValue(ctx, key, string(redisBytes))
+		redis.SetTTL(ctx, key, 60)
 	}
 	return res, nil
 }

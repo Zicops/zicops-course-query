@@ -84,11 +84,11 @@ func GetChaptersCourseByID(ctx context.Context, courseID *string) ([]*model.Chap
 	if err != nil {
 		log.Errorf("GetChaptersCourseByID: %v", err)
 	} else {
-		redis.SetTTL(ctx, key, 60)
 		err = redis.SetRedisValue(ctx, key, string(chaptersBytes))
 		if err != nil {
 			log.Errorf("GetChaptersCourseByID: %v", err)
 		}
+		redis.SetTTL(ctx, key, 60)
 	}
 	return chapters, nil
 }
@@ -153,11 +153,11 @@ func GetChapterByID(ctx context.Context, chapterID *string) (*model.Chapter, err
 	if err != nil {
 		log.Errorf("GetChapterByID: %v", err)
 	} else {
-		redis.SetTTL(ctx, key, 60)
 		err = redis.SetRedisValue(ctx, key, string(chaptersBytes))
 		if err != nil {
 			log.Errorf("GetChapterByID: %v", err)
 		}
+		redis.SetTTL(ctx, key, 60)
 	}
 	return chapters[0], nil
 }

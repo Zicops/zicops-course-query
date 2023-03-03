@@ -435,11 +435,11 @@ func AllSubCatByCatID(ctx context.Context, catID *string) ([]*model.SubCatMain, 
 	}
 	redisValue, err := json.Marshal(cats)
 	if err == nil {
-		redis.SetTTL(ctx, key, 60)
 		err = redis.SetRedisValue(ctx, key, string(redisValue))
 		if err != nil {
 			log.Errorf("Failed to set value in redis: %v", err.Error())
 		}
+		redis.SetTTL(ctx, key, 60)
 	}
 	return resultOutput, nil
 }
