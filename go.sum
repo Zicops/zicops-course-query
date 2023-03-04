@@ -369,6 +369,8 @@ github.com/zicops/zicops-cass-pool v0.0.0-20230303220719-a331d04f89f8 h1:ayRYm4/
 github.com/zicops/zicops-cass-pool v0.0.0-20230303220719-a331d04f89f8/go.mod h1:/7lRQKtG+l+1WOe7MqcQo6FXDL08hz8kEFOegwDlHNM=
 github.com/zicops/zicops-cass-pool v0.0.0-20230304191619-054323147829 h1:61c+dVe3i39J+WKC0yY4BCJhCVmBS//Kp2lK/CwUd3c=
 github.com/zicops/zicops-cass-pool v0.0.0-20230304191619-054323147829/go.mod h1:/7lRQKtG+l+1WOe7MqcQo6FXDL08hz8kEFOegwDlHNM=
+github.com/zicops/zicops-cass-pool v0.0.0-20230304193433-3918bccf970c h1:0DRnqD6D+iDXqrIqkq4e8G1jFybtvTg47r6S5I2cwk4=
+github.com/zicops/zicops-cass-pool v0.0.0-20230304193433-3918bccf970c/go.mod h1:/7lRQKtG+l+1WOe7MqcQo6FXDL08hz8kEFOegwDlHNM=
 go.opencensus.io v0.21.0/go.mod h1:mSImk1erAIZhrmZN+AvHh14ztQfjbGwt4TtuofqLduU=
 go.opencensus.io v0.22.0/go.mod h1:+kGneAE2xo2IficOXnaByMWTGM9T73dGwxeWcUqIpI8=
 go.opencensus.io v0.22.2/go.mod h1:yxeiOL68Rb0Xd1ddK5vPZ/oVn4vY4Ynel7k9FzqtOIw=
