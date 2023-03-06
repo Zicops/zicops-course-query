@@ -60,6 +60,9 @@ func GetQuestionBankQuestions(ctx context.Context, questionBankID *string, filte
 	if filters != nil && filters.ExcludedQuestionIds != nil {
 		currentExclusion := filters.ExcludedQuestionIds
 		for _, id := range currentExclusion {
+			if id == nil {
+				continue
+			}
 			copiedId := *id
 			excludedIds = append(excludedIds, copiedId)
 		}
@@ -147,6 +150,9 @@ func GetQuestionsByID(ctx context.Context, questionIds []*string) ([]*model.Ques
 	allQuestions := make([]*model.QuestionBankQuestion, 0)
 
 	for _, id := range questionIds {
+		if id == nil {
+			continue
+		}
 		key := "GetQuestionsByID" + *id
 		result, err := redis.GetRedisValue(ctx, key)
 		banks := make([]qbankz.QuestionMain, 0)

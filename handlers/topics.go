@@ -118,6 +118,9 @@ func GetTopicsByCourseIds(ctx context.Context, courseIds []*string, Type *string
 	var TopicData []coursez.Topic
 	key := "GetTopicsCourseByID"
 	for _, vv := range courseIds {
+		if vv == nil {
+			continue
+		}
 		v := *vv
 		key = key + v
 	}
@@ -144,6 +147,9 @@ func GetTopicsByCourseIds(ctx context.Context, courseIds []*string, Type *string
 		var wg sync.WaitGroup
 		for _, vvv := range courseIds {
 
+			if vvv == nil {
+				continue
+			}
 			vv := *vvv
 			wg.Add(1)
 			go func(v string, lsp_id string) {

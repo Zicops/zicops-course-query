@@ -378,6 +378,9 @@ func GetTopicExamsByCourseIds(ctx context.Context, courseIds []*string) ([]*mode
 
 	key := "GetTopicExamsByCourseIds"
 	for _, vv := range courseIds {
+		if vv == nil {
+			continue
+		}
 		v := *vv
 		key = key + v
 	}
@@ -399,6 +402,9 @@ func GetTopicExamsByCourseIds(ctx context.Context, courseIds []*string) ([]*mode
 	//if cache does not hit, call the database
 	if len(TopicData) == 0 {
 		for _, vv := range courseIds {
+			if vv == nil {
+				continue
+			}
 			v := *vv
 			queryStr := fmt.Sprintf(`SELECT * FROM coursez.topic_exam where courseid='%s' AND is_active=true  AND lsp_id='%s' ALLOW FILTERING`, v, lspId)
 			getExams := func() (exams []coursez.TopicExam, err error) {

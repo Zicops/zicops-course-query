@@ -97,8 +97,10 @@ func AllCatMain(ctx context.Context, lspIds []*string, searchText *string) ([]*m
 	key := "zicops_all_cat_main"
 	if len(lspIds) > 0 {
 		for _, lspId := range lspIds {
-			lc := strings.ToLower(*lspId)
-			key = key + lc
+			if lspId != nil {
+				lc := strings.ToLower(*lspId)
+				key = key + lc
+			}
 		}
 	}
 	if searchText != nil && *searchText != "" {
@@ -225,8 +227,11 @@ func AllSubCatMain(ctx context.Context, lspIds []*string, searchText *string) ([
 	key := "zicops_all_subcat_main"
 	if len(lspIds) > 0 {
 		for _, lspId := range lspIds {
-			lc := strings.ToLower(*lspId)
-			key = key + lc
+			if lspId != nil {
+				lc := strings.ToLower(*lspId)
+				key = key + lc
+			}
+
 		}
 	}
 	if searchText != nil && *searchText != "" {

@@ -263,6 +263,9 @@ func GetBasicCourseStats(ctx context.Context, input *model.BasicCourseStatsInput
 		catStats = make([]*model.Count, len(input.Categories))
 		for i, vv := range input.Categories {
 			vvv := vv
+			if vvv == nil {
+				continue
+			}
 			wg.Add(1)
 			go func(v *string, i int) {
 				copiedCat := *v
@@ -285,6 +288,9 @@ func GetBasicCourseStats(ctx context.Context, input *model.BasicCourseStatsInput
 		subCatStats = make([]*model.Count, len(input.SubCategories))
 		for i, vv := range input.SubCategories {
 			vvv := vv
+			if vvv == nil {
+				continue
+			}
 			wg.Add(1)
 			go func(v *string, i int) {
 				copiedSubCat := *v
@@ -307,6 +313,9 @@ func GetBasicCourseStats(ctx context.Context, input *model.BasicCourseStatsInput
 		expertiseStats = make([]*model.Count, len(input.ExpertiseLevel))
 		for i, vv := range input.ExpertiseLevel {
 			vvv := vv
+			if vvv == nil {
+				continue
+			}
 			wg.Add(1)
 			go func(v *string, i int) {
 				copiedExpertise := *v
@@ -329,6 +338,9 @@ func GetBasicCourseStats(ctx context.Context, input *model.BasicCourseStatsInput
 		languageStats = make([]*model.Count, len(input.Languages))
 		for i, vv := range input.Languages {
 			vvv := vv
+			if vvv == nil {
+				continue
+			}
 			wg.Add(1)
 			go func(v *string, i int) {
 				copiedLanguage := *v
