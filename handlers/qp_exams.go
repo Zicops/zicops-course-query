@@ -180,6 +180,9 @@ func GetExamScheduleByExamID(ctx context.Context, examIds []*string) ([]*model.E
 
 	key := "GetExamScheduleByExamID"
 	for _, vv := range examIds {
+		if vv == nil {
+			continue
+		}
 		v := *vv
 		key = key + v
 	}
@@ -200,6 +203,9 @@ func GetExamScheduleByExamID(ctx context.Context, examIds []*string) ([]*model.E
 	//if unable to get data from cache, call the database
 	if len(output) == 0 {
 		for _, vv := range examIds {
+			if vv == nil {
+				continue
+			}
 			v := *vv
 			qryStr := fmt.Sprintf(`SELECT * from qbankz.exam_schedule where exam_id = '%s'  AND is_active=true  ALLOW FILTERING`, v)
 			getSchedule := func() (schedules []qbankz.ExamSchedule, err error) {
@@ -338,6 +344,9 @@ func GetExamInstructionByExamID(ctx context.Context, examIds []*string) ([]*mode
 	role := strings.ToLower(claims["role"].(string))
 	key := "GetExamInstructionByExamID"
 	for _, vv := range examIds {
+		if vv == nil {
+			continue
+		}
 		v := *vv
 		key = key + v
 	}
@@ -359,6 +368,9 @@ func GetExamInstructionByExamID(ctx context.Context, examIds []*string) ([]*mode
 
 	if len(CurrentInstruction) == 0 {
 		for _, vv := range examIds {
+			if vv == nil {
+				continue
+			}
 			v := *vv
 			queryStr := fmt.Sprintf(`SELECT * from qbankz.exam_instructions where exam_id = '%s' AND is_active=true   ALLOW FILTERING`, v)
 			getBanks := func() (banks []qbankz.ExamInstructions, err error) {
@@ -567,6 +579,9 @@ func GetQPMeta(ctx context.Context, questionPapersIds []*string) ([]*model.Quest
 	CassSession := session
 
 	for _, questionId := range questionPapersIds {
+		if questionId == nil {
+			continue
+		}
 		key := "GetQPMeta" + *questionId
 		result, err := redis.GetRedisValue(ctx, key)
 		if err == nil && role == "learner" {

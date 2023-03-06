@@ -403,6 +403,9 @@ func GetExamsMeta(ctx context.Context, examIds []*string) ([]*model.Exam, error)
 	role := strings.ToLower(claims["role"].(string))
 	responseMap := make([]*model.Exam, 0)
 	for _, questionId := range examIds {
+		if questionId == nil {
+			continue
+		}
 		result, _ := redis.GetRedisValue(ctx, "GetExamsMeta"+*questionId)
 		if result != "" && role == "learner" {
 			var outputResponse model.Exam
@@ -493,6 +496,9 @@ func GetQBMeta(ctx context.Context, qbIds []*string) ([]*model.QuestionBank, err
 	lspId := claims["lsp_id"].(string)
 
 	for _, qbId := range qbIds {
+		if qbId == nil {
+			continue
+		}
 		result, _ := redis.GetRedisValue(ctx, "GetQBMeta"+*qbId)
 		if result != "" && role == "learner" {
 			var outputResponse model.QuestionBank

@@ -31,6 +31,9 @@ func GetOptionsForQuestions(ctx context.Context, questionIds []*string) ([]*mode
 	CassSession := session
 	responseMap := make([]*model.MapQuestionWithOption, 0)
 	for _, questionId := range questionIds {
+		if questionId == nil {
+			continue
+		}
 		key := "GetOptionsForQuestions" + *questionId
 		result, err := redis.GetRedisValue(ctx, key)
 		banks := make([]qbankz.OptionsMain, 0)
