@@ -144,76 +144,77 @@ func GetTopicsByCourseIds(ctx context.Context, courseIds []*string, Type *string
 
 	//if cache does not hit, then hit the database and store the data
 	if len(TopicData) <= 0 {
-		var wg sync.WaitGroup
-		for _, vvv := range courseIds {
+		for _, vv := range courseIds {
 
-			if vvv == nil {
+			if vv == nil {
 				continue
 			}
-			vv := *vvv
-			wg.Add(1)
-			go func(v string, lsp_id string) {
-				queryStr := fmt.Sprintf(`SELECT * FROM coursez.topic WHERE courseid = '%s' AND is_active=true  AND lsp_id='%s' `, v, lsp_id)
-				if Type != nil {
-					queryStr = queryStr + fmt.Sprintf(`AND type='%s' `, *Type)
-				}
-				queryStr = queryStr + "ALLOW FILTERING"
-				getTopics := func() (topics []coursez.Topic, err error) {
-					q := CassSession.Query(queryStr, nil)
-					defer q.Release()
-					iter := q.Iter()
-					return topics, iter.Select(&topics)
-				}
-				currentTopics, err := getTopics()
-				if err != nil {
-					log.Printf("Got error while getting topics: %v", err)
-					return
-				}
-				if len(currentTopics) == 0 {
-					return
-				}
-				TopicData = append(TopicData, currentTopics...)
-				wg.Done()
+			v := *vv
+			queryStr := fmt.Sprintf(`SELECT * FROM coursez.topic WHERE courseid = '%s' AND is_active=true  AND lsp_id='%s' `, v, lsp)
+			if Type != nil {
+				queryStr = queryStr + fmt.Sprintf(`AND type='%s' `, *Type)
+			}
+			queryStr = queryStr + "ALLOW FILTERING"
+			getTopics := func() (topics []coursez.Topic, err error) {
+				q := CassSession.Query(queryStr, nil)
+				defer q.Release()
+				iter := q.Iter()
+				return topics, iter.Select(&topics)
+			}
+			currentTopics, err := getTopics()
+			if err != nil {
+				log.Printf("Got error while getting topics: %v", err)
+				return nil, err
+			}
+			if len(currentTopics) == 0 {
+				return nil, err
+			}
+			TopicData = append(TopicData, currentTopics...)
 
-			}(vv, lsp)
 		}
-		wg.Wait()
 	}
 
 	//else directly map data gotten from cache
 	res := make([]*model.Topic, len(TopicData))
 
-	for i, kk := range TopicData {
-		k := kk
-		url := ""
-		createdAt := strconv.FormatInt(k.CreatedAt, 10)
-		updatedAt := strconv.FormatInt(k.UpdatedAt, 10)
-		if k.ImageBucket != "" {
-			storageC := bucket.NewStorageHandler()
-			err = storageC.InitializeStorageClient(ctx, gproject, k.LspId)
-			if err != nil {
-				log.Errorf("Failed to initialize storage: %v", err.Error())
+	var wg sync.WaitGroup
+	for i, vv := range TopicData {
+		wg.Add(1)
+		v := vv
+		go func(k coursez.Topic, i int) {
+			defer wg.Done()
+			url := ""
+			createdAt := strconv.FormatInt(k.CreatedAt, 10)
+			updatedAt := strconv.FormatInt(k.UpdatedAt, 10)
+			if k.ImageBucket != "" {
+				storageC := bucket.NewStorageHandler()
+				err = storageC.InitializeStorageClient(ctx, gproject, k.LspId)
+				if err != nil {
+					log.Errorf("Failed to initialize storage: %v", err.Error())
+				}
+				url = storageC.GetSignedURLForObjectCache(ctx, k.ImageBucket)
 			}
-			url = storageC.GetSignedURLForObjectCache(ctx, k.ImageBucket)
-		}
 
-		currentModule := &model.Topic{
-			ID:          &k.ID,
-			CourseID:    &k.CourseID,
-			ModuleID:    &k.ModuleID,
-			ChapterID:   &k.ChapterID,
-			Name:        &k.Name,
-			Description: &k.Description,
-			CreatedAt:   &createdAt,
-			UpdatedAt:   &updatedAt,
-			Sequence:    &k.Sequence,
-			CreatedBy:   &k.CreatedBy,
-			UpdatedBy:   &k.UpdatedBy,
-			Image:       &url,
-			Type:        &k.Type,
-		}
-		res[i] = currentModule
+			currentModule := &model.Topic{
+				ID:          &k.ID,
+				CourseID:    &k.CourseID,
+				ModuleID:    &k.ModuleID,
+				ChapterID:   &k.ChapterID,
+				Name:        &k.Name,
+				Description: &k.Description,
+				CreatedAt:   &createdAt,
+				UpdatedAt:   &updatedAt,
+				Sequence:    &k.Sequence,
+				CreatedBy:   &k.CreatedBy,
+				UpdatedBy:   &k.UpdatedBy,
+				Image:       &url,
+				Type:        &k.Type,
+			}
+			res[i] = currentModule
+		}(v, i)
+
 	}
+	wg.Wait()
 
 	redisBytes, err := json.Marshal(TopicData)
 	if err == nil {
