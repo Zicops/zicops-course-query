@@ -102,6 +102,7 @@ func GetQuestionBankQuestions(ctx context.Context, questionBankID *string, filte
 				err = storageC.InitializeStorageClient(ctx, gproject, copiedQuestion.LspId)
 				if err != nil {
 					log.Errorf("Failed to initialize storage client: %v", err.Error())
+					return
 				}
 				attUrl = storageC.GetSignedURLForObjectCache(ctx, bucketQ)
 			}

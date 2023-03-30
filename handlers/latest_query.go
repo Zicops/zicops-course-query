@@ -198,6 +198,7 @@ func LatestCourses(ctx context.Context, publishTime *int, pageCursor *string, di
 			err = storageC.InitializeStorageClient(ctx, gproject, course.LspId)
 			if err != nil {
 				log.Errorf("Failed to initialize bucket to course: %v", err.Error())
+				return
 			}
 			createdAt := strconv.FormatInt(course.CreatedAt, 10)
 			updatedAt := strconv.FormatInt(course.UpdatedAt, 10)

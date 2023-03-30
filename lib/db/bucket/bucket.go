@@ -52,6 +52,7 @@ func (sc *Client) InitializeStorageClient(ctx context.Context, projectID string,
 	bClient, err := sc.CreateBucket(ctx, lspId)
 	if err != nil {
 		logrus.Error(err)
+		return err
 	}
 	sc.bucket = *bClient
 	return nil
