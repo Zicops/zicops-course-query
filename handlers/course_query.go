@@ -71,6 +71,7 @@ func GetCourseByID(ctx context.Context, courseID []*string) ([]*model.Course, er
 					courses, err := getCourse()
 					if err != nil {
 						log.Errorf("%v", err)
+						return
 					}
 					if len(courses) <= 0 {
 						log.Errorf("course not found: %v", err)
@@ -134,6 +135,7 @@ func GetCourseByID(ctx context.Context, courseID []*string) ([]*model.Course, er
 				err = storageC.InitializeStorageClient(ctx, gproject, course.LspId)
 				if err != nil {
 					log.Errorf("Failed to initialize storage: %v", err.Error())
+					return
 				}
 				tileUrl := course.TileImage
 				if course.TileImageBucket != "" {

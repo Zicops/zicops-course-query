@@ -82,6 +82,7 @@ func GetOptionsForQuestions(ctx context.Context, questionIds []*string) ([]*mode
 					err := storageC.InitializeStorageClient(ctx, gproject, copiedQuestion.LspId)
 					if err != nil {
 						log.Errorf("Error in initializing storage client: %v", err)
+						return
 					}
 					attUrl = storageC.GetSignedURLForObjectCache(ctx, copiedQuestion.AttachmentBucket)
 				}

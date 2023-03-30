@@ -72,6 +72,7 @@ func GetTopicContent(ctx context.Context, topicID *string) ([]*model.TopicConten
 			err = storageC.InitializeStorageClient(ctx, gproject, mod.LspId)
 			if err != nil {
 				log.Errorf("Failed to initialize storage: %v", err.Error())
+				return
 			}
 			if mainBucket != "" {
 				key := base64.StdEncoding.EncodeToString([]byte(mainBucket))
@@ -250,6 +251,7 @@ func GetTopicContentByCourse(ctx context.Context, courseID *string) ([]*model.To
 			err = storageC.InitializeStorageClient(ctx, gproject, mod.LspId)
 			if err != nil {
 				log.Errorf("Failed to initialize storage: %v", err.Error())
+				return
 			}
 			mainBucket := mod.CourseId + "/" + mod.TopicId + "/subtitles/"
 			if mainBucket != "" {
@@ -515,6 +517,7 @@ func GetTopicContentByModule(ctx context.Context, moduleID *string) ([]*model.To
 			err = storageC.InitializeStorageClient(ctx, gproject, mod.LspId)
 			if err != nil {
 				log.Errorf("Failed to initialize storage: %v", err.Error())
+				return
 			}
 			mainBucket := mod.CourseId + "/" + mod.TopicId + "/subtitles/"
 			urlSub := make([]*model.SubtitleURL, 0)

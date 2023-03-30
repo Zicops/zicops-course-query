@@ -76,6 +76,7 @@ func GetTopicsCourseByID(ctx context.Context, courseID *string) ([]*model.Topic,
 				err = storageC.InitializeStorageClient(ctx, gproject, mod.LspId)
 				if err != nil {
 					log.Errorf("Failed to initialize storage: %v", err.Error())
+					return
 				}
 				url = storageC.GetSignedURLForObjectCache(ctx, mod.ImageBucket)
 			}
@@ -191,6 +192,7 @@ func GetTopicsByCourseIds(ctx context.Context, courseIds []*string, Type *string
 				err = storageC.InitializeStorageClient(ctx, gproject, k.LspId)
 				if err != nil {
 					log.Errorf("Failed to initialize storage: %v", err.Error())
+					return
 				}
 				url = storageC.GetSignedURLForObjectCache(ctx, k.ImageBucket)
 			}
@@ -276,6 +278,7 @@ func GetTopicByID(ctx context.Context, topicID *string) (*model.Topic, error) {
 				err = storageC.InitializeStorageClient(ctx, gproject, top.LspId)
 				if err != nil {
 					log.Errorf("Failed to initialize storage: %v", err.Error())
+					return
 				}
 				url = storageC.GetSignedURLForObjectCache(ctx, top.ImageBucket)
 			}
