@@ -511,6 +511,13 @@ type BasicCourseStats {
     expertise_level: [Count]
 }
 
+type CourseCountStats {
+    lsp_id: String
+    course_status: String
+    course_type: String
+    count: Int
+}
+
 type Query{
   allCatMain(lsp_ids: [String], searchText: String): [CatMain]
   allSubCatMain(lsp_ids: [String], searchText: String): [SubCatMain]
@@ -562,4 +569,5 @@ type Query{
   getTopicExamsByCourseIds(course_ids: [String]): [TopicExam]
   getExamInstructionByExamId(exam_ids: [String]): [ExamInstruction]
   getExamScheduleByExamId(exam_ids: [String]): [ExamSchedule]
+  getCourseCountStats(lsp_id: String, status: String!, type: String!): CourseCountStats
 }
