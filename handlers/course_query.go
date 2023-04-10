@@ -375,3 +375,32 @@ func GetBasicCourseStats(ctx context.Context, input *model.BasicCourseStatsInput
 	}
 	return &res, nil
 }
+
+func GetCourseCountStats(ctx context.Context, lspID *string, status string, typeArg string) (*model.CourseCountStats, error) {
+	claims, err := helpers.GetClaimsFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+	lsp := claims["lsp_id"].(string)
+	if lspID != nil {
+		lsp = *lspID
+	}
+	session, err := global.CassPool.GetSession(ctx, "coursez")
+	if err != nil {
+		return nil, err
+	}
+	CassUserSession := session
+	qryStr := fmt.Sprintf(`SELECT COUNT(*) FROM coursez.course WHERE lsp_id='%s' AND status='%s' AND type='%s' ALLOW FITERING`, lsp, status, typeArg)
+	iter := CassUserSession.Query(qryStr, nil).Iter()
+	count := 0
+	iter.Scan(&count)
+
+	//we have count in count variable
+	res := model.CourseCountStats{
+		LspID:        &lsp,
+		CourseStatus: &status,
+		CourseType:   &typeArg,
+		Count:        &count,
+	}
+	return &res, nil
+}

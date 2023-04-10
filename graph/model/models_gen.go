@@ -120,6 +120,13 @@ type CourseCohort struct {
 	ExpectedCompletion *int    `json:"ExpectedCompletion"`
 }
 
+type CourseCountStats struct {
+	LspID        *string `json:"lsp_id"`
+	CourseStatus *string `json:"course_status"`
+	CourseType   *string `json:"course_type"`
+	Count        *int    `json:"count"`
+}
+
 type CoursesFilters struct {
 	LspID       *string `json:"LspId"`
 	Category    *string `json:"Category"`

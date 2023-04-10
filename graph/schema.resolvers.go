@@ -494,7 +494,7 @@ func (r *queryResolver) GetTopicExamsByCourseIds(ctx context.Context, courseIds 
 func (r *queryResolver) GetExamInstructionByExamID(ctx context.Context, examIds []*string) ([]*model.ExamInstruction, error) {
 	resp, err := handlers.GetExamInstructionByExamID(ctx, examIds)
 	if err != nil {
-		log.Errorf("error getting topic instructions: %v", err)
+		log.Errorf("error getting exam instructions: %v", err)
 		return nil, err
 	}
 	return resp, nil
@@ -504,7 +504,17 @@ func (r *queryResolver) GetExamInstructionByExamID(ctx context.Context, examIds 
 func (r *queryResolver) GetExamScheduleByExamID(ctx context.Context, examIds []*string) ([]*model.ExamSchedule, error) {
 	resp, err := handlers.GetExamScheduleByExamID(ctx, examIds)
 	if err != nil {
-		log.Errorf("error getting topic instructions: %v", err)
+		log.Errorf("error getting exam schedule: %v", err)
+		return nil, err
+	}
+	return resp, nil
+}
+
+// GetCourseCountStats is the resolver for the getCourseCountStats field.
+func (r *queryResolver) GetCourseCountStats(ctx context.Context, lspID *string, status string, typeArg string) (*model.CourseCountStats, error) {
+	resp, err := handlers.GetCourseCountStats(ctx, lspID, status, typeArg)
+	if err != nil {
+		log.Errorf("error getting course stats: %v", err)
 		return nil, err
 	}
 	return resp, nil
@@ -514,18 +524,3 @@ func (r *queryResolver) GetExamScheduleByExamID(ctx context.Context, examIds []*
 func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 
 type queryResolver struct{ *Resolver }
-
-// !!! WARNING !!!
-// The code below was going to be deleted when updating resolvers. It has been copied here so you have
-// one last chance to move it out of harms way if you want. There are two reasons this happens:
-//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//     it when you're done.
-//   - You have helper methods in this file. Move them out to keep these resolver files clean.
-func (r *queryResolver) GetQPBankMappingByQPId(ctx context.Context, questionPaperID *string) ([]*model.SectionQBMapping, error) {
-	resp, err := handlers.GetQPBankMappingByQPId(ctx, questionPaperID)
-	if err != nil {
-		log.Errorf("error getting question papers sections map: %v", err)
-		return nil, err
-	}
-	return resp, nil
-}
