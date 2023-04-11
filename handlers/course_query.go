@@ -390,7 +390,7 @@ func GetCourseCountStats(ctx context.Context, lspID *string, status string, type
 		return nil, err
 	}
 	CassUserSession := session
-	qryStr := fmt.Sprintf(`SELECT COUNT(*) FROM coursez.course WHERE lsp_id='%s' AND status='%s' AND type='%s' ALLOW FITERING`, lsp, status, typeArg)
+	qryStr := fmt.Sprintf(`SELECT COUNT(*) FROM coursez.course WHERE lsp_id='%s' AND status='%s' AND type='%s' ALLOW FILTERING`, lsp, status, typeArg)
 	iter := CassUserSession.Query(qryStr, nil).Iter()
 	count := 0
 	iter.Scan(&count)
