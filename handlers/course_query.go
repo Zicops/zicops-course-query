@@ -57,6 +57,7 @@ func GetCourseByID(ctx context.Context, courseID []*string) ([]*model.Course, er
 			wg.Add(1)
 			//send each value to different go routines and store the result
 			go func(v *string, i int, cc coursez.Course) {
+				defer wg.Done()
 				var course coursez.Course
 				if cc.ID != "" {
 					course = cc
@@ -75,6 +76,7 @@ func GetCourseByID(ctx context.Context, courseID []*string) ([]*model.Course, er
 					}
 					if len(courses) <= 0 {
 						log.Errorf("course not found: %v", err)
+						return
 					}
 					course = courses[0]
 				}
@@ -221,7 +223,7 @@ func GetCourseByID(ctx context.Context, courseID []*string) ([]*model.Course, er
 					}
 				}
 				res[i] = &currentCourse
-				wg.Done()
+
 			}(vvv, i, courseI)
 		}
 		wg.Wait()
